@@ -1,0 +1,9 @@
+/Z. Versiones Viejas
+*.aux
+*.bbl
+*.bcf
+*.log
+*.out
+*.run
+*.synctex
+*.toc

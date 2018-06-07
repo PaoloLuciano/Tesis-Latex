@@ -1,0 +1,121 @@
+\documentclass[../Main/Main.tex]{subfiles}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%							PORTADA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\title{TÍTULO DE LA TESIS} %Con este nombre se guardará el proyecto en writeLaTex
+
+\begin{titlepage}
+\begin{center}
+
+\underline{\textsc{\Large Instituto Tecnológico Autónomo de México}}\\[3em]
+
+%Figura
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=8cm,height=2.3cm]{LOGO_ITAM.jpg}
+\end{center}
+\end{figure}
+
+\vspace{2em}
+
+\textsc{\LARGE \textbf{\tituloMayus}}\\[2em]
+
+\textsc{\large Tesis}\\[1em]
+
+\textsc{que para obtener el título de}\\[1em]
+
+\textsc{LICENCIADO EN MATEMÁTICAS APLICADAS}\\[1em]
+
+\textsc{presenta}\\[1em]
+
+\textsc{\Large GIANPAOLO LUCIANO RIVERA}\\[1em]
+
+\textsc{\large Asesor: JUAN CARLOS MARTÍNEZ-OVANDO}
+
+\end{center}
+
+\vspace*{\fill}
+\textsc{Ciudad de México \hspace*{\fill} 2018}
+
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%							DECLARACIÓN LEGAL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\thispagestyle{empty}
+\vspace*{\fill}
+\begingroup
+``Con fundamento en los artículos 21 y 27 de la Ley Federal del Derecho de Autor y como titular de los derechos moral y patrimonial de la obra titulada ``\textbf{\tituloMayus}'', otorgo de manera gratuita y permanente al Instituto Tecnológico Autónomo de México y a la Biblioteca Raúl Bailléres Jr., la autorización para que fijen la obra en cualquier medio, incluido el electrónico, y la divulguen entre sus usuarios, profesores, estudiantes o terceras personas, sin que pueda percibir por tal divulgación una contraprestación''.
+
+\centering
+
+\hspace{3em}
+
+\textsc{Gianpaolo Luciano Rivera}
+
+\vspace{5em}
+
+\rule[1em]{20em}{0.5pt} % Línea para la fecha
+
+\textsc{Fecha}
+ 
+\vspace{8em}
+
+\rule[1em]{20em}{0.5pt} % Línea para la firma
+
+\textsc{Firma}
+
+\endgroup
+\vspace*{\fill}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%							ABSTRACT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+	\begin{singlespace}
+	En respuesta al cambiante mundo de \textit{Machine Learning}, se desarrolla un modelo de este tipo. El modelo, no es más que un modelo lineal generalizado, particularmente un probit, que busca la predicción de variables binarias, en un contexto de regresión bayesiana. A este, se le añadió un proyector aditivo no lineal para transformar, previamente a las covariables y lograr captar patrones no lineales. La transformación esta basada en polinomios por partes de continuidad arbitraria. El modelo posteriormente se implementa en un paquete para el software estadístico \verb|R|. Los resultados resultan ser suficientemente atractivos y prometedores para continuar robusteciendo el modelo. 
+	\noindent \textbf{Palabras clave: modelos lineales generalizados, probit, modelos aditivos, bayesiano, no lineal, machine learning.}
+	\end{singlespace}
+\end{abstract}
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%							DEDICATORIA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\thispagestyle{empty}
+%\pagenumbering{roman}
+\setcounter{page}{0} %% para que las dedicatorias no tuvieran número de hoja. Si te hace reido quítaselo. 
+\begin{flushright}
+	\null\vspace{\stretch{1}}
+	\emph{A mi madre, Irma, que no solo le debo la vida, sino todo lo que soy y todo lo que tengo; que está tesis, también es suya.} 
+	\\
+	\emph{A mi padre, Antonio, que aunque no esté, siempre lo he sentido presente.} 
+	\\
+	\emph{A mi otro padre, Fernando, por su guía y apoyo incondicioanl.}
+	\\
+	\emph{A mi abuelo, Carlos, por enseñarme el amor a la sabiduría y el valor del trabajo.}	
+	\\
+	\emph{Al profesor Juan Carlos Martínez-Ovando que sin su guía y consejo, jamás habría logrado avanzar de la primera página.}
+	\\
+	\emph{A Iñigo por su amistad sin medida, por su apoyo, compañía e inteligencia fuera de este mundo. }
+	\\
+	\emph{A Pamela, Ro, Pau, Bren, Hector y George. Por ser los mejores amigos que alguien podría pedir, las personas más exitosas que conozco y por siempre inspirarme a crecer y seguir adelante. Todos unos DonChis.}
+	\\
+	\emph{A Luis, Jimena, Carlos, Mercedes, Santiago, Tulio y Alejandro por acompañarme en la carrera y rompernos más de una vez la cabeza en demostraciones oscuras.}
+	\\
+	\emph{A Toño, Chris, Edu, Mau y Luis por ser los mejores actuarios que conozco.}
+	\\
+	\emph{A Jorge, por enseñarme de perseverancia y resiliencia.}
+	\\
+	\emph{A todos mis alumnos, porque más que un negocio, fue una forma de aprender igual o mejor que mis profesores.}
+	\\
+	\emph{A los grandes profesores que tuve en la carrera, que no solo me enseñaron, sino que me inculcaron el amor por las matemáticas . En particular al profesor E. Barrios, G. Gravinsky, J. Alfaro, R. Espinoza, M. Gregorio y Z. Parada}
+	\\
+	\emph{A lo grandes estadistas que han dedicados sus vidas a los datos. En particular a T.Hastie, R. Tibshirani y J. Friedman que sin su excelente libro \textit{Elements of Statistical Learning} hubiera estado perdido.} 
+	\\
+	\emph{Al Café Parabien por ser un espacio de trabajo y un hogar para mi estos meses de arduo trabajo.}
+	\vspace{\stretch{2}}\null
+\end{flushright}
+\end{document}

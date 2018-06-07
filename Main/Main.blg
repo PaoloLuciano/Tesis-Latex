@@ -1,0 +1,17 @@
+[0] Config.pm:302> INFO - This is Biber 2.10
+[0] Config.pm:305> INFO - Logfile is 'Main.blg'
+[34] biber-MSWIN64:313> INFO - === 
+[411] Biber.pm:371> INFO - Reading 'Main.bcf'
+[562] Biber.pm:857> INFO - Found 19 citekeys in bib section 0
+[577] Biber.pm:3976> INFO - Processing section 0
+[680] Biber.pm:4136> INFO - Looking for bibtex format file 'Tesis.bib' for section 0
+[763] bibtex.pm:1490> INFO - LaTeX decoding ...
+[842] bibtex.pm:1306> INFO - Found BibTeX data source 'Tesis.bib'
+[906] Utils.pm:193> WARN - month field 'Jan' in entry 'schoenberg1964spline' is not an integer - this will probably not sort properly.
+[1060] UCollate.pm:68> INFO - Overriding locale 'es-ES' defaults 'variable = shifted' with 'variable = non-ignorable'
+[1060] UCollate.pm:68> INFO - Overriding locale 'es-ES' defaults 'level = 4' with 'level = 2'
+[1060] UCollate.pm:68> INFO - Overriding locale 'es-ES' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[1060] Biber.pm:3804> INFO - Sorting list 'cms/global//global/global' of type 'entry' with template 'cms' and locale 'es-ES'
+[1080] bbl.pm:617> INFO - Writing 'Main.bbl' with encoding 'UTF-8'
+[1092] bbl.pm:720> INFO - Output to Main.bbl
+[1093] Biber.pm:110> INFO - WARNINGS: 1

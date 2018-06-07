@@ -1,0 +1,30 @@
+
+Este trabajo no busca desarrollar un modelo que busque explicarlo todo, o un modelo con algún fin practico en especifico. Más bien, se busca desarrollar una modelo general que logre inferir patrónes tratando los datos como datos \textit{per se}, simplemente como si fueran observaciones en $\mathbb{R}^d$ y sin ninguna intrepretación en el mundo real. Es decir, dados datos y sin ningún conocimiento previo en el campo, ¿qué nos pueden decir estos datos? ¿existe alguna relación entre ellos y se podrán hacer predicciones acertadas sin sobreajustar para esa base de datos en especifico? Sin embargo, esto no significa que no se busque una aplicación practica para el modelo. En los capítulos subsecuentes se buscará no solo ajustar el modelo a algunas bases sino se hará un estudio a fondo de %Insertar WTF voy a probarlo en.
+
+La motivación de esto, surge a raíz de un proyecto llamado \href{https://numer.ai/}{Numer.ai} donde se compite contra cientificos de datos para construir el mejor modelo que prediga precios de acciones encriptados. Los premios se dan en criptomonedas y existen mecanismos que buscan prevenir el sobre ajustamiento. (se desarrolla el tema en los siguientes capítulos). Los datos al estar encriptados, son solo datos sin ninguna interpretación alguna, practicamente los podemos tratar como números reales centralizados en cero, pero, eso no significa que no existan patrones en ellos. Existen incentivos tanto económicos como sociales en el reto, y es una buena forma de aplicar modelos complejos que sin interpretación alguna. Este proyecto no busca ser competitivo pero se hará la prueba con los mismos datos en si. 
+
+
+- Trading muy parecido a apostar y no jalan los métodos cuantitiaivos. (Justificarlo)
+
+- El problema es el overfitting
+
+\begin{align}
+f(\xsn) &= \sum_{i=0}^d \phi_i^T \Psi_i(x_i)\label{hastie1} \\
+		&= \sum_{i=0}^d\left[\sum_{j=1}^J\phi_{ij}\Psi_{ij}(x_i)\right] \\
+		&= \sum_{j=1}^J\left[\sum_{i=0}^d\phi_{ij}\Psi_{ij}(x_i)\right] \\
+		&= \sum_{j=1}^J\phi_j^{'T} \Psi_j^{'} \label{modeloftrad}\\
+		&= \sum_{i=0}^d f_i(x_i)\label{modelo aditivo} \\
+		&= \mathbf{\phi}^T\mathbf{\Psi(\xsn)} \label{hastie2}
+\end{align}
+
+Notemos que, si tomamos cada componente $\phi_i^T \Psi_i(x_i) = f_i(x_i)$ como en \ref{hastie1}, tendremos un modelo aditivo  \ref{modelo aditivo}. La idea de estos, es suponer que las relaciones entre covariables $x_i$ es de naturaleza aditiva y cada una se puede expresar como una función $f_i$ que depende exclusivamente de esa dimensión. Los modelos aditivos tradicionales, son regresiones no paramétricas, donde en lugar de estimar parámetros, tratamos a cada dimensión como individual y le ajustamos alguna curva. La diferencia con un modelo aditivo tradicional, radica en que nuestras funciónes $\Psi(\dot)$ tienen una forma funcional estricta basada en splines y no serán indefinidas. Esto se corresponde casi perfectamente con el ejemplo 5.2.2. de \cite{hastie2009elements}. \\
+
+Ahora, visto como (\ref{modeloftrad}) tenemos un modelo de ajuste de curva más tradicional. Finalmente, si nos damos cuenta que todo es una gran suma, podemos condensarlo todo un producto interno de dos grandes vectores como en (\ref{hastie2}). El primer vector de parámetros parámetros $\mathbf{\phi}$ y el siguiente de bases de funciones $\mathbf{\Psi}(\xsn)$. 
+
+Machine Learning
+- ML es un Data driven aproach ya que hace menos suposiciones en los datos. \cite{sirignano2017deep} Tradeoff entre interpretabilidad y complejidad.
+
+- Las redes neuronales es volver tus datos separables y es fundamental la función Liga
+
+
+
