@@ -97,8 +97,9 @@ Antes de continuar, vale la pena recordar que:
 Escoger un modelo que explique perfectamente los datos o que logre predecir todo sería una tarea inútil. Sin embargo, no significa que no se pueda intentar discernir un patrón y es justamente lo que se busca con la construcción de este modelo. Además de entender a profundidad un modelo que sirve como base para modelos que se están usando en el mundo de la inteligencia artificial. En particular, este modelo tiene la ventaja que es flexible y, al menos en teoría, debería de servir para representar una gran cantidad de datos.
 
 \section{Modelos Lineales Generalizados (GLM)} \label{sec:GLM}
-Los Modelos Lineales Generalizados \autocite{sundberg2016exponential} y \autocite{maccullagh1989generalized}, surgen como una generalización flexible del modelo lineal ordinario $y = \beta^tx + \epsilon$ donde $y\in\mathbb{R}$. En esta flexibilización  se busca darle otras distribuciones a $y$ pues tenemos casos donde esta no pertenece a los reales. Sin embargo, este cambio vuel
-ve el modelo más complejo y lleva a problemas de estimación de los parámetros. Ade más, se pierde algo de la interpretabiliad del modelo\footnote{Dependiendo de la especificación, su interpretación puede ser complicada. Por ejemplo, cuando se tiene un Modelo Logit tradicional, se logra expresar el logaritmo de la proporción de probabilidades (\textit{Log-Odds-Ratio}) como una combinación lineal de las covariables. $\ln(\pi_i / \pi_0) = \beta^t x$}. Sin embargo, han resultado ser realmente útiles. Los GLM se especifican (de manera muy general) de la siguiente manera:
+Los modelos lineales generalizados, \autocite{sundberg2016exponential} y \autocite{maccullagh1989generalized}, surgen como una generalización del modelo lineal ordinario $y = \beta^tx + \epsilon$ donde $y \in\mathbb{R}$. En esta generalización, se busca darle otros rangos a $y$ pues tenemos casos donde está restringida a un subconjunto de los reales como lo es el caso binario. Sin embargo, este cambio vuelve el modelo más complejo y lleva a técnicas diferentes en la estimación de los parámetros $\beta$. Además, se pierde algo de la interpretabiliad del modelo\footnote{Dependiendo de la especificación, su interpretación puede ser complicada. Por ejemplo, cuando se tiene un modelo logit tradicional, se logra expresar el logaritmo de la proporción de probabilidades (\textit{Log-Odds-Ratio}) como una combinación lineal de las covariables. $\ln(\pi_i / \pi_0) = \beta^t x$}. Sin embargo, han resultado ser realmente útiles. \\
+
+Los GLM se especifican (de manera muy general) de la siguiente manera:
 
 \begin{align*}
 	y &\sim F(\theta(x)) \\
@@ -109,9 +110,9 @@ ve el modelo más complejo y lleva a problemas de estimación de los parámetros
 con los siguientes tres elementos:
 
 \begin{enumerate}
-	\item $F$: \textbf{Tipo de distribución} de la familia exponencial para $y$ que trate de describir su dominio. Por ejemplo: Bernoulli si $y$ es binaria, Poisson si $y \in \mathbb{Z}^+$ o una distribución Gamma si $y \in \mathbb{R}^+$
-	\item $z$: \textbf{Proyector Lineal} que explique (linealmente) la variabilidad sistemática de tus datos. En el modelo tradicional $\text{dim}(\beta) = d < n.$
-	\item $g$: \textbf{Función Liga} que una la media (o los parámetros) $\theta$ de mi distribución con el proyector lineal. Es decir: $\theta(x) = \E[y|x] = g^{-1}(\beta^tx)$. 
+	\item $F$: \textbf{Tipo de distribución} de la familia exponencial que describa el dominio de las respuestas $y$. Por ejemplo: Bernoulli si $y$ es binaria, Poisson si $y \in \mathbb{Z}^+$ o una distribución Gamma si $y \in \mathbb{R}^+$
+	\item $z$: \textbf{Proyector lineal} que explique (linealmente) la variabilidad sistemática de tus datos. En el modelo tradicional $\text{dim}(\beta) = d < n.$
+	\item $g$: \textbf{Función liga} que una la media (o los parámetros canónicos) $\theta$ de mi distribución con el proyector lineal. Es decir: $\theta(x) = \E[y|x] = g^{-1}(\beta^tx)$. 
 	
 	Como ejemplos clásicos se tiene la función $\text{logit}(p) = \ln(p/(1-p))$ o la $\text{probit(p)} = \Phi^{-1}(p)$, donde $p = \E[y|x]$ y $\Phi(\cdot)$ es la función de acumulación de una distribución normal estándar. En la Figura \ref{fig:DiagramaFuncLiga} podemos ver una representación gráfica para su mejor comprensión.
 \end{enumerate}
@@ -150,21 +151,22 @@ con los siguientes tres elementos:
 \end{scope}
 
 \end{tikzpicture}
-\caption{Esquema de función Liga $g$}
+\caption{\textbf{Esquema de función liga $g$}}
 \label{fig:DiagramaFuncLiga}
 \end{figure}
 
-Para este trabajo, se busca construir un clasificador binario por lo que $y \in \{0,1\}$, por lo cual, es natural modelar $y$ como una distribución Bernoulli. Notese que si $Y \sim \Be(y|p)$ tenemos las siguientes propiedades: 
+Para este trabajo, se busca construir un clasificador binario por lo que $y \in \{0,1\}$, por lo cual, es natural modelar $y$ como una distribución Bernoulli. Notese que si $Y \sim \Be(y|p)$ se tienen las siguientes propiedades: 
+
 \begin{align*}
 	\E[Y] &= p = P(y = 1) \\
 	\Var[Y] &= p(1-p)
 \end{align*}
 
-Por lo que solo se tiene un parámetro $p$ y la varianza queda determinada automáticamente. Además, esta especificación deja como  opción para las función liga, a las inversas de las funciones \textit{sigmoidales} $s(x)$. Las funciones sigmoidales, son funciones $s:\mathbb{R}\rightarrow (0,1)$, estrictamente monótonas y por ende, biyectivas. Algunos ejemplos son las ya mencionadas logit, probit y la curva de Gompertz\footnote{Para no caer en redundancia de notación en este trabajo: $s(x) = g^{-1}(x) = \Phi(x)$}. Estas funciones cumplen un papel de activación, es decir, una vez que se rebase cierto umbral, crecen rápidamente y toman valores más cercanos a uno, \textit{activando} asi la probabilidad\footnote{En un contexto de Redes Neuronales, lo que se activa es la neurona y recientemente, se usa la función \textit{ReLu} $(x):= \max\left\{0,x\right\}$}. Esto las hace perfectas herramientas para ligar el proyector lineal $z\in\mathbb{R}$ con una probabilidad $p\in[0,1]$.\\
+Por lo que solo se tiene un parámetro $p$ y la varianza queda determinada automáticamente. Además, esta especificación deja como  opción para las función liga, a las inversas de las funciones \textit{sigmoidales} $s(x)$. Las funciones sigmoidales, son funciones $s:\mathbb{R}\rightarrow (0,1)$, estrictamente monótonas y por ende, biyectivas. Algunos ejemplos son las ya mencionadas logit, probit y la curva de Gompertz\footnote{Para no caer en redundancia de notación para este trabajo se tiene a partir de ahora: $s(x) = g^{-1}(x) = \Phi(x)$}. Estas funciones cumplen un papel de activación, es decir, una vez que se rebase cierto umbral, crecen rápidamente y toman valores más cercanos a uno, \textit{activando} asi la probabilidad de que $y$ sea un éxito. \footnote{En un contexto de redes neuronales, lo que se activa es la neurona y recientemente, se usa la función \textit{ReLu} $(x):= \max\left\{0,x\right\}$}. Esto las hace perfectas herramientas para ligar el proyector lineal $z\in\mathbb{R}$ con una probabilidad $p\in[0,1]$.\\
 
 \subsection{Uso de la Variable Latente}
 
-Ahora para entender el papel que juega $z$, se necesita entender que es posible estructurar estos modelos como \textit{Modelos de Variable Latente} \autocite{albert1993bayesian}. Bajo esta formulación, se asume que la relación entre $y$ y $x$ no es directa, sin embargo, existe una variable no observada $z$ puramente estructural que nos ayuda a discernir un vínculo entre ellas. En la Figura \ref{fig:DiagramaVar} tenemos esa  representación del modelo. \\
+Ahora, para entender el papel que juega $z$, se necesita entender que es posible estructurar estos modelos como \textit{modelos de variable latente} \autocite{albert1993bayesian}. Bajo esta formulación, se asume que la relación entre $y$ y $x$ no es directa, sin embargo, existe una variable no observada $z$ estructural que nos ayuda a discernir un vínculo entre ellas. En la Figura \ref{fig:DiagramaVar} tenemos esa  representación del modelo. \\
 
 %Diagrama de Variable latente
 \begin{figure}[h]
@@ -184,32 +186,32 @@ Ahora para entender el papel que juega $z$, se necesita entender que es posible 
 \begin{scope}[
 		every node/.style={fill = white, circle},
 	    every edge/.style={draw = black, ->}]
-	\path (X) edge node {$f$} (Z);
-	\path (Z) edge node {$\Phi$} (Y);
+	\path (X) edge node {} (Z);
+	\path (Z) edge node {$g^{-1}$} (Y);
 	\draw[dashed, ->] (X) to (Y);
 \end{scope}
 \end{tikzpicture}
-\caption{Modelo de Variable Latente}
+\caption{\textbf{Modelo de variable latente}}
 \label{fig:DiagramaVar}
 \end{figure}
 
-Tradicionalmente, se asumía normalidad en $z$ derivado de que $z = \beta^tx + e$ con $e \sim N(0,\sigma^2)$, lo cual nos lleva a que $z \sim N(\beta^tx,\sigma^2)$. Además esto facilita la estructura de los modelos y el algoritmo de ajuste\footnote{En el trabajo original, se usa un algoritmo \textit{Gibbs Sampler} con distribuciones truncadas de la normal para encontrar las $\beta$'s}.\\
+Tradicionalmente, la normalidad en $z$ es derivada de asumir normalidad en los errores; es decir, dada la regresión lineal $z = \beta^tx + e$ se asume (y se debe verificar) que $e \sim N(0,\sigma^2)$. Lo cual lleva a $z \sim N(\beta^tx,\sigma^2)$. Además este supuesto facilita la estructura de los modelos y el algoritmo de ajuste. Bajo un paradigma frequentista, la estimación de los parámetros $\beta$ se reduce a encontrar los estimadores de mínimos cuadrados. Sin embargo, bajo el paradigma bayesiano, dentro de un modelo probit como el de este trabajo, se adopta la normalidad en $z$ pues en  \autocite{albert1993bayesian}, se sugiere un algoritmo \textit{Gibbs Sampler} con distribuciones truncadas de la normal para encontrar $\beta$.\\
 
-Para este trabajo se escoge como función liga a la probit $\Phi^{-1}(p)$, es decir la inversa de la función de acumulación normal estándar:
+La función liga probit se escoge como consecuencia de la normalidad en $z$, o viceversa, dependiendo de como se quiera ver. Esta función $\Phi^{-1}(p)$ es la inversa de la función de acumulación normal estándar:
 
 $$\Phi(x) = \int_{-\infty}^x \dfrac{1}{\sqrt{2\pi}}e^{-\frac{t^2}{2}}\, dt$$
 
-La cual claramente es sigmoide. Esta función, cumple el propósito de modelar y cuantificar la incertidumbre pues transformando una variable real $z$ en una probabilidad $p$ con su característica forma de ``s''. Se hace notar que podríamos haber usado una función más flexible o que incluso podríamos haber dejado la función sin especificar, sin embargo, para no complicar más el modelo y poder entender los GLM's a fondo se toma esa decisión. La parte flexible de este modelo se encuentra en el \textit{proyector lineal} que se explica en la Sección \ref{sec:FuncProy}. Con base en esta decisión y el supuesto de que $Y$ es Bernoulli, se deriva la normalidad de $z$ \autocite{albert1993bayesian}; diferente de el enfoque tradición de asumir normalidad en los errores aleatorios\footnote{Este punto de vista, ayuda sobre todo en modelos multinomiales, pues se puede asumir una estructura de inter-dependencia en los errores aleatorios. $\mathbf{e} ~ N_k(0, \Sigma)$ con $\Sigma$ una matriz de correlaciones}.\\
+la cual no tiene forma cerrada. Sin embargo, tiene justamente las propiedades que se necesitan pues es claramente sigmoide. Esta función, cumple el propósito de modelar y cuantificar la incertidumbre pues está transformando la variable real $z$ en una probabilidad $p$ con su característica forma de ``s''. Se hace notar que se podría haber usado una función más flexible o que incluso se podría dejar la función como una parte del modelo a estimar. Sin embargo, al adoptar el algoritmo antes citado, se requiere esta especificación.\footnote{En modelos multinomiales bayesianos, tomar esta decisión estructural lleva a que inclusive, se puede asumir una estructura de interdependencia en los errores aleatorios. $\mathbf{e} ~ N_k(0, \Sigma)$ con $\Sigma$ una matriz de correlaciones}. La parte flexible de este modelo se encuentra en el proyector lineal. \\
 
-Habiendo definido la función liga, distinguir entre si $y = 1$ ó 0, se reduce a distinguir en que área del espacio de covariables $\mathcal{X}^d$ nos encontramos. Esto se debe a que $y = 1$ cuando $\Phi(z) > 1/2 \iff z>0$ lo cual, dependerá en gran media de la media de $z$ (en este caso $f(\xsn)$). Por lo tanto, es fundamental para el modelo que se realice una correcta estimación de los parámetros de $f(\xsn)$ para que logre separar el espacio de covariables $\mathcal{X}^d$ en los casos donde $y = 1$ y su opuesto. Nótese además, que z le agrega cierta estocasticidad al modelo. Supongamos que existe una pareja $(y_i,\xni)$ tal que $f(\xni) = 0$, alrededor de una vecindad, significaría que no existe evidencia para clasificación a $y_i$ como un éxito o como un fracaso. En ese caso, sería mejor un volado. \\ 
+Habiendo definido la función liga, distinguir entre si $y = 1$ ó 0, éxito o fracaso respectivamente, se reduce a distinguir en que área del espacio de covariables $\mathcal{X}^d$ nos encontramos. Esto se debe a que $y = 1$ cuando $\Phi(z) > 1/2$ que sucede \textit{si y solo si} $z>0$ lo cual, depende en gran media de su media; en este caso la función de proyección $f(\xsn)$. Si esta función es muy positiva en alguna región, implicará que el modelo tiene mucha evidencia para confiar que, al menos en esa área, la respuesta $y$ es un éxito. El razonamiento, funciona de forma análoga para los casos donde $y = 0$, claramente, para esas regiones, buscamos que $f(\xsn)$ sea negativa. Por lo tanto, es fundamental para el modelo que se realice una correcta estimación de los parámetros de la función de proyección.  Nótese además, que $z$ le agrega cierta \textit{estocasticidad} al modelo. Supongamos que existe una pareja $(y_i,\xni)$ tal que $f(\xni) = 0$; alrededor de una vecindad de este punto, no se tendría evidencia para clasificar a $y_i$ como un éxito o como un fracaso; sería mejor un volado.\\ 
 
-Otro factor importante a considerar también es que nuestro modelo asume $\sigma^2$ desconocida y como un parámetro a estimar (también se maneja de forma bayesiana). Este factor de variabilidad captura las posibles diferencias en escala entre los datos y la variable latente $z$, además de dar cierta flexibilidad a regiones con mucha incertidumbre sobre la clasificación.\\ 
+Otro factor importante a considerar, es que el modelo asume que la varianza de $z$ es constante, específicamente $\sigma^2 = 1$. Dado que la escala de $z$ es completamente arbitraria pues es una variable auxiliar, se puede \textit{restringir} $z$ al rango que se desee. El método de simulación para $z$ usando una distribución normal truncada se simplifica ligeramente usando esta varianza unitaria. Se verá en los resultados, sin embargo, que dada la naturaleza global de los polinomios que se usan, la escala de $z$, o al menos la estimación de su media $\hat{f}(\xsn)$, puede variar mucho dependiendo de los datos, mas esto no representa un problema. Pues, en la practica, al  usar el algoritmo de Albert y Chibb $z$ sirve mucho más, para hacer la ligadura de $y$ hacia $f$ y no viceversa. En $z$ se codifica, mediante una normal truncada, los casos de éxito y de fracasos de $y$; posteriormente, se estima el vector $\beta$ para la función $f$. Por ello, en la Figura (\ref{fig:DiagramaMod}), se representan las flechas de $y$ a $f$ por medio de $z$ y solidas, en contraposición con la flecha punteada que va, directamente de $f$ a $y$ y pasa por la función $\Phi$. Los detalles y su justificación probabilista, se tocan en detalle en el Capítulo \ref{BayesAlgoritmo}.\\
 
 % REVISAR
 % Probar (o buscar la prueba de este resultado)
-Es importante mencionar, que el \textit{corte} que se hace en 0 para la clasificación, es resultado de hacer una clasificación binaria. En modelos multinomiales también se debe tomar en cuenta los intervalos en $\mathbb{R}$ para los que la observación se clasificaría en alguna de las $k$ clases y por ende, estimar los umbrales o usar una función diferente a las sigmoides. Este hecho, lleva a la realización de que $z$ y su media $f$ son \textit{ajenas más no independientes}. Esto quiere decir que la parametrización de $z$ como una normal $N(\mu,sigma^2)$ es ecuivalente a la parametrización $N(0,1)$. Este hecho se hará más claro cuando hablemos del papel de la $\beta_0$ en la función de proyección. \\ 
+Es importante mencionar, que el \textit{corte} que se hace en $z = 0$ para la clasificación, es resultado de hacer una clasificación binaria. En modelos multinomiales también se debe tomar en cuenta los intervalos en $\mathbb{R}$ para los que la observación se clasificaría en alguna de las posibles clases y por ende, estimar los umbrales o usar una función diferente a las sigmoides. Este hecho, lleva a la realización de que $z$ y su media $f$ son \textit{ajenas más no independientes}. Esto quiere decir que la parametrización de $z$ como una normal $N(\mu,1)$ es equivalente a la parametrización $N(0,1)$. Este hecho se hará más claro cuando hablemos del papel de la $\beta_0$ en la función de proyección. \\ 
 
-Finalmente, si quisiéramos ver la relación directa de $x$ en $y$ directamente, se puede lograr usando el  Teorema de la Probabilidad Total. Se puede calcular (al menos de forma teórica), la distribución marginal de $y$ dado $\xsn$ sumando sobre $z$. Es decir:
+Finalmente, si se quisiera ver la relación de $x$ en $y$ directamente, se puede lograr usando el teorema de la probabilidad total. Se puede calcular (al menos de forma teórica), la distribución marginal de $y$ dado $\xsn$ sumando sobre $z$:
 
 % REVISAR
 % Integral en libro de Cox
@@ -220,12 +222,12 @@ P(y|x) 	&= \intinfty P(y|z)P(z|x)\, dz \\
 		\dfrac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{1}{2\sigma^2}(z-f(\xsn))^2} \, dz
 \end{align*}
 
-Sin embargo, no lleva a ningún resultado analítico conocido pues la relación es bastante más compleja como para resultar en una distribución  tradicional; si lo hiciera, todo el propósito de la $z$ se perdería.\\
+Sin embargo, está claro que esta derivación no lleva a ningún resultado analítico cerrado pues la relación es bastante más compleja como para resultar en una distribución  tradicional; si lo hiciera, el propósito de la $z$ se perdería.\\
 
-Recapitulando, mediante la función liga $\Phi$ se une la media $p$ de la respuesta $y$ con los datos. Esta función liga se deja rígida y en este trabajo se opta por añadir una nueva capa de complejidad y  flexibilizar el proyector lineal por una función genérica $f$ que se detalla en la siguiente sección. Quedando:
+Recapitulando, mediante la función liga $\Phi$ se une la media $p$, la probabilidad de éxito o fracaso, de la respuesta $y$ con los datos $\xsn$. Esto se logra, a través de una variable auxiliar $z$ cuya media $f(\xsn)$ es una función de proyección lineal. 
 
 \begin{align} \label{ec:MediaProy}
-	P(y = 1) = p(\xsn) &= \theta(\xsn) =\E[y|\xsn] = g^{-1}(f(\xsn)) = \Phi(f(\xsn))
+	P(y = 1) = p(\xsn) &=\E[y|\xsn] = g^{-1}(f(\xsn)) = \Phi(f(\xsn))
 \end{align}
 
 \section{Función de proyección $f$} \label{sec:FuncProy} 
