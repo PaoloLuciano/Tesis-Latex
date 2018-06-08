@@ -1,9 +1,0 @@
-[0] Config.pm:302> INFO - This is Biber 2.10
-[0] Config.pm:305> INFO - Logfile is 'Definiciones.blg'
-[30] biber-MSWIN64:313> INFO - === 
-[66] Biber.pm:371> INFO - Reading 'Definiciones.bcf'
-[216] Biber.pm:857> INFO - Found 0 citekeys in bib section 0
-[223] Utils.pm:193> WARN - The file 'Definiciones.bcf' does not contain any citations!
-[232] bbl.pm:617> INFO - Writing 'Definiciones.bbl' with encoding 'UTF-8'
-[232] bbl.pm:720> INFO - Output to Definiciones.bbl
-[233] Biber.pm:110> INFO - WARNINGS: 1

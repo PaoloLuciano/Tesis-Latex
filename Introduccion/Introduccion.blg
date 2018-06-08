@@ -1,9 +1,0 @@
-[0] Config.pm:302> INFO - This is Biber 2.10
-[0] Config.pm:305> INFO - Logfile is 'Introduccion.blg'
-[32] biber-MSWIN64:313> INFO - === 
-[70] Biber.pm:371> INFO - Reading 'Introduccion.bcf'
-[223] Biber.pm:857> INFO - Found 5 citekeys in bib section 0
-[238] Biber.pm:3976> INFO - Processing section 0
-[254] Biber.pm:4136> INFO - Looking for bibtex format file 'Tesis.bib' for section 0
-[412] Utils.pm:209> ERROR - Cannot find 'Tesis.bib'!
-[412] Biber.pm:114> INFO - ERRORS: 1
