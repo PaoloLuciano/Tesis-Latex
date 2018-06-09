@@ -2,9 +2,11 @@
 
 \begin{document}
 
-El objetivo de este capitulo es ilustrar como se pasa de un modelo completamente teórico, a una implementación con código. Específicamente se desarrollará el código en el software estadístico \verb|R|. Además, se hace una exposición  de algunos de los métodos más recientes y sofisticados para la estimación bayesiana y frecuentista de los parámetros del modelo. \\
+% Mini intro del capítulo
+El objetivo de este capitulo es ilustrar como se pasa de un modelo completamente teórico, a una implementación con código. Específicamente se desarrollará el código en el software estadístico \verb|R|. Además, se hace una exposición de algunos de los métodos más recientes y sofisticados para la estimación bayesiana y frecuentista de los parámetros del modelo. \\
 
-De forma global, el algoritmo trata de estimar de forma conjunta los cuatro parámetros: $\tsn, \wsn, \betasn$ y $\sigma^2$. A diferencia de la exposición del modelo y dada su estructura, el algoritmo debe de construir de \textit{abajo hacia arriba}. La idea, es que el algoritmo pueda entrenarse de tal forma, que los parámetros reflejen, hacia abajo y hacia lo largo, las estructuras en las covariables, que lleven a predecir si $y$ es exito o fracaso. Se considera, una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis  notacional.
+% PArámetros a estimar
+De forma global, el algoritmo trata de estimar de forma conjunta los cuatro parámetros: $\tsn, \wsn, \betasn$ y $\sigma^2$. A diferencia de la exposición del modelo y dada su estructura, el algoritmo debe de construir de \textit{abajo hacia arriba}. La idea, es que el algoritmo pueda entrenarse de tal forma, que los parámetros reflejen, hacia abajo y hacia lo largo, las estructuras en las covariables, que lleven a predecir si $y$ es exito o fracaso. Se considera, una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis  notacional.\\
 
 Tenemos datos $\{(y_i,\xni)\}_{i = 1}^n$ que podemos representar en una tabla (o matriz):
 
@@ -14,10 +16,39 @@ y_1 & x_{1,1} & \ldots & x_{1,d} \\
 y_n & x_{n,d} & \ldots & x_{n,d}
 \end{array}\right]$$
 
-Donde el vector de observaciones binarias es $\mathbf{y}$, y la matriz de covariables $\mathbf{X}$. Se habla de que la estimación debe reflejar los patrones \textit{hacia abajo} y \textit{hacia lo largo}. Hacia abajo, pues se ve que cada $f_j$ con $j = 1,\ldots,d$ mediante $\wsn$ y $\tsn$ codifica toda la columna de datos $j$. Hacia lo largo, pues la función de proyección $f$ suma (de forma ponderada y a través de las $betasn$), estos efectos individuales hacia lo largo de la tabla de datos. Este balance es fundamental para la correcta predicción.
+% Paréntesis notacional y qué debe de hacer el algoritmo. Como captar los patrónes hacia lo largo (en f) y hacia abajo, en fj. Hacer enfasis que se tienen 2 regresioens, una con las z's y otra con las y's
+Donde el vector de observaciones binarias es $\mathbf{y} = (y_1,\ldots,y_n)^t$, y la matriz de covariables $\mathbf{X}$. Se habla de que la estimación debe reflejar los patrones \textit{hacia abajo} y \textit{hacia lo largo}. Hacia abajo, pues se ve que cada $f_j$ con $j = 1,\ldots,d$ mediante $\wsn$ y $\tsn$ codifica toda la columna de datos $j$. Hacia lo largo, pues la función de proyección $f$ suma (de forma ponderada y a través de las $betasn$), estos efectos individuales hacia lo largo de la tabla de datos. Este balance es fundamental para la correcta predicción.
 
+% Explicar que para hacer esas regresiones se sigue la metodología de Albert y Chibb bayesiana 
+
+\section{Fundamentos de la estadística bayesiana}
+
+- Hacer preambulo bayesiano y justificación de la fislosofía bayesiana
+- Explicar formula de bayes y actualización bayesiana
+
+\subsection{Funciones de probabilidad condicional completas}
+- Mencionar que existen y que indúcen un Gibbs Sampler por pedazos
+
+\section{Simulación bayesiana: el Gibbs sampler}
+- Explicar que el Gibbs sampler es un método MCMC.
+
+\subsection{Algoritmo de Albert y Chibb}
+- Hacer derivación de la condicional para $\beta$ paper de Albert + Chibb
+- Poner pseudocódigo
+- Argumentar por qué es igual para $w$ pero en lugar de usar las z de regresores se usan los residuales parciales.
+- Mencionar que en el paper se hacen más algoritmos para diferentes cosas
+
+\subsection{Especificación probabilistica para el modelo}
+%Distros a Priori
+Para los parámetros, se usan las siguientes distribuciones \textit{apriori}:
+
+\begin{align}
+	\mathbf{\beta} &= (\b	eta_0,\beta_1,\ldots,\beta_d)^t \sim N_d(\mu_0, \Sigma_0) \\
+	w\superi &= (w\superi_1,\ldots,w\superi_J)^t \sim N_J(\mu\superi_0,\Sigma\superi_0) \quad i=1,\ldots,d
+\end{align}
+
+\section{Algoritmo \textit{bpwpm}}
 En forma de pseudocódigo el algoritmo tiene la siguiente forma:
-
 \begin{verbatim}
     Parametros inciales: 
     WHILE (...)
@@ -25,36 +56,18 @@ En forma de pseudocódigo el algoritmo tiene la siguiente forma:
         Simulación de betas (Función simulate_beta)
 \end{verbatim} 
 
+- Hacer énfasis en el apéndice y el paquete.
+
+\subsection{Algoritmo de \textit{backfitting} para ajuste de modelos GAM} 
+- Justificación final para las w's
+
+% Te arrancas 
 - Usamos los nodos iniciales en cuantiles determinados.\\
 \begin{itemize}
 \item taus: HMC
 \item $\beta$ Estimar por máxima verosimilitud pero dentro del Gibbs con el método ABC
 \item $w's$ BAyesianas + importantes que las betas.
 \end{itemize}
-
-
-\section{Fundamentos de la estadística bayesiana}
-
-- Hacer preambulo bayesiano y justificación de la fislosofía bayesiana
-- Sacar posterior-ish
-- Hacer derivación de la condicional para $\beta$ paper de Albert + Chibb
-- Argumentar por qué es igual para $w$
-- Distros a Priori
-
-\section{Especificación para el modelo}
-Para los parámetros, se usan las siguientes distribuciones \textit{apriori}:
-
-\begin{align}
-	\mathbf{\beta} &= (\beta_0,\beta_1,\ldots,\beta_d)^t \sim N_d(\mu_0, \Sigma_0) \\
-	w\superi &= (w\superi_1,\ldots,w\superi_J)^t \sim N_J(\mu\superi_0,\Sigma\superi_0) \quad i=1,\ldots,d
-\end{align}
-
-\subsection{Gibbs Sampler para datos binarios}
-
-\section{Funciones de probabilidad condicional completas}
-
-
-\section{Algoritmo}
 
 - Explicar Alortimo y hacer pseudocódigo de cada sección
 - Explicar lógica del algoritmo
