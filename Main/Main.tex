@@ -4,9 +4,9 @@
 \documentclass[pdftex,11pt]{report}
 
 % Tamaño Página normal
-\usepackage[left=2cm,top=1.5cm,right=2cm,bottom=2cm]{geometry} 
+%\usepackage[left=2cm,top=1.5cm,right=2cm,bottom=2cm]{geometry} 
 % Para ya formato bueno Tesis ITAM
-%\usepackage[paperwidth = 18cm, paperheight = 22.5cm, bottom = 2.5cm, right = 2cm, left = 2cm]{geometry} 
+\usepackage[paperwidth = 18cm, paperheight = 22.5cm, bottom = 2.5cm, right = 2cm, left = 2cm]{geometry} 
 \usepackage[spanish,es-tabla]{babel} % Español y la palabra tabla para las tablas...
 \decimalpoint % Malditos anormales que usan comas
 \usepackage[utf8]{inputenc} % Acentos y demás
@@ -46,6 +46,10 @@
 
 % Cambiamos el espacio entre los footnotes y el texto
 \setlength{\skip\footins}{20pt plus 5pt minus 5pt}
+
+% Mejoro el espacioe entre los floats y el texto
+\setlength
+{\textfloatsep}{20pt plus 2pt minus 4pt}
 
 % Biblografía (uso Biblatex-Chicago con backend en biber) 
 \usepackage[authordate, backend = biber]{biblatex-chicago}
