@@ -34,7 +34,10 @@ Donde el vector de observaciones binarias $\mathbf{y} = (y_1,\ldots,y_n)^t$ es l
 Bajo esta representación, se da contexto cuando se habla de que la estimación debe reflejar los patrones \textit{hacia abajo} y \textit{hacia lo largo}. Hacia abajo, se está captando la información existente entre las observaciones;  cada $f_j$, mediante su parámetro $w_j$, representa una transformación no lineal de la variable (o dimensión) $j$. Hacia lo largo, la función de proyección $f$ suma cada $f_j$ a través de $\beta$, ponderando los efectos individuales de cada variable. Mantener el balance entre la estimación de $\beta$ a lo largo y $w_j$ hacia abajo, es fundamental para el algoritmo. Analizando este hecho, se concluye que la estimación de ambos grupos de parámetros, se puede ver como una regresión separada para cada uno, y por ende, estos pueden ser estimados por el mismo algoritmo. Esto responde a la dualidad que se exploró en el capítulo pasado de que ambas expresiones son expansiones en bases funcionales. El puente que conecta, y controla el balance entre ambas, son los residuales parciales. Los siguientes capítulos, se concentran en explicar e implementar este curioso patrón. 
 
 \section{Fundamentos de la estadística bayesiana}
-- Hacer preambulo bayesiano y justificación de la fislosofía bayesiana
+La teoría Bayesiana, nombrada asi en honor a Thomas Bayes, es una rama axiomatizada de la estadística en donde se retoma el enfoque probabilista que (en ocaciones) se llega a perder con  
+
+En contraste con la teoría frecuentista, donde las parámetros de los modelos son tomados como fijos al hacer la estimación, al hacer inferencia bayesiana, se asume que los parámetros, asi como los datos, provienen de cierta una cierta distribución. Asi como con las creencias, esta información que se tiene sobre los parámetros, se puede \textit{actualziar} mediante 
+
 - Explicar formula de bayes y actualización bayesiana
 
 \subsection{Funciones de probabilidad condicional completas}
