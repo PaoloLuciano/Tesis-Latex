@@ -2,27 +2,38 @@
 
 \begin{document}
 
-% Mini intro del capítulo
-El objetivo de este capitulo es ilustrar como se pasa de un modelo completamente teórico, a una implementación con código. Específicamente se desarrollará el código en el software estadístico \verb|R|. Además, se hace una exposición de algunos de los métodos más recientes y sofisticados para la estimación bayesiana y frecuentista de los parámetros del modelo. \\
+Pasar de un modelo tan estructurado a su implementación computacional no resulto fácil. Sin embargo, se logró desarrollar un algoritmo que estima todos los parámetros del modelo de una forma eficiente y que funciona en la práctica. En el fondo, el algoritmo recae en el método de Gibbs sampling propuesto en \autocite{albert1993bayesian}, por lo que se hace una breve introducción a la escuela de inferencia bayesiana, y en el algortimo de backfitting descrito en \autocite{hastie1986generalized}. Al algoritmo se le titula: \textit{bayesian piece wise polinomial model (bpwpm)}. Para facilitar la utilización del modelo en diversas bases de datos, así como  su validación y visualización, a la par del algoritmo se desarrolló un paquete de código abierto (con el mismo nombre) para el software estadístico \verb|R|. A darle un tratamiento bayesiano a los parámetros, más que estimarlos, se busca regresar una muestra de tamaño arbitrario de sus correspondientes distribuciones posteriores. La idea, es que estas distribuciones posteriores, se haya capturado toda la información de los datos de entrenamiento. \\
 
-% PArámetros a estimar
-De forma global, el algoritmo trata de estimar de forma conjunta los cuatro parámetros: $\tsn, \wsn, \betasn$ y $\sigma^2$. A diferencia de la exposición del modelo y dada su estructura, el algoritmo debe de construir de \textit{abajo hacia arriba}. La idea, es que el algoritmo pueda entrenarse de tal forma, que los parámetros reflejen, hacia abajo y hacia lo largo, las estructuras en las covariables, que lleven a predecir si $y$ es exito o fracaso. Se considera, una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis  notacional.\\
-
-Tenemos datos $\{(y_i,\xni)\}_{i = 1}^n$ que podemos representar en una tabla (o matriz):
-
+Se considera, que una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis notacional. De las ecuaciones del modelo: \ref{ec:Y-Z} a \ref{ec:fj}, se tienen dos grupos de parámetros por estimar, $\beta \in \mathbb{R}^{d+1}$ y $w_j \in \mathbb{R}^{\N} \quad \forall j = 1,\ldots,d$. Donde:
+\begin{align*}
+\beta &= 
+\left[ 
+	\begin{array}{c}
+	\beta_0 \\
+	\beta_1 \\ 
+	\vdots \\
+	\beta_d
+	\end{array}\right]
+\quad \text{y} \quad 
+w_j = 
+\left[ 
+	\begin{array}{c}
+	w_1\\
+	\vdots\\
+	w_{\N}
+	\end{array}\right]
+\end{align*}
+Se hace énfasis en que existen $d$ vectores $w_j$, cada uno de tamaño $\N$. Por lo tanto, se tienen sun total de $1 + d + d\N$ parámetros. Se usa el símbolo $\wsn$ para designar todos los vectores $w_j$, haciendo de este una matriz, es decir: $\wsn\in\mathbb{R}^{d\times\N}$. Cuando se habla de datos: $\{(y_i,\xni)\}_{i = 1}^n$, estos se pueden  representar en una tabla (o matriz):
 $$\left[\begin{array}{c|ccc} 
 y_1 & x_{1,1} & \ldots & x_{1,d} \\ 
 \vdots & \vdots & ~ & \vdots \\ 
 y_n & x_{n,d} & \ldots & x_{n,d}
 \end{array}\right]$$
+Donde el vector de observaciones binarias $\mathbf{y} = (y_1,\ldots,y_n)^t$ es la primer columna de la tabla, y la matriz de covariables $\mathbf{X}$ es el resto.\\
 
-% Paréntesis notacional y qué debe de hacer el algoritmo. Como captar los patrónes hacia lo largo (en f) y hacia abajo, en fj. Hacer enfasis que se tienen 2 regresioens, una con las z's y otra con las y's
-Donde el vector de observaciones binarias es $\mathbf{y} = (y_1,\ldots,y_n)^t$, y la matriz de covariables $\mathbf{X}$. Se habla de que la estimación debe reflejar los patrones \textit{hacia abajo} y \textit{hacia lo largo}. Hacia abajo, pues se ve que cada $f_j$ con $j = 1,\ldots,d$ mediante $\wsn$ y $\tsn$ codifica toda la columna de datos $j$. Hacia lo largo, pues la función de proyección $f$ suma (de forma ponderada y a través de las $betasn$), estos efectos individuales hacia lo largo de la tabla de datos. Este balance es fundamental para la correcta predicción.
-
-% Explicar que para hacer esas regresiones se sigue la metodología de Albert y Chibb bayesiana 
+Bajo esta representación, se da contexto cuando se habla de que la estimación debe reflejar los patrones \textit{hacia abajo} y \textit{hacia lo largo}. Hacia abajo, se está captando la información existente entre las observaciones;  cada $f_j$, mediante su parámetro $w_j$, representa una transformación no lineal de la variable (o dimensión) $j$. Hacia lo largo, la función de proyección $f$ suma cada $f_j$ a través de $\beta$, ponderando los efectos individuales de cada variable. Mantener el balance entre la estimación de $\beta$ a lo largo y $w_j$ hacia abajo, es fundamental para el algoritmo. Analizando este hecho, se concluye que la estimación de ambos grupos de parámetros, se puede ver como una regresión separada para cada uno, y por ende, estos pueden ser estimados por el mismo algoritmo. Esto responde a la dualidad que se exploró en el capítulo pasado de que ambas expresiones son expansiones en bases funcionales. El puente que conecta, y controla el balance entre ambas, son los residuales parciales. Los siguientes capítulos, se concentran en explicar e implementar este curioso patrón. 
 
 \section{Fundamentos de la estadística bayesiana}
-
 - Hacer preambulo bayesiano y justificación de la fislosofía bayesiana
 - Explicar formula de bayes y actualización bayesiana
 
@@ -49,6 +60,9 @@ Para los parámetros, se usan las siguientes distribuciones \textit{apriori}:
 
 \section{Algoritmo \textit{bpwpm}}
 En forma de pseudocódigo el algoritmo tiene la siguiente forma:
+
+A diferencia de la exposición del modelo, el algoritmo debe de construir de abajo hacia arriba, pues se necesita tener una estimación puntual de los parámetros para poder calcular las funciones intermedias y que todo quede definido de forma numérica. 
+
 \begin{verbatim}
     Parametros inciales: 
     WHILE (...)
