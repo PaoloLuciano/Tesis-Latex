@@ -1,10 +1,9 @@
 \documentclass[../Main/Main.tex]{subfiles}
 
 \begin{document}
+Pasar de un modelo tan estructurado a su implementación computacional no resulto fácil. Sin embargo, se logró desarrollar un algoritmo que estima todos los parámetros del modelo de una forma eficiente y que funciona en la práctica. En el fondo, el algoritmo recae en el método de Gibbs sampling propuesto en \autocite{albert1993bayesian}, por lo que se hace una breve introducción a la escuela de inferencia bayesiana, y en el algortimo de backfitting descrito en \autocite{hastie1986generalized}. Al algoritmo se le titula: \textit{bayesian piece wise polinomial model (bpwpm)}. Para facilitar la utilización del modelo en diversas bases de datos, así como  su validación y visualización, a la par del algoritmo se desarrolló un paquete de código abierto (con el mismo nombre) para el software estadístico \verb|R|. Al darle un tratamiento bayesiano a los parámetros, más que estimarlos, se busca regresar una muestra de tamaño arbitrario de sus correspondientes distribuciones posteriores. La idea, es que estas distribuciones posteriores, se haya capturado toda la información de los datos de entrenamiento. \\
 
-Pasar de un modelo tan estructurado a su implementación computacional no resulto fácil. Sin embargo, se logró desarrollar un algoritmo que estima todos los parámetros del modelo de una forma eficiente y que funciona en la práctica. En el fondo, el algoritmo recae en el método de Gibbs sampling propuesto en \autocite{albert1993bayesian}, por lo que se hace una breve introducción a la escuela de inferencia bayesiana, y en el algortimo de backfitting descrito en \autocite{hastie1986generalized}. Al algoritmo se le titula: \textit{bayesian piece wise polinomial model (bpwpm)}. Para facilitar la utilización del modelo en diversas bases de datos, así como  su validación y visualización, a la par del algoritmo se desarrolló un paquete de código abierto (con el mismo nombre) para el software estadístico \verb|R|. A darle un tratamiento bayesiano a los parámetros, más que estimarlos, se busca regresar una muestra de tamaño arbitrario de sus correspondientes distribuciones posteriores. La idea, es que estas distribuciones posteriores, se haya capturado toda la información de los datos de entrenamiento. \\
-
-Se considera, que una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis notacional. De las ecuaciones del modelo: \ref{ec:Y-Z} a \ref{ec:fj}, se tienen dos grupos de parámetros por estimar, $\beta \in \mathbb{R}^{d+1}$ y $w_j \in \mathbb{R}^{\N} \quad \forall j = 1,\ldots,d$. Donde:
+Se considera, que una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis notacional. De las ecuaciones del modelo: (\ref{ec:Y-Z}) a (\ref{ec:fj}), se tienen dos grupos de parámetros por estimar, $\beta \in \mathbb{R}^{d+1}$ y $w_j \in \mathbb{R}^{\N} \quad \forall j = 1,\ldots,d$. Donde:
 \begin{align*}
 \beta &= 
 \left[ 
@@ -15,12 +14,20 @@ Se considera, que una buena forma de entender el algoritmo es \textit{visualizan
 	\beta_d
 	\end{array}\right]
 \quad \text{y} \quad 
-w_j = 
+w_1 = 
 \left[ 
 	\begin{array}{c}
-	w_1\\
+	w_{1,1}\\
 	\vdots\\
-	w_{\N}
+	w_{1,\N}
+	\end{array}\right]
+\quad \ldots \quad 
+w_d = 
+\left[ 
+	\begin{array}{c}
+	w_{d,1}\\
+	\vdots\\
+	w_{d,\N}
 	\end{array}\right]
 \end{align*}
 Se hace énfasis en que existen $d$ vectores $w_j$, cada uno de tamaño $\N$. Por lo tanto, se tienen sun total de $1 + d + d\N$ parámetros. Se usa el símbolo $\wsn$ para designar todos los vectores $w_j$, haciendo de este una matriz, es decir: $\wsn\in\mathbb{R}^{d\times\N}$. Cuando se habla de datos: $\{(y_i,\xni)\}_{i = 1}^n$, estos se pueden  representar en una tabla (o matriz):
@@ -29,22 +36,62 @@ y_1 & x_{1,1} & \ldots & x_{1,d} \\
 \vdots & \vdots & ~ & \vdots \\ 
 y_n & x_{n,d} & \ldots & x_{n,d}
 \end{array}\right]$$
-Donde el vector de observaciones binarias $\mathbf{y} = (y_1,\ldots,y_n)^t$ es la primer columna de la tabla, y la matriz de covariables $\mathbf{X}$ es el resto.\\
+Donde el vector de observaciones binarias $\ysn = (y_1,\ldots,y_n)^t$ es la primer columna de la tabla, y la matriz de covariables $\mathbf{X}$ es el resto.\\
 
 Bajo esta representación, se da contexto cuando se habla de que la estimación debe reflejar los patrones \textit{hacia abajo} y \textit{hacia lo largo}. Hacia abajo, se está captando la información existente entre las observaciones;  cada $f_j$, mediante su parámetro $w_j$, representa una transformación no lineal de la variable (o dimensión) $j$. Hacia lo largo, la función de proyección $f$ suma cada $f_j$ a través de $\beta$, ponderando los efectos individuales de cada variable. Mantener el balance entre la estimación de $\beta$ a lo largo y $w_j$ hacia abajo, es fundamental para el algoritmo. Analizando este hecho, se concluye que la estimación de ambos grupos de parámetros, se puede ver como una regresión separada para cada uno, y por ende, estos pueden ser estimados por el mismo algoritmo. Esto responde a la dualidad que se exploró en el capítulo pasado de que ambas expresiones son expansiones en bases funcionales. El puente que conecta, y controla el balance entre ambas, son los residuales parciales. Los siguientes capítulos, se concentran en explicar e implementar este curioso patrón. 
 
 \section{Fundamentos de la estadística bayesiana}
-La teoría Bayesiana, nombrada asi en honor a Thomas Bayes, es una rama axiomatizada de la estadística en donde se retoma el enfoque probabilista que (en ocaciones) se llega a perder con  
+Dado el problema de describir fenómenos bajo incertidumbre, existen dos escuelas dominantes de la estadística: la frecuentista y la bayesiana. La primera, aunque increíblemente útil, está hasta cierto punto limitada y en ocasiones termina derivando en colecciones de algoritmos. La teoría bayesiana, por el contrario, nombrada así en honor a Thomas Bayes (1702 - 1761), es una rama que enfatiza el componente \textit{probabilista}, dando coherencia al proceso de inferencia \autocite{mendoza2011estadistica} y \autocite{bernardo2001bayesian}. La estadistica bayesiana está  axiomatizada bajo la \textit{teoría de la decisión}. Esta teoría formaliza conceptos económicos como la \textit{coherencia entre preferencias} y \textit{utilidad}, sobre los que desarrolla un marco metodológico para la toma de decisiones. \\\
 
-En contraste con la teoría frecuentista, donde las parámetros de los modelos son tomados como fijos al hacer la estimación, al hacer inferencia bayesiana, se asume que los parámetros, asi como los datos, provienen de cierta una cierta distribución. Asi como con las creencias, esta información que se tiene sobre los parámetros, se puede \textit{actualziar} mediante 
+Esta metodología, además de proveer técnicas concretas para resolver problemas, también formaliza en una forma de pensar sobre la probabilidad como una \textit{medida racional para cuantificar la incertidumbre} condicionando sobre el conocimiento existente. Este paradigma es el que más corresponde con el sentido que usualmente se le da a la palabra. La inferencia sobre creencias (o parámetros), se realiza mediante una \textit{actualización} de estas en luz de nueva evidencia, modificando su medida de incertidumbre. El mecanismo que permite realizar esto, es la aclamada formula de Bayes. De manera informal se puede describir como: dado un evento $E$ bajo condiciones $C$, la probabilidad \textit{posterior} del evento, es proporcional a la probabilidad \textit{previa} que se tiene sobre este, ponderado por la probabilidad de ocurrencia de las condiciones presentes, es decir: 
+\begin{align}
+P(E|C) \; \alpha \; P(C|E)P(E) \label{ec:BayesInformal}
+\end{align}
+El término central $P(C|E)$ es una medida descriptiva de las condiciones (usualmente datos) llamada \textit{verosimilitud}. Se hace notar que para poder hacer cualquier intento de descripción, se debe especificar el \textit{modelo probablistico} que se asume describe el estado por el que se dan las condiciones $C$. \
 
-- Explicar formula de bayes y actualización bayesiana
+En un contexto matemático más formal, la cuantificación de la incertidumbre se da a través de medidas de probabilidad $\pi(\cdot)$, que describan el fenómeno observado. Estas medidas de probabilidad, usualmente son funciones que dependen de cantidades desconocidas llamados parámetros $\theta$. Aunque desconocidas, se tienen ciertas creencias u conocimiento previo, \textit{a priori}, sobre ellos, descritos por su correspondiente medida de probabilidad $\pi(\theta)$. Además, se tienen datos $\mathbf{X}$, interpretados como \textit{evidencia}, a los cuales se les asigna un modelo de probabilidad dependiente de los parámetros, es decir, su verosimilitud: $\pi(\mathbf{X}|\theta)$. Usando la formula de Bayes, podemos actualizar el conocimiento que se tiene sobre los parámetros haciendo:
+\begin{align*}
+	\pi(\theta|\mathbf{X}) \; \alpha \; \pi(\mathbf{X}|\theta)\pi(\theta) \label{ec:BayesProporcional}
+\end{align*}
+La idea es que este proceso de actualización sea a la vez, un proceso de aprendizaje, en el cual los parámetros capturen la información contenida en los datos.\\
+
+La teoría frecuentista, adopta un enfoque diferente para el  aprendizaje. Se asume que no hay incertidumbre en los parámetros dado los datos y, por lo tanto, estos son tomados como fijos. El mecanismo que permite su estimación, usualmente consiste en plantear una función objetivo y optimizarla. Por ejemplo, si se escoge la verosimilitud $\pi(\mathbf{X}|\theta)$, se busca dar un estimador que la maximice, pues equivaldría a encontrar los parámetros que hagan más \textit{posibles} los datos, bajo el modelo planteado. Si por el contrario, es escoge una función como la RSS de los modelos ANOVA (primer sumando de (\ref{ec:SplinesConRegularizacion})), se busca la $\theta$ que minimice estos errores, así, el modelo logra capturar toda la variabilidad que puede sobre los datos. Independientemente del paradigma estadístico que se escoja, siempre es importante la validación del modelo y de sus supuestos. Además, tanto teoría bayesiana como frequentista han resultado de infinita utilidad en la practica y el avance de la estadística y ciencia en general. \\
+
+Una de las dificultades que surgen en la estadística bayesiana, es que la obtención de resultados analíticos cerrados es difícil o muy tedioso una vez que los modelos se empiezan a complicar. Por ejemplo, en las ecuaciones anteriores, se ha usado el argumento de proporcionalidad $\alpha$. Esto pues, para que se de la igualdad, el lado derecho de la ecuación (\ref{ec:BayesProporcional}) se debe de dividir entre $\pi(\mathbf{X}) = \int \pi(X|\tilde{\theta})\pi(\tilde{\theta})\,d\tilde{\theta}$, el cual usualmente es difícil, sino imposible, de calcular. A este término se le conoce como \textit{constante de proporcionalidad} y su función es la de reescalar la expresión del lado derecho para que en realidad se tenga una distribución en el izquierdo. Usualmente, se escoger distribuciones \textit{conjugadas}, para que tanto la distribución a priori como la posterior sean de la misma familia y por ende conocidas. Sin embargo, con los avances en el poder computacional disponible y técnicas numéricas para resolver integrales, se han desarrollado muchos métodos para aplicar el proceso de aprendizaje, independientemente de que tan complejo sea el modelo o las distribuciones, iniciales y resultantes. Muchos de estos métodos recaen en la teoría de las \textit{cadenas de Markov}, como lo es, el Gibbs sampler presentado en la sección. \ref{sec:GibbsSampler} 
+
+\subsubsection{Estimadores Bayesianos}
+Una vez realizado el proceso de actualización, el estadista se enfrenta con un problema. Se tiene una distribución posterior de probabilidad para los parámetros de interés, usualmente dada por una muestra y no por una distribución analítica. Sin embargo, por practicidad y utilidad, en ocaciones se busca dar un \textit{estimador puntual}. Por ejemplo, si se necesita dar un estimador $\hat \theta$ para usarlo en otros cálculos, o si $\pi(\theta|\mathbf{X})$ es multidimensional. Para superar este problema teórico, se ha adoptado por usar \textit{funciones de perdida} $L(\hat{\theta},\theta)$\footnote{Formalmente se tiene un problema de decisión.}. Estas, miden las \textit{consecuencias} que se dan, al tomar $\hat{\theta}$ como el verdadero valor del parámetro $\theta$, es decir, las funciones de perdida evalúan que tan bien se está representando el valor de $\theta$ con un estimador puntual. Por ello, vale la pena usar funciones que penalicen la distancia entre $\theta$ y $\hat{\theta}$. Sin entrar mucho en los detalles técnicos, se tiene que calcular: 
+\begin{align}
+\hat{\theta} = \E[L(\hat{\theta},\theta)] = \int_\Theta L(\hat{\theta},\theta) \pi(\theta)\, d\theta
+\end{align}
+con $\Theta$ el espacio de todas las posibles valores de $\theta$. Sin embargo, se demuestra que para funciones de perdida sencillas, pero intuitivas, se tiene que el estimador puntual posterior es alguna medida de centralidad de la distribución posterior. Por ejemplo:
+\begin{itemize}
+	\item Función de pérdida cuadrática: $L(\hat{\theta},\theta) = (\hat{\theta}-\theta)^2$, deriva en la media posterior, es decir: $\hat{\theta} = \E[\theta|\mathbf{X}]$ 
+	\item Función de perdida valor absoluto: $L(\hat{\theta},\theta) = |\hat{\theta}-\theta|$, deriva en la mediana de la distribución posterior.
+	\item Función de pérdida 0-1:  $L(\hat{\theta},\theta) = I[\hat{\theta} \neq \theta]$, deriva en la moda de la distribución posterior. 
+\end{itemize}
+
+En la práctica, estas cantidades son fáciles de calcular cuando se tiene una muestra simulada de $\theta$ proveniente de la distribución posterior. En el paquete, se implementa una forma sencilla de obtener estimadores puntuales con cualquiera de las 3 funciones de pérdida. Sin embargo, se verá que los resultados no varían mucho. Ver Apéndice \ref{ap:Paquete}.
+
+% REVISAR
+% Incluir nota de intercambabilidad? que se cumple de tetas?
 
 \subsection{Funciones de probabilidad condicional completas}
-- Mencionar que existen y que indúcen un Gibbs Sampler por pedazos
+Retomando el modelo que concierne a este trabajo, se tienen dos grupos de parámetros, $\beta$ y $\wsn$. Sin embargo, dados los supuestos del modelo, por el uso de la variable latente $z$, esta también se debe de incluir como parámetro pues es la liga entre la respuesta $y$ y los datos $\xmat$, pero vista de forma bayesiana, también se debe de simular. Por lo tanto, quedan los parámetros: $\theta = (\zsn, \beta, \wsn)$ con $\zsn = (z_1,\ldots,z_n)^t$. Esta sección concierne desglosar  el proceso de aprendizaje sobre ellos; esta derivación es importante en si pues es la que induce el algoritmo. Usando la notación presentada al inicio de esta sección, los supuestos propuestos en las ecuaciones del modelo (\ref{ec:Y-Z}) a (\ref{ec:fj}) y sustituyendo en (\ref{ec:BayesProporcional}) se tiene:
+\begin{align} 
+	\pi(\zsn, \beta , \wsn | \ysn, \xmat) \quad 
+	& \alpha \quad \pi(\ysn | \xmat, \zsn, \beta, \wsn) 
+		\; \pi(\zsn, \beta, \wsn) \label{ec:BayesMod1} \\ 
+	& \alpha \quad \pi(\ysn |\zsn) \; \pi(\zsn|\xmat,\beta,\wsn) 				\; \pi(\beta,\wsn) \label{ec:BayesMod2} \\ 
+	& \alpha \quad \pi(\ysn |\zsn) \; \pi(\zsn|\xmat,\beta,\wsn) 				\; \pi(\beta) \; \pi(\wsn) \label{ec:BayesMod3} \\ 
+	& \alpha \quad \prod_{i = 1}^n\Be[y_i | \Phi(z_i))] 
+	\; \phi[z_i | f(\xni), 1] \times  \pi(\beta) \; \pi(\wsn) \label{ec:BayesMod4}
+\end{align}
 
-\section{Simulación bayesiana: el Gibbs sampler}
-- Explicar que el Gibbs sampler es un método MCMC.
+donde $\phi(\cdot|\mu, \sigma^2)$ es la función de densidad de una variables aleatoria normal con media $\mu$ y varianza $\sigma^2$, asimismo $\Be(\cdot|p)$ es función de densidad de una variable Bernoulli con probabilidad de éxito $p$. Esta factorización es válida dados los supuestos, donde se hace notar la forma que conecta $\zsn$ a las dos partes del modelo a través de la función de proyección $f$ que contiene tanto a $\beta$ como $\wsn$. Además, se presenta una forma extendida (aunque simplificada) de la verosimilitud para todas las observaciones $i = 1,\ldots,n$. Aunque aún no se han especificado las formas funcionales para las distribuciones a priori $\pi(\wsn)$ y $\pi(\beta)$, estas se pueden separar ya que se asumen independientes.  Esta propiedad, combinada con la forma funcional en expansiones de bases, lleva a que se piense en hacer una estimación \textit{por bloques}, es decir, se estima primero $\beta$ y posteriormente $\wsn$ en un bucle iterativo, pues esta es la idea de un Gibbs sampler. 
+
+\section{Simulación bayesiana: el Gibbs sampler} \label{sec:GibbsSampler}
+Dada la complejidad de las formas funcionales de la mayoría de los modelos bayesianos, 
 
 \subsection{Algoritmo de Albert y Chibb}
 - Hacer derivación de la condicional para $\beta$ paper de Albert + Chibb
