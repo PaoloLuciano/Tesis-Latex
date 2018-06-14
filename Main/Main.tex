@@ -4,9 +4,9 @@
 \documentclass[pdftex,11pt]{report}
 
 % Tamaño Página normal
-%\usepackage[left=2cm,top=1.5cm,right=2cm,bottom=2cm]{geometry} 
+\usepackage[left=2cm,top=1.5cm,right=2cm,bottom=2cm]{geometry} 
 % Para ya formato bueno Tesis ITAM
-\usepackage[paperwidth = 18cm, paperheight = 22.5cm, bottom = 2.5cm, right = 2cm, left = 2cm]{geometry} 
+%\usepackage[paperwidth = 18cm, paperheight = 22.5cm, bottom = 2.5cm, right = 2cm, left = 2cm]{geometry} 
 \usepackage[spanish,es-tabla]{babel} % Español y la palabra tabla para las tablas...
 \decimalpoint % Malditos anormales que usan comas
 \usepackage[utf8]{inputenc} % Acentos y demás
@@ -22,6 +22,7 @@
 
 % Imagenes
 \usepackage[pdftex]{graphicx} 
+\usepackage{subcaption}
 % El primer path es relativo al Main y el otro es relativo a los subfiles
 \graphicspath{{../Imagenes/}{../Imagenes/}} 
 
@@ -29,13 +30,14 @@
 \usepackage{pdflscape} %Poner algunas páginas en Horizontal \begin{landscape}
 \usepackage{multicol}  % Latex a Dos Columnas
 \usepackage{float} % Poner mejor las imágenes.
+\usepackage[makeroom]{cancel} % Strikeout diagonal
 
 % Cuando quería hacer un glosario de terminos y definiciones
 %\usepackage{glossaries}
 
 % Estructura para el main file
 \usepackage{subfiles}
-
+ 
 % Para las pequeñas gráficas
 \usepackage{tikz}
 \usetikzlibrary{shapes, arrows, babel}
@@ -50,7 +52,7 @@
 % Mejoro el espacioe entre los floats y el texto
 \setlength{\textfloatsep}{25pt plus 5pt minus 5pt}
 
-% Biblografía (uso Biblatex-Chicago con backend en biber) 
+% Biblografía (uso Biblatex-Chicago con backend en biber) 	
 \usepackage[authordate, backend = biber]{biblatex-chicago}
 \addbibresource{Tesis.bib} 
 
@@ -67,18 +69,20 @@
 \newcommand{\xmat}{\mathbf{X}}
 \newcommand{\ysn}{\mathbf{y}}
 \newcommand{\zsn}{\mathbf{z}}
-\newcommand{\betasn}{\boldsymbol{\beta}}
-\newcommand{\vecfx}{\boldsymbol{\beta}}
-\renewcommand{\t}{\tau}
-\newcommand{\tsn}{\boldsymbol{\tau}}
 \newcommand{\wsn}{\mathbf{w}}
+\newcommand{\fsn}{\mathbf{f}}
+%\newcommand{\betasn}{\boldsymbol{\beta}}
+\renewcommand{\t}{\tau}
+
+\newcommand{\tsn}{\boldsymbol{\tau}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\mathbb{V}}
 \newcommand{\Be}{\text{Be}}
 \newcommand{\N}{N^*}
 \newcommand{\MJK}{M,\;J\text{ y }K}
-\newcommand{\superi}{^{(i)}} % Superscript i
-\newcommand{\iterk}{^{(k)}} % Superscript k
+\newcommand{\nsim}{N_{\text{sim}}}
+\newcommand{\kthin}{k_{\text{thin}}}
+\newcommand{\iter}[1]{^{(#1)}} % Superscript
 
 \newcommand{\intinfty}{\int_{-\infty}^\infty}
 \renewcommand{\P}{\mathcal{P}}
