@@ -206,7 +206,7 @@ De donde es claro ver que las $z_i$ son independientes y tienen distribuciones n
 \end{align}
 las cuales también son fáciles de simular usando los algortimos de \autocite{devroye1986non}. \\
 
-Finalmente, una vez que se tienen las distribuciones condicionales (\ref{ec:SimZ}) y (\ref{ec:SimBeta}), la simulación de esto dos primeros grupos de parámetros se realiza con un muestreo de Gibbs dado por las ecuaciones (\ref{ec:GibbsSampler}) de la página \pageref{ec:GibbsSampler}. En forma de pseudocódigo:
+Finalmente, una vez que se tienen las distribuciones condicionales (\ref{ec:SimZ}) y (\ref{ec:SimBeta}), la simulación de esto dos primeros grupos de parámetros se realiza con un muestreo de Gibbs dado por las ecuaciones (\ref{ec:GibbsSampler}) de la página \pageref{ec:GibbsSampler}. En forma de pseudo-código:
 \begin{verbatim} 
     SampleoGibbs(y, X, N_sim, beta(0), mu_beta, sigma_beta):
         sigma_beta <- ((sigma_beta)^-1 + X'X)^-1
@@ -218,111 +218,42 @@ Finalmente, una vez que se tienen las distribuciones condicionales (\ref{ec:SimZ
 \end{verbatim}
 El valor de $\zsn\iter{0}$ en realidad no se tiene que dar pues se simula dependiendo de $y$ y $\beta\iter{0}$. Este valor inicial $\beta\iter{0}$ es arbitario, pero se sugiere que sea dado por el estimador de máxima verosimilitud o el de mínimos cuadrados para las respuestas binarias $\beta\iter{0} = (\xmat^t\xmat)^{-1}\xmat^ty$. Sin embargo, en la práctica el algoritmo, por default, los inicializa en ceros y tardan poco tiempo en converger a la distribución límite.\\
 
-Como comentario, el trabajo de \autocite{albert1993bayesian}, incluye muchos más métodos Gibbs sampler para diferentes modelos. Entre ellos, multinomiales o modelos tobit, los cuales usan como función liga $g$ a la función de acumulación \textit{t-student} en vez de la distribución normal.   
+Como comentario, el trabajo de \autocite{albert1993bayesian}, incluye muchos más métodos Gibbs sampler para diferentes modelos. Entre ellos, multinomiales o modelos tobit, los cuales usan como fucion liga $g$ a la función de acomulación \textit{t-student} en vez de la distribucion normal.   
 
 \section{Algoritmo \textit{bpwpm}}
-Finalmente, se esta en posición para hablar de la estimación de los parámetros $\wsn$ en el corazón del modelo. Dado que este modelo se construyó desde cero, no se encontró un algoritmo ya establecido. Sin embargo, usando las intuitivas ideas de los modelos GAM, se implemento un método para simular $\wsn$ que funciona muy bien en la practica. Una vez establecido eso, se juntan todos los pedazos y se arma el algoritmo final. 
+Finalmente, se esta en posición para hablar de la estimación de los parámetros $\wsn$ en el corazon del modelo. Dado que este modelo se construyó desde cero, no se encontró un algoritmo ya establecido. Sin embargo, usando las intuitivas ideas de los modelos GAM, se implemento un método para simular $w$ que funciona muy bien en la practica. 
 
-\subsection{Algoritmo de \textit{backfitting} para ajuste de modelos GAM} \label{sec:AlgoBackfitting}
-El \textit{algoritmo de backfitting} fue desarollado para hacer la estimación (frequentista) de las funciones $f_j$ que componen los modelos GAM revisados en la sección \ref{sec:GAM} \autocite{hastie1986generalized}. Como se mencionó, la idea central recae en que, cada dimensión $j = 1,\ldots,d$, más un término independiente $f_0$, capture de forma aditiva, toda la información posible del regresor, en este caso $z\in\mathbb{R}$, a través de transformaciones no lineales $f_j$. 
-\begin{align}
-	z = f_0 + f_1(x_1) + \ldots + f_d(x_d) + e \label{ec:GAM}
-\end{align}
-Estas $f_j$ son muy flexibles y se demuestra (bajo ciertos supuestos) que son splines cúbicos. En la práctica, usualmente se dejan indeterminados y son estimadas mediante procedimientos no paramétricos. Usar estas funciones en vez de un proyector lineal está justificado si $\E(z|\xsn)$ no es lineal, lo cual se da muchas veces en la práctica. Sin embargo, la estimación de $f_j$ es diferente a la estimación tradicional de parámetros $\beta$ pues se enfatiza, que son \textit{arbitrarias} en su escala. Por ejemplo, sea $d = 1$ y $z_i = 1$ para alguna $i$. Se podría tener $z_i = \hat{f}_0 + \hat{f}_1(x_1)$  con las estimaciones $\hat{f}_0 = 3$ y $\hat{f}_1(x_1) = -2$ ó $\hat{f}_0 = -1$ y $\hat{f}_1(x_1) = 2$, sin importar el valor de $x_1$ y los dos serían modelos que (al menos para esta observación $i$) ajustarían perfectamente. Para controlar estas posibles fluctuaciones, el modelo trata de capturar la información de forma secuencial a través de los \textit{residuales parciales}. Es decir, una vez dadas, todas las $f_j$ menos una, se evalúa que tanto le falta al modelo por capturar y posteriormente, se hace un suavizamiento de estos usando una función genérica $S_j(\cdot|x_j)$ que depende de los datos. Más formalmente, los residuales parciales, reformulando la ecuación \ref{ec:ResParciales} con la notación de esta sección son, $\forall j^*=1,\ldots,d$:
-\begin{align}
-	\hat{r}_{j^*} &= z - f_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d f_j(x_j) = z - f_0 -  \ldots - f_{j^*-1}(x_{j^*-1}) - f_{j^*+1}(x_{j^*+1}) - \ldots - f_d(x_d)  \label{ec:ResParciales2}
-\end{align}
-posteriormente, se da un estimado de $f_{j^*}$:
-\begin{align}
-	\hat{f}_{j^*}(x_{j^*)}) = S(\hat{r}_{j^*}|x_{j^*}) = S[z - f_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d f_j(x_j)|x_{j^*}]
-\end{align}
-Por lo tanto, $\hat{f}_j^*(x_{j^*})$ es un suavizamiento, de esa dimensión. De forma iterativa, una vez dada la estimación para la  dimensión $j^*$, se puede mejorar, a su vez, la estimación de $f_{j^*\pm 1}$, dando paso a un algoritmo secuencial hasta que no haya mucha variación en las $f_j$. Un paso importante que se debe hacer es \textit{identificar} el modelo, esto es, centrar los residuales en $0$ tomando el término independiente, como el promedio de las respuestas, es decir: $f_0 = \bar{z}$, de tal forma que todas las $f_j$ queden alrededor de cero. \\
+Posteriormente, se juntan todos los pedazos y se desarrolla el algoritmo completo. 
 
-El algoritmo de backfitting en pseudocódigo y usando una función de suavizamiento arbitraria es:
-\begin{verbatim}
-    AlgoritmoBackfitting(z, X, f_init):
-        f(0) <- promedio(z)
-        f(j) <- f_init(j) para toda j = 1,...,d
-        MIENTRAS convergencia:
-            PARA j = 1,...,d,1,...,d,...:
-                f(j) <- suavizar(z - f(0) - suma[f(k), para toda k != j], x(j)) 
-\end{verbatim}
+\subsection{Algoritmo de \textit{backfitting} para ajuste de modelos GAM} 
+El \texit{algorotmo de backfitting} fue desarollado en: \autocite{hastie1986generalized} para hacer la esimación (frequentista) de las funciones $f_j$ que componen los modelos GAM revisados en la sección \ref{sec:GAM}. Como se mencionó, la idea centra recae en que, cada dimensión, a través de la transformación no lineal, capture los \textit{residuales parciales}. 
 
-\subsubsection{Aplicando los métodos GAM al modelo}
-Este principio de suavizamiento iterativo de los residuales parciales, es justamente lo que se buscaba para poder finalizar el algoritmo.  Recordando la función de projección (\ref{ec:fproy}) del modelo, una vez estimada $z$, se tiene una representación análoga a un GAM.
-\begin{align*}
-	\hat{z} = \beta_0 + \beta_1f_1(x_1) + \ldots + \beta_df_d(x_d) + e = \beta^t\fsn(\xsn) + e
-\end{align*}
-con la adición de las $\beta_j$. De donde se pueden obtener, usando la misma idea los residuales parciales, $\forall j^*=1,\ldots,d$:
-\begin{align*}
-r_{j^*} = 1/\beta_{j^*}[\hat{z} - \beta_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d \beta_j f_j(x_j)]
-\end{align*}
-Estos residuales, calculándose para toda observación $i = 1,\ldots,n$, son vectores. El paso fundamental, para poder hacer la estimación de $\wsn$ recae sobre el suavizamiento. En la sección anterior, se denotó por la función arbitraria $S_j(\cdot|x_j)$ sin embargo, para este modelo se tiene una representación funcional concreta para $S_j$, los polinomios por partes flexibles dados por la ecuación (\ref{ec:ExpBase_NEstrella}) y (\ref{ec:PoliMallik}) de donde se hace la igualdad:
-\begin{equation}
-	r_{j^*} = \sum_{l = 1}^{N^*} w_{j^*,l} \; \Psi_l(x_{j^*},\P_{j^*}) = w_{j^*}^t\Psi(x_{j^*},\P_{j^*}) \label{ec:RegResiduales}
-\end{equation}
-Lo cual, no es más que un modelo de regresión lineal \textit{hacia abajo}\footnote{y no \textit{a lo largo}, como sería para $\beta$}, usando a $w_{j^*}$ como coeficientes y a las transformaciones $\Psi(x_{j^*},\P_{j^*})$ como covariables. Este hecho, se debe a la \textit{dualidad} en expansiones en bases funcionales, de las que tanto se habló en el capítulo pasado. Existe una correspondencia uno a uno, entre $\beta$ y $w_j$, así como entre $\fsn$ y $\Psi$. Por lo tanto, usando las técnicas que se discutieron en la Sección \ref{sec:GibbsSampler}, $w_j$ puede ser estimada de la misma forma que $\beta$.\\
+Si se piensa en el modelo GAM tradicional $$
+, donde $z\in\mathbb{R}$
 
-Aunque intricado y notacionalmente pesado, el modelo en si, es una serie de regresiones lineales, una para $\beta$ y $d$ para cada $w_j$, ligadas a una respuesta binaria a través de la $z$. Con esta simplificación, se espera que la Figura \ref{fig:DiagramaMod} de la página \pageref{fig:DiagramaMod}, haya adquirido una nueva luz. En el siguiente capítulo, se busca esclarecer con ejemplos toda esta maraña de notación y se probará su efectividad.
+
+
+
+
+
+
+
+
+
+
+
+
+%Argumentar por qué es igual para $w$ pero en lugar de usar las z de regresores se usan los residuales parciales
 
 \subsection{Implementacion Final}
-Una vez conectados todos los puntos del modelo, este se puede presentar en su versión final y más completa, aunque definitivamente, menos clara. Juntando las expresiones (\ref{ec:Y-Z}) a (\ref{ec:fj}), (\ref{ec:ExpBase_NEstrella}), (\ref{ec:PoliMallik}),(\ref{ec:BetaAPriori}) y agregando las distribuciónes a priori para $w_j$: $\pi(w_j)$; se tiene el \textit{modelo bpwpm}:
-\begin{align}
-	y\,|\,z\, &\sim \text{Be}(y\,|\Phi(z)) \nonumber\\ 
-	z\,|\,x\, &\sim \text{N}(z\,|f(\xsn),1)\nonumber \\
-	f(\xsn) &\approx \sum_{j=0}^d \beta_j f_j(x_j) 
-			= \beta^t\fsn(\xsn)  \nonumber\\[4pt]
-	f_j(x_j)&\approx \sum_{l = 1}^{\N} w_{j,l} \Psi_{j,l}(x_j, \mathcal{P}_j) 				=  w_j^t\Psi(x_j,\P_j) \quad\quad \forall j= 0,1,\ldots,d
-			\nonumber\\[4pt]
- 		 	&=	\sum_{i = 1}^M w_{j,i,0} \; x_j^{i-1} + 
-			\sum_{i = K}^{M-1} \;
-	 		\sum_{k = 1}^{J-1}w_{j,i,k}\;(x_j - \t_k)_+^{i} 
-			\nonumber \\[4pt]	 					
-	 		\beta &\sim N_{d+1}(\beta|\mu_{\beta}, \Sigma_{\beta})
-			\nonumber \\
-	w_j  &\sim N_{\N}(\mu_{w_j},\Sigma_{w_j}) \quad\quad \forall j= 0,1,\ldots,d \label{ec:ModBPWPM}
-\end{align}
-A diferencia de su exposición en el capítulo \ref{cap:Modelo}, el algoritmo final, debe de construir de abajo hacia arriba, pues se necesita tener una estimación puntual de los parámetros para poder calcular las funciones intermedias y que todo quede definido de forma numérica.\\
+%poner el modelo conpleto y como se va estimando para arriba 
 
-Como comentario final a % Cuantiles y figura\\
+A diferencia de la exposición del modelo, el algoritmo debe de construir de abajo hacia arriba, pues se necesita tener una estimación puntual de los parámetros para poder calcular las funciones intermedias y que todo quede definido de forma numérica. 
 
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}
-% Dibujo nodos
-\begin{scope}[
-		every node/.style = {fill = white, shape = rectangle }]
-		
-	\node (t) at (-4,2) {$\t$};
-	\node (Phi) at (-2,2) {$\Phi(x,\t)$};
-	\node (w) at (-2,0) {$w_j\iter{k}$};
-	\node (F) at (0,2) {$F\iter{k}$};
-	\node (z) at (2,0) {$z\iter{k}$};	
-	\node (beta) at (0,-2) {$\beta\iter{k}$};
-	
-\end{scope}
-
-% Flechitas
-\begin{scope}[
-		every node/.style={fill = white, circle},
-	    every edge/.style={draw = black, ->}]
-	
-	\path (t) edge  node [above] {cte.} (Phi);
-	\path (Phi) edge (F);
-	\path (F) edge [bend left](z);
-	\path (z) edge [bend left](beta);
-	\path (beta) edge [bend left](w);
-	\path (w) edge[loop left] node [left] 
-		{para $j = 1,\ldots,d \;$ }(w);
-	\path (w) edge [bend left](F);
-
-\end{scope}
-\end{tikzpicture}
-\caption{Esquema del algoritmo}
-\label{fig:DiagramaAlgoritmo}
-\end{figure}
+% Mencionar el pedo de los cuantiles 
 
 En forma de pseudocódigo el algoritmo tiene la siguiente forma:
+
 \begin{verbatim}
     Parametros inciales: 
     WHILE (...)
@@ -330,6 +261,17 @@ En forma de pseudocódigo el algoritmo tiene la siguiente forma:
         Simulación de betas (Función simulate_beta)
 \end{verbatim} 
 
-%Hacer énfasis en el apéndice y el paquete.
+- Hacer énfasis en el apéndice y el paquete.
 
-\end{document}
+% Te arrancas 
+- Usamos los nodos iniciales en cuantiles determinados.\\
+\begin{itemize}
+\item taus: HMC
+\item $\beta$ Estimar por máxima verosimilitud pero dentro del Gibbs con el método ABC
+\item $w's$ BAyesianas + importantes que las betas.
+\end{itemize}
+
+- Explicar Alortimo y hacer pseudocódigo de cada sección
+- Explicar lógica del algoritmo
+- Explicar desarrolo de paquetes en R
+- Explicar bien la parte de los residuales y el algorimto backfitting, por que las $f_j$ son a
