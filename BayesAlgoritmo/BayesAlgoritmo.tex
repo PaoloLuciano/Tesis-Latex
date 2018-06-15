@@ -98,7 +98,7 @@ Una vez establecida el proceso de actualización, el estadista se ve en la neces
 \subsubsection{Breve introducción a cadenas de Markov}
 Al final, la gran mayoría de estos métodos recaen sobre las la teoría de \textit{cadenas de Markov}. Una cadena de Markov, es una secuencia de variables aleatorias: $X\iter{1},\,X\iter{2},\,\ldots$ que cumplen la \textit{propiedad Markoviana}:
 $$P(X\iter{t+1}|X\iter{t} = x\iter{t}\, ,X\iter{t-1} = x\iter{t-1}\,,\ldots,X\iter{2} = x\iter{2},\,X\iter{1} = x\iter{1}) = P(X\iter{t+1}|X\iter{t} = x\iter{t}) \quad\forall t$$
-con $t$ interpretado como \textit{tiempo}. Por lo tanto, la siguiente variable de la cadena, $X\iter{t+1}$, únicamente depende de \textit{el estado} actual $X\iter{t}$ y no de los anteriores. Usualmente esta propiead es expresada como: el futuro, condicionando al presente, es independiente del pasado. El ejemplo canónico que se presenta es la \textit{caminata aleatoria}: $X\iter{t+1} = X\iter{t} + e\iter{t}$, con $e\iter{t}$ error aleatorio generado de forma independiente. De esta idea se desarrolla toda una rica teoría revisada en cursos de procesos estocásicos  \autocite{ross2009introduction}, de donde surgen muchas propiedades aplicables a las cadenas. Una de las ideas más relevantes para lo que concierne este trabajo, es la de \textit{matrices de transición}. Dada una cadena con $n$ posibles estados, es decir, $X\iter{t}$ únicamente puede tomar valores de un subconjunto de cardinalidad $n$. Se puede construir una matriz cuadrada $P\in\mathbb{R}^{n\times n}$ donde cada entrada $0\leq p_{i,j}\leq1$ representa la probabilidad de transicionar del estado $i$ al estado $j$. Se demuestra, que si una cadena es \textit{ergodica}\footnote{Aperiódica, irreducible y  recurrente positiva. Para efectos de simplicidad en la exposición, la ergodicidad es tratada como una propiedad en si misma. Las definiciones formales, puede ser consultadas en cualquier texto de procesos estocásticos.}, entonces existe una \textit{distribución límite} que es igual a la \textit{distribución estacionaria}: $\exists \,\pi$ tal que $\pi P = \pi$. Sin entrar en los detalles técnicos, la ergodicidad es la propiedad que asegura que eventualmente se alcanza la convergencia de la cadena sin importar el estado inicial tras repetidas aplicaciones de la matriz de transición P\footnote{Esta convergencia es muy diferente a la presentada en el Apéndice \ref{ap:AnalsisFunc}. Cuando se cambia de un paradigma frecuentista a uno bayesiano, los teoremas que aseguran la convergencia del modelo son radicalmente diferentes, tanto en forma como en fondo.}. Esto es, dado un vector de estados inicial $X\iter{0}\in\mathbb{R}^n$ tal que $\mathbf{1}^tX\iter{0} = 1$, se puede encontrar la distribución estacionaria dejando: 
+con $t$ interpretado como \textit{tiempo}. Por lo tanto, la siguiente variable de la cadena, $X\iter{t+1}$, únicamente depende de \textit{el estado} actual $X\iter{t}$ y no de los anteriores. Usualmente esta propiead es expresada como: el futuro, condicionando al presente, es independiente del pasado. El ejemplo canónico que se presenta es la \textit{caminata aleatoria}: $X\iter{t+1} = X\iter{t} + e\iter{t}$, con $e\iter{t}$ error aleatorio generado de forma independiente. De esta idea se desarrolla toda una rica teoría revisada en cursos de procesos estocásicos  \autocite{ross2009introduction}, de donde surgen muchas propiedades aplicables a las cadenas. Una de las ideas más relevantes para lo que concierne este trabajo, es la de \textit{matrices de transición}. Dada una cadena con $n$ posibles estados, es decir, $X\iter{t}$ únicamente puede tomar valores de un subconjunto de cardinalidad $n$. Se puede construir una matriz cuadrada $P\in\mathbb{R}^{n\times n}$ donde cada entrada $0\leq p_{i,j}\leq1$ representa la probabilidad de transicionar del estado $i$ al estado $j$. Se demuestra, que si una cadena es \textit{ergodica}\footnote{Aperiódica, irreducible y  recurrente positiva. Para efectos de simplicidad en la exposición, la ergodicidad es tratada como una propiedad en si misma. Las definiciones formales, puede ser consultadas en cualquier texto de procesos estocásticos.}, entonces existe una \textit{distribución límite} que es igual a la \textit{distribución estacionaria}: $\exists \,\pi$ tal que $\pi P = \pi$. Sin entrar en los detalles técnicos, la ergodicidad es la propiedad que asegura que eventualmente se alcanza la convergencia de la cadena sin importar el estado inicial tras repetidas aplicaciones de la matriz de transición P\footnote{Esta convergencia es muy diferente a la presentada en el Apéndice \ref{ap:AnalisisFunc}. Cuando se cambia de un paradigma frecuentista a uno bayesiano, los teoremas que aseguran la convergencia del modelo son radicalmente diferentes, tanto en forma como en fondo.}. Esto es, dado un vector de estados inicial $X\iter{0}\in\mathbb{R}^n$ tal que $\mathbf{1}^tX\iter{0} = 1$, se puede encontrar la distribución estacionaria dejando: 
 \begin{align}
 \pi = \lim_{t\rightarrow\infty} X\iter{t} \quad \text{si} \quad X\iter{t+1} = P^tX\iter{t} \label{ec:DistLimite}
 \end{align}
@@ -144,7 +144,7 @@ El tener una muestra de la distribución final $\left\{\theta\iter{k}\right\}_{k
     \end{subfigure}
     \caption{Muestro Gibbs para el ejemplo \ref{ej:NormBiVar}}\label{fig:GibbsSamplerSimulado}
 \end{figure}
-Para esta figura, se toman los últimos 500 valores de las cadenas. Se observan las \textit{trazas} que se forman al ir simulando los parámetros y se hace un histograma, dando una idea de las distribuciones subyacentes\footnote{Estas imágenes tienen como propósito ejemplificar el Gibbs sampler. El modelo que se usa es el presentado en este trabajo. Asimismo, en el Capítulo \ref{cap:EjemYRes} se hará una exploración a fondo de este ejemplo en particular y se verá por que el parámetro $\beta_2$ es idénticamente cero, además de la razón por la que los histogramas se ven sospechosamente parecidos a una distribución normal. Asimismo, estas imágenes fueron generadas con la librería \textit{ggplot2}, incorporada a las funcionalidades del paquete \textit{bpwpm} desarrollado para este trabajo.}.\\
+Para esta figura, se toman los últimos 500 valores de las cadenas. Se observan las \textit{trazas} que se forman al ir simulando los parámetros y se hace un histograma, dando una idea de las distribuciones subyacentes\footnote{Estas imágenes tienen como propósito ejemplificar el Gibbs sampler. El modelo que se usa es el presentado en este trabajo. Asimismo, en el Capítulo \ref{cap:EjYRes} se hará una exploración a fondo de este ejemplo en particular y se verá por que el parámetro $\beta_2$ es idénticamente cero, además de la razón por la que los histogramas se ven sospechosamente parecidos a una distribución normal. Asimismo, estas imágenes fueron generadas con la librería \textit{ggplot2}, incorporada a las funcionalidades del paquete \textit{bpwpm} desarrollado para este trabajo.}.\\
 
 En la practica, muchos de los pormenores derivados del muestreo Gibbs, pueden ser mejorados. Dado que el valor inicial $\theta\iter{0}$ es dado por el estadista, en ocaciones el método tiene que explorar una región extensa de posibles valores para $\theta$, por lo que podría tardar en converger. Esto deriva en que las primeras observaciones deban ser descartadas pues no son realizaciones de la distribución final buscada. A este periodo se le conoce como \textit{burn-in}. En el ejemplo anterior, se utilizó $k^*$ para designar la iteración a partir de cual se toman los valores simulados. En la practica, usualmente se guarda toda la cadena, se explora, tanto por resúmenes numéricos como con representaciones gráficas y se decide (de forma subjetiva) el corte  $k^*$. Otro método ampliamente usado es el de adelgazamiento o \textit{thinning}. Por las mismas características de la estimación por Gibbs, sobre todo en casos multivariados, los valores de las cadenas tienen correlaciones altas. Si se quieren muestras independientes, la bibliografía recomienda tomar cada $\kthin$-ésimo valor de la cadena generada para reducir la dependencia entre los parámetros. Usualmente se usan valores pequeños para $\kthin$.  Estos sencillos pasos pasos para mejorar las cadenas, ya se encuentran implementados en el paquete \textit{bpwpm} para \verb|R| para el análisis rápido de las cadenas.
 
@@ -206,7 +206,10 @@ De donde es claro ver que las $z_i$ son independientes y tienen distribuciones n
 \end{align}
 las cuales también son fáciles de simular usando los algortimos de \autocite{devroye1986non}. \\
 
-Finalmente, una vez que se tienen las distribuciones condicionales (\ref{ec:SimZ}) y (\ref{ec:SimBeta}), la simulación de esto dos primeros grupos de parámetros se realiza con un muestreo de Gibbs dado por las ecuaciones (\ref{ec:GibbsSampler}) de la página \pageref{ec:GibbsSampler}. En forma de pseudocódigo:
+Finalmente, una vez que se tienen las distribuciones condicionales (\ref{ec:SimZ}) y (\ref{ec:SimBeta}), la simulación de esto dos primeros grupos de parámetros se realiza con un muestreo de Gibbs dado por las ecuaciones (\ref{ec:GibbsSampler}) de la página \pageref{ec:GibbsSampler}. En forma de pseudocódigo:\\
+%\pagebreak
+\begin{table}
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 \begin{verbatim} 
     SampleoGibbs(y, X, N_sim, beta(0), mu_beta, sigma_beta):
         sigma_beta <- ((sigma_beta)^-1 + X'X)^-1
@@ -216,6 +219,10 @@ Finalmente, una vez que se tienen las distribuciones condicionales (\ref{ec:SimZ
             beta(k) <- NormMulti(mu_beta(k), sigma_beta(k)) 
         REGRESAR beta
 \end{verbatim}
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\label{alg:SimZBeta}
+\caption{Algoritmo de Albert y Chibb para modelos probit}
+\end{table}
 El valor de $\zsn\iter{0}$ en realidad no se tiene que dar pues se simula dependiendo de $y$ y $\beta\iter{0}$. Este valor inicial $\beta\iter{0}$ es arbitario, pero se sugiere que sea dado por el estimador de máxima verosimilitud o el de mínimos cuadrados para las respuestas binarias $\beta\iter{0} = (\xmat^t\xmat)^{-1}\xmat^ty$. Sin embargo, en la práctica el algoritmo, por default, los inicializa en ceros y tardan poco tiempo en converger a la distribución límite.\\
 
 Como comentario, el trabajo de \autocite{albert1993bayesian}, incluye muchos más métodos Gibbs sampler para diferentes modelos. Entre ellos, multinomiales o modelos tobit, los cuales usan como función liga $g$ a la función de acumulación \textit{t-student} en vez de la distribución normal.   
@@ -238,15 +245,22 @@ posteriormente, se da un estimado de $f_{j^*}$:
 \end{align}
 Por lo tanto, $\hat{f}_j^*(x_{j^*})$ es un suavizamiento, de esa dimensión. De forma iterativa, una vez dada la estimación para la  dimensión $j^*$, se puede mejorar, a su vez, la estimación de $f_{j^*\pm 1}$, dando paso a un algoritmo secuencial hasta que no haya mucha variación en las $f_j$. Un paso importante que se debe hacer es \textit{identificar} el modelo, esto es, centrar los residuales en $0$ tomando el término independiente, como el promedio de las respuestas, es decir: $f_0 = \bar{z}$, de tal forma que todas las $f_j$ queden alrededor de cero. \\
 
-El algoritmo de backfitting en pseudocódigo y usando una función de suavizamiento arbitraria es:
+El algoritmo de backfitting en pseudocódigo y usando una función de suavizamiento arbitraria es:\\
+%\pagebreak
+\begin{table}
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 \begin{verbatim}
     AlgoritmoBackfitting(z, X, f_init):
-        f(0) <- promedio(z)
+        f(0) <- Promedio(z)
         f(j) <- f_init(j) para toda j = 1,...,d
         MIENTRAS convergencia:
             PARA j = 1,...,d,1,...,d,...:
-                f(j) <- suavizar(z - f(0) - suma[f(k), para toda k != j], x(j)) 
+                f(j) <- Suavizar(z - f(0) - suma[f(k), para toda k != j], x(j)) 
 \end{verbatim}
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\caption{Algoritmo de backfitting para modelos GAM}
+\label{alg:Backfitting}
+\end{table}
 
 \subsubsection{Aplicando los métodos GAM al modelo}
 Este principio de suavizamiento iterativo de los residuales parciales, es justamente lo que se buscaba para poder finalizar el algoritmo.  Recordando la función de projección (\ref{ec:fproy}) del modelo, una vez estimada $z$, se tiene una representación análoga a un GAM.
@@ -261,12 +275,12 @@ Estos residuales, calculándose para toda observación $i = 1,\ldots,n$, son vec
 \begin{equation}
 	r_{j^*} = \sum_{l = 1}^{N^*} w_{j^*,l} \; \Psi_l(x_{j^*},\P_{j^*}) = w_{j^*}^t\Psi(x_{j^*},\P_{j^*}) \label{ec:RegResiduales}
 \end{equation}
-Lo cual, no es más que un modelo de regresión lineal \textit{hacia abajo}\footnote{y no \textit{a lo largo}, como sería para $\beta$}, usando a $w_{j^*}$ como coeficientes y a las transformaciones $\Psi(x_{j^*},\P_{j^*})$ como covariables. Este hecho, se debe a la \textit{dualidad} en expansiones en bases funcionales, de las que tanto se habló en el capítulo pasado. Existe una correspondencia uno a uno, entre $\beta$ y $w_j$, así como entre $\fsn$ y $\Psi$. Por lo tanto, usando las técnicas que se discutieron en la Sección \ref{sec:GibbsSampler}, $w_j$ puede ser estimada de la misma forma que $\beta$.\\
+Lo cual, no es más que un modelo de regresión lineal \textit{hacia abajo}\footnote{y no \textit{a lo largo}, como sería para $\beta$}, usando a $w_{j^*}$ como coeficientes y a las transformaciones $\Psi(x_{j^*},\P_{j^*})$ como covariables. Este hecho, se debe a la \textit{dualidad} en expansiones en bases funcionales, de las que tanto se habló en el capítulo pasado. Existe una correspondencia uno a uno, entre $\beta$ y $w_j$, así como entre $\fsn$ y $\Psi$. Por lo tanto, usando las técnicas que se discutieron en la Sección \ref{sec:GibbsSampler}, las $w_j$ pueden ser estimadas exactamente de misma forma que $\beta$.\\
 
 Aunque intricado y notacionalmente pesado, el modelo en si, es una serie de regresiones lineales, una para $\beta$ y $d$ para cada $w_j$, ligadas a una respuesta binaria a través de la $z$. Con esta simplificación, se espera que la Figura \ref{fig:DiagramaMod} de la página \pageref{fig:DiagramaMod}, haya adquirido una nueva luz. En el siguiente capítulo, se busca esclarecer con ejemplos toda esta maraña de notación y se probará su efectividad.
 
 \subsection{Implementacion Final}
-Una vez conectados todos los puntos del modelo, este se puede presentar en su versión final y más completa, aunque definitivamente, menos clara. Juntando las expresiones (\ref{ec:Y-Z}) a (\ref{ec:fj}), (\ref{ec:ExpBase_NEstrella}), (\ref{ec:PoliMallik}),(\ref{ec:BetaAPriori}) y agregando las distribuciónes a priori para $w_j$: $\pi(w_j)$; se tiene el \textit{modelo bpwpm}:
+Una vez conectados todos componentes del modelo, este se puede presentar en su versión final y más completa, aunque definitivamente, menos clara. Se recuerda que existe un compendio notacional en el Apéndice \ref{ap:Notacion}. Juntando las expresiones (\ref{ec:Y-Z}) a (\ref{ec:fj}), (\ref{ec:ExpBase_NEstrella}), (\ref{ec:PoliMallik}), (\ref{ec:BetaAPriori}) y agregando las distribuciones a priori para $w_j$: $\pi(w_j)$; se tiene el \textit{modelo bpwpm}:
 \begin{align}
 	y\,|\,z\, &\sim \text{Be}(y\,|\Phi(z)) \nonumber\\ 
 	z\,|\,x\, &\sim \text{N}(z\,|f(\xsn),1)\nonumber \\
@@ -278,13 +292,14 @@ Una vez conectados todos los puntos del modelo, este se puede presentar en su ve
 			\sum_{i = K}^{M-1} \;
 	 		\sum_{k = 1}^{J-1}w_{j,i,k}\;(x_j - \t_k)_+^{i} 
 			\nonumber \\[4pt]	 					
-	 		\beta &\sim N_{d+1}(\beta|\mu_{\beta}, \Sigma_{\beta})
-			\nonumber \\
-	w_j  &\sim N_{\N}(\mu_{w_j},\Sigma_{w_j}) \quad\quad \forall j= 0,1,\ldots,d \label{ec:ModBPWPM}
+	 		\beta &\sim N_{d+1}(\beta|\mu_{\beta}, \Sigma_{\beta})	\nonumber \\
+	w_j  &\sim N_{\N}(w_j|\mu_{w_j},\Sigma_{w_j}) \quad\quad \forall j= 0,1,\ldots,d \label{ec:ModBPWPM}
 \end{align}
 A diferencia de su exposición en el capítulo \ref{cap:Modelo}, el algoritmo final, debe de construir de abajo hacia arriba, pues se necesita tener una estimación puntual de los parámetros para poder calcular las funciones intermedias y que todo quede definido de forma numérica.\\
 
-Como comentario final a % Cuantiles y figura\\
+Como paso final del algoritmo, se deben definir las particiones $\P_j \quad \forall j= 1,\ldots,d$. Estas particiones, quedan determinadas al estimar las posiciones los $J-1$ nodos $\tau_j$. De forma intuitiva, se necesitarán más nodos donde se tengan más datos pues son las regiones donde se podrían dar un mayor número de saltos. Por lo tanto, el algoritmo calcula automáticamente las posiciones usando los cuantiles correspondientes para cada dimensión.\footnote{Se calculan los cuartiles con saltos de probabilidad $1/J$, donde $J$ es el número de intervalos}.\\ 
+
+Dado que el modelo tiene muchos componentes y pasos intermedios, la Figura \ref{fig:DiagramaAlgoritmo}, hace un resumen gráfico del algoritmo. Una vez más, el supeíndice $\iter{k}$ denota la iteración. $\Psi_\N(\xmat, \P)$ denota la expansión en bases truncadas para los datos $\xmat$ y la partición $\P$ (de todas las dimensiones)\footnote{El objeto $\Psi$ en realidad es un arreglo 3-dimensional pues cada $x_{i,j}$ tiene una expansión de tamaño $\N$. Su implementación, se basa en el diagrama \ref{tab:Biyeccion} de la página \pageref{tab:Biyeccion}} dependiendo del los tres parámetros $\MJK$ (resumidos en $\N$). Finalmente, $F\in\mathbb{R}^{n\times d}$ denota las matriz de transformaciones no lineales, es decir: $F = [f_1(x_1),\ldots,f_d(x_d)]$ donde cada $f_j(x_j)$ es un vector para todas las observaciones. El ciclo de adentro, se da pues al ir calculando y actualizando cada dimensión, $j$, cambia la transformación $f_j$ y se deben de actualizar los residuales parciales. Este proceso se repite $d$ veces y una vez calculados todos los vectores $w_j$, se regresa al bucle principal donde se simula$z$ y $\beta$ una vez más. \\
 
 \begin{figure}[h]
 \centering
@@ -294,13 +309,16 @@ Como comentario final a % Cuantiles y figura\\
 		every node/.style = {fill = white, shape = rectangle }]
 		
 	\node (t) at (-4,2) {$\t$};
-	\node (Phi) at (-2,2) {$\Phi(x,\t)$};
-	\node (w) at (-2,0) {$w_j\iter{k}$};
+	\node (Phi) at (-2,2) {$\Psi_\N(\xmat,\P)$};
+
 	\node (F) at (0,2) {$F\iter{k}$};
-	\node (z) at (2,0) {$z\iter{k}$};	
-	\node (beta) at (0,-2) {$\beta\iter{k}$};
-	
+	\node (z) at (1.902,0.618) {$z\iter{k}$};	
+	\node (beta) at (1.175,-1.618) {$\beta\iter{k}$};
+	\node (r) at (-1.175,-1.618) {$r_j\iter{k}$};
+	\node (w) at (-1.902,0.618) {$w_j\iter{k}$};
 \end{scope}
+
+	\node at (-4.2,3.3) {Dados valores iniciales para $\pi(\beta)$ y $\pi(\wsn)$, se itera $k = 1,2,3,\ldots$};
 
 % Flechitas
 \begin{scope}[
@@ -311,25 +329,52 @@ Como comentario final a % Cuantiles y figura\\
 	\path (Phi) edge (F);
 	\path (F) edge [bend left](z);
 	\path (z) edge [bend left](beta);
-	\path (beta) edge [bend left](w);
-	\path (w) edge[loop left] node [left] 
-		{para $j = 1,\ldots,d \;$ }(w);
+	\path (beta) edge [bend left](r);
 	\path (w) edge [bend left](F);
 
 \end{scope}
+
+	\path (r) edge[bend left, ->] (w) node at (-3.8, -.7)
+		{para $j = 1,\ldots,d \;$ }(w);			
+	\path (F) edge[bend left, ->] (r);
+
 \end{tikzpicture}
 \caption{Esquema del algoritmo}
 \label{fig:DiagramaAlgoritmo}
 \end{figure}
 
-En forma de pseudocódigo el algoritmo tiene la siguiente forma:
+Dado que los datos y los nodos son fijos, la expansión en bases de polinomios truncados únicamente se tiene que calcular una vez y es constante. Si se usara el enfoque de \autocite{mallik1998automatic}, esta parte aislada del diagrama, debería de ser incluida en el ciclo.\\
+
+\begin{table}[h]
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 \begin{verbatim}
-    Parametros inciales: 
-    WHILE (...)
-        Transformación de X -> Phi -> F (Función: estimate_PWP)		
-        Simulación de betas (Función simulate_beta)
+bpwpm(y, X, M, J, K, N_sim, beta(0), mu_beta(0), sigma_beta(0), w(0), mu_w(0), sigma_w(0)):    
+    tau <- Cuantiles(X, 1/J)
+    Phi <- CalculaPhi(X, M, J, K, tau)
+    F(0) <- CalculaF(Phi, w(0))
+        
+    PARA k = 1 HASTA Nsim:
+        z(k) <- SimNormTrunc(y, F, beta(k-1))
+            
+        sigma_beta(k) <- ((sigma_beta(0))^-1 + F(k-1)'F(k-1))^-1
+        mu_beta(k) <- sigma_beta(k)*((sigma_beta(k))^-1*mu_beta(k-1) + F'*z(k))
+        beta(k) <- NormMulti(mu_beta(k), sigma_beta(k)) 
+            
+        PARA j = 1 HASTA d
+            r(j) <- ResidualesParciales(z, beta, F(k))
+                
+            sigma_w(j,k) <- (sigma_w(j,k-1)^-1 + Phi'Phi)^-1
+            mu_w(j,k) <- sigma_w(j,k)*((sigma_w(j,k))^-1*mu_w(j,k-1) + Phi'r(j))
+            w(j,k) <- NormMulti(mu_w(j,k), sigma_w(j,k)) 
+            
+            F <- ActualizarDimensionjDeMatrizF(Phi, w(j,k))    
+            
+    REGRESAR beta, w
 \end{verbatim} 
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\caption{Algoritmo \textit{bayesian piecewise polinomial model}}
+\label{alg:bpwpm}
+\end{table}
 
-%Hacer énfasis en el apéndice y el paquete.
-
+En forma de pseudocódigo el algoritmo final se encuentra en la Tabla \ref{alg:bpwpm} de la página \pageref{alg:bpwpm}. Sin embargo, inclusive en esta forma, el modelo sigue sufriendo de una notación pesada debido a la gran cantidad de índices y variables\footnote{Como dato curioso, si se expusieran todas las ecuaciones para cada dato real $x_{i,j}$ y la expansión en bases completa, en vez de su representación vectorial, se tendrían que usar 5 índices.}, sin embargo, la implementación del algoritmo final, se separó en una serie de funciones relativamente sencillas y vectorizadas que hacen de el manejo de los objetos una tarea más sencilla. El código que se desarrolló es de dominio publico disponible en \url{https://github.com/PaoloLuciano/BPWPM}, si se quiere hacer una exploración más profunda. Asimismo, se desarrolló mucha funcionalidad adicional para visualizar e imprimir información útil de los posibles modelos que se puedan hacer. En el Apéndice \ref{ap:Paquete}, se hace un compendio de las funciones y una breve descripción de lo que hacen. La documentación completase encuentra también en el paquete.
 \end{document}
