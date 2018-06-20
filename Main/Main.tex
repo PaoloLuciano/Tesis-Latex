@@ -64,29 +64,71 @@
 
 \newcommand{\tituloMayus}{UN MODELO PROBIT BAYESIANO NO LINEAL}
 
-\newcommand{\xni}{\mathbf{x}_i} % Vector de datos X's
+% Negritas
+\newcommand{\xni}{\mathbf{x}_i}
 \newcommand{\xsn}{\mathbf{x}}
 \newcommand{\xmat}{\mathbf{X}}
 \newcommand{\ysn}{\mathbf{y}}
 \newcommand{\zsn}{\mathbf{z}}
 \newcommand{\wsn}{\mathbf{w}}
 \newcommand{\fsn}{\mathbf{f}}
-%\newcommand{\betasn}{\boldsymbol{\beta}}
-\renewcommand{\t}{\tau}
+\newcommand{\psn}{\mathbf{p}}
 
-\newcommand{\tsn}{\boldsymbol{\tau}}
-\newcommand{\E}{\mathbb{E}}
-\newcommand{\Var}{\mathbb{V}}
-\newcommand{\Be}{\text{Be}}
+% Parámetros y cosas muy usadas
+\renewcommand{\t}{\tau}
 \newcommand{\N}{N^*}
 \newcommand{\MJK}{M,\;J\text{ y }K}
 \newcommand{\nsim}{N_{\text{sim}}}
 \newcommand{\kthin}{k_{\text{thin}}}
 \newcommand{\iter}[1]{^{(#1)}} % Superscript
-
-\newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\for}[2]{#1,\ldots,#2}
 \renewcommand{\P}{\mathcal{P}}
 \renewcommand{\H}{\mathcal{H}}
+\newcommand{\intinfty}{\int_{-\infty}^\infty}
+
+% Otros
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathbb{V}}
+\newcommand{\Be}{\text{Be}}
+
+% Normal Bivar
+\newcommand{\normbivar}[6]{
+N_2 \left(
+	\left(\left. \begin{array}{c} x_1 \\ x_2  \end{array} \right) \;
+	\right| \;
+	\mu_{#6} = \left( \begin{array}{c} #1 \\ #2 \end{array} \right), \;
+	\Sigma_{#6} = \left( \begin{array}{cc} 
+						#3 & #4 \\ 
+						#4 & #5 \end{array} \right) \right)}
+
+% Matriz confusión
+\newcommand{\matconf}[9]{
+\begin{array}{c|c|c|l}
+~ 		& \hat{y} = 0 	& \hat{y} = 1	& ~ 	\\[4pt] \hline
+y = 0 	& #1 & #2 & #3 	\\[4pt] \cdashline{1-4}
+y = 1   & #4 & #5 & #6 	\\[4pt] \hline
+~ 		& #7 & #8 & #9
+\end{array}}
+
+% Tabla de parámetros del modelo
+\newcommand{\paramsmod}[9]{
+\begin{array}{ll|l}
+\multicolumn{2}{c}{\text{Parámetros}} & \text{Parámetro Sim.} \\
+\hline
+M = #1 & \N  = #4	& \nsim  = #7 \\
+J = #2 & d = #5	    & k^* 	 = #8 \\
+K = #3 & n  = #6	& \kthin = #9
+\end{array}}
+
+% Tabla de resultados
+\newcommand{\resultados}[3]{
+\begin{array}{c|l}
+\multicolumn{2}{c}{\text{Info. predicción}} \\
+\hline
+\text{Est. Puntual} & #1 \\
+\text{Precisión} & #2\% \\
+ll & #3 \\
+\end{array}}
 
 % Definiendo el enviroment Teorema
 \newtheorem{theorem}{Teorema}
@@ -121,7 +163,7 @@
 %HC SVNT DRACONES
 \subfile{../EjemYRes/EjemYRes}
 
-\chapter{Conclusiones} \label{cap:Conclusiones}
+\chapter{Conclusiones} \label{c	ap:Conclusiones}
 \subfile{../Conclusiones/Conclusiones}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
