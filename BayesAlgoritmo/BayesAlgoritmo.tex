@@ -128,23 +128,23 @@ Este proceso se itera hasta tener una muestra de tamaño arbitrario, que haya al
 
 La convergencia no es intuitiva, es decir, no es trivial derivar que al muestrear de las distribuciones condicionales, se llegue (eventualmente) a un la distribución conjunta. Sin embargo, la prueba formal, aunque compleja, recae en que se puede formar una matriz de transición con las condicionales de $\theta_i$, análoga a las matrices de las cadenas de Markov. Al dejar que  $k\rightarrow\infty$, se llega a un resultado equivalente al de la ecuación (\ref{ec:DistLimite}), habiendo muestrado de la distribución posterior. Sin embargo, la ergodicidad, es un supuesto importante que se preserva y es necesario validad. Esto, pues se pueden dar casos donde la distribución posterior no existe.\\
 
-El tener una muestra de la distribución final $\left\{\theta\iter{k}\right\}_{k=k^*}^{\nsim}$, donde $\nsim$ es el número total de simulaciones arbitraria y $k^*$ es el punto a partir del cual se obtiene la convergencia a $\pi(\theta|\cdot)$, tiene muchos beneficios en la practica. Se le pueden calcular momentos a la muestra, medidas de desviación y hacer representaciones gráficas para su análisis y evaluación. En la Figura \ref{fig:GibbsSamplerSimulado}, se tienen dos imágenes que de una muestra Gibbs para una simulación donde: $\theta = \beta \in \mathbb{R}^3$, $\nsim = 1000$ y $k^* = 500$. 
+El tener una muestra de la distribución final $\left\{\theta\iter{k}\right\}_{k=k^*}^{\nsim}$, donde $\nsim$ es el número total de simulaciones arbitraria y $k^*$ es el punto a partir del cual se cree que se obtiene la convergencia a $\pi(\theta|\cdot)$, tiene muchos beneficios en la practica. Se le pueden calcular momentos a la muestra, medidas de desviación y hacer representaciones gráficas para su análisis y evaluación. En la Figura \ref{fig:GibbsSamplerSimulado}, se tienen dos imágenes que de una muestra Gibbs para una simulación donde: $\theta = \beta \in \mathbb{R}^3$. 
 \begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Chap3/GibbsChain}
+        \includegraphics[width=\textwidth]{Chap3/Ej6BetaChain}
         \caption{Trazas}
         \label{fig:GibbsChain}
     \end{subfigure}
 	\quad
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Chap3/GibbsHist}
+        \includegraphics[width=\textwidth]{Chap3/Ej6BetaHist}
         \caption{Histogramas}
         \label{fig:GibbsHist}
     \end{subfigure}
-    \caption{Muestro Gibbs para el ejemplo \ref{ej:NormBiVar}}\label{fig:GibbsSamplerSimulado}
+    \caption{Muestro Gibbs para el ejemplo 6 de la Sección \ref{sec:Test1Ej6}}\label{fig:GibbsSamplerSimulado}
 \end{figure}
-Para esta figura, se toman los últimos 500 valores de las cadenas. Se observan las \textit{trazas} que se forman al ir simulando los parámetros y se hace un histograma, dando una idea de las distribuciones subyacentes\footnote{Estas imágenes tienen como propósito ejemplificar el Gibbs sampler. El modelo que se usa es el presentado en este trabajo. Asimismo, en el Capítulo \ref{cap:EjYRes} se hará una exploración a fondo de este ejemplo en particular y se verá por que el parámetro $\beta_2$ es idénticamente cero, además de la razón por la que los histogramas se ven sospechosamente parecidos a una distribución normal. Asimismo, estas imágenes fueron generadas con la librería \textit{ggplot2}, incorporada a las funcionalidades del paquete \textit{bpwpm} desarrollado para este trabajo.}.\\
+Para esta figura, se toman y se grafican los últimos 500 valores de las cadenas. Se observan las \textit{trazas} que se forman al ir simulando los parámetros y se hace un histograma, dando una idea de las distribuciones subyacentes\footnote{Estas imágenes tienen como propósito ejemplificar el Gibbs sampler. El modelo que se usa es el presentado en este trabajo, con ciertos parámetros específicos que se revisarán en la sección \ref{sec:AnalisisConv}, donde se hará una exploración a fondo de este ejemplo en particular y se verá por que el parámetro $\beta_2$ es prácticamente cero. Asimismo, estas imágenes fueron generadas con la librería \textit{ggplot2}, incorporada a las funcionalidades del paquete \textit{bpwpm} desarrollado para este trabajo.}.\\
 
 En la practica, muchos de los pormenores derivados del muestreo Gibbs, pueden ser mejorados. Dado que el valor inicial $\theta\iter{0}$ es dado por el estadista, en ocaciones el método tiene que explorar una región extensa de posibles valores para $\theta$, por lo que podría tardar en converger. Esto deriva en que las primeras observaciones deban ser descartadas pues no son realizaciones de la distribución final buscada. A este periodo se le conoce como \textit{burn-in}. En el ejemplo anterior, se utilizó $k^*$ para designar la iteración a partir de cual se toman los valores simulados. En la practica, usualmente se guarda toda la cadena, se explora, tanto por resúmenes numéricos como con representaciones gráficas y se decide (de forma subjetiva) el corte  $k^*$. Otro método ampliamente usado es el de adelgazamiento o \textit{thinning}. Por las mismas características de la estimación por Gibbs, sobre todo en casos multivariados, los valores de las cadenas tienen correlaciones altas. Si se quieren muestras independientes, la bibliografía recomienda tomar cada $(\kthin$)-ésimo valor de la cadena generada para reducir la dependencia entre los parámetros. Usualmente se usan valores pequeños para $\kthin$.  Estos sencillos pasos pasos para mejorar las cadenas, ya se encuentran implementados en el paquete \textit{bpwpm} para \verb|R| para el análisis rápido de las cadenas.
 

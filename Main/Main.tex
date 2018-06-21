@@ -113,11 +113,12 @@ y = 1   & #4 & #5 & #6 	\\[4pt] \hline
 % Tabla de parámetros del modelo
 \newcommand{\paramsmod}[9]{
 \begin{array}{ll|l}
+%\multicolumn{3}{c}{\text{Ejemplo: }#1} \\
 \multicolumn{2}{c}{\text{Parámetros}} & \text{Parámetro Sim.} \\
 \hline
-M = #1 & \N  = #4	& \nsim  = #7 \\
-J = #2 & d = #5	    & k^* 	 = #8 \\
-K = #3 & n  = #6	& \kthin = #9
+M = #1 & \N = #4	& \nsim  = #7 \\
+J = #2 & d = #5    & k^* 	 = #8 \\
+K = #3 & n = #6	& \kthin = #9
 \end{array}}
 
 % Tabla de resultados
@@ -127,7 +128,7 @@ K = #3 & n  = #6	& \kthin = #9
 \hline
 \text{Est. Puntual} & #1 \\
 \text{Precisión} & #2\% \\
-ll & #3 \\
+\text{log-loss} & #3 \\
 \end{array}}
 
 % Definiendo el enviroment Teorema
@@ -160,7 +161,6 @@ ll & #3 \\
 \subfile{../BayesAlgoritmo/BayesAlgoritmo}
 
 \chapter{Ejemplos y resultados} \label{cap:EjYRes}
-%HC SVNT DRACONES
 \subfile{../EjemYRes/EjemYRes}
 
 \chapter{Conclusiones} \label{c	ap:Conclusiones}
@@ -172,6 +172,7 @@ ll & #3 \\
 
 \appendix
 \chapter{Análisis Funcional} \label{ap:AnalisisFunc}
+%HC SVNT DRACONES
 \subfile{../Apendices/AnalisisFunc/AnalisisFunc}
 
 \chapter{Paquete en R. Desarrollo y Lista de Funciones} \label{ap:Paquete}

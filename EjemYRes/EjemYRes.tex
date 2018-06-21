@@ -16,7 +16,7 @@ Sea $\ysn = (y_1,\ldots,y_n)^t$ el vector de respuestas verdaderas; $\hat{\psn} 
 La ventaja de usar la función $ll$, es que da una métrica que, no solo para mide que tan buena es la clasificación binaria, sino, que toma en cuenta la precisión de la predicción. Esto se debe a la función es convexa y se penaliza cuando las probabilidades ajustadas están muy lejos de la real. Asimismo, si la predicción fue incorrecta pero la probabilidad fue cercana a $0.5$ no se penaliza tanto. Idealmente $ll = 0$ si se da una clasificación perfecta y conforme crezca, el modelo es peor. En la práctica y bajo un enfoque frequentista, la función LL es la que usualmente se utiliza para entrenar y comparar modelos de clasificación como redes neuronales.\\
 
 El segundo método, la matriz de confusión, no es más que un método descriptivo, con base en \textit{tablas de contingencia} que calcula las frecuencias para aciertos y errores, separando en grupos. Esto es:
-\begin{table}[h]
+\begin{table}[H]
 \centering
 $\begin{array}{c|c|c|l}
 ~ & \hat{y} = 0 & \hat{y} = 1 & ~ \\[4pt]
@@ -27,13 +27,13 @@ y = 1 & \;\# 1\text{'s clasificados como }0 & \# 1\text{'s } \checkmark & \#\tex
 \hline
 ~ & \# \text{ de estimados cero} & \# \text{ de estimados uno} &  \text{Total de obs. = } n
 \end{array}$
-\caption{Matriz de confusión}
+\caption*{Matriz de confusión}
 \label{tab:MatrizConfusion}
 \end{table}
 
 De donde se puede ver la exactitud en las predicciones del modelo. Estos dos métodos, serán los usados para evaluar cada ejemplo. 
 
-\section{Análisis a fondo de una modelo sencillo} \label{ej:Test1}
+\section{Análisis a fondo de una modelo sencillo} \label{sec:Test1}
 El primer ejemplo que se analizará, es un ejemplo muy sencillo, que busca ejemplificar cada componente del modelo. Se simularon un total de $n = 350$ observaciones separadas en dos grupos, cada uno con tamaños $n_{0} = 200$ y  $n_{1} = 150$ respectivamente ($n = n_0 + n_1$). Los puntos se muestraron de distribuciones normales bivariadas, esto es:
 \begin{align*}
 \text{Grupo 0: } \;
@@ -43,7 +43,7 @@ El primer ejemplo que se analizará, es un ejemplo muy sencillo, que busca ejemp
 &\xsn_i \sim \normbivar{4}{4}{1}{.24}{.64}{1} \quad
 & &i = 201,\ldots,350
 \end{align*}
-Las medias $\mu$ se toman diferentes para dar una clara separación y las covarianzas corresponden a las correlaciones $\rho_0 = 0.7$ y $\rho_1 = .3$ respectivamente. Codificando el grupo 0 con $y = 0$ de color rojo y el grupo 1 con $y = 1$ de color azul. Se tienen los datos presentados en la Figura \ref{fig:Test1Plot}.
+Las medias $\mu$ se toman diferentes para dar una clara separación y las covarianzas corresponden a las correlaciones $\rho_0 = 0.7$ y $\rho_1 = .3$ respectivamente. Codificando el grupo 0 con $y = 0$ de color rojo y el grupo 1 con $y = 1$ de color azul. Se tienen los datos presentados en la Figura \ref{fig:Test1Plot}\footnote{Vale la pena mencionar, que todas las gráficas y presentadas en este Capítulo, fueron generadas usando las capacidades de la librería \textit{ggplot2}, donde se incorporó su funcionalidad al paquete \textit{bpwpm} para poder generar estos gráficos de una forma fácil y rápida para este tipo de modelos.}.
 \begin{figure}[h]
   \centering
       \includegraphics[width = .9\textwidth]{Tests/Test1/GroupPlot}
@@ -83,11 +83,15 @@ Dada la simplicidad de los datos, el modelo lineal probit, presentado en la ecua
  \label{fig:Test1ModGLM}
 \end{figure}
 
-\subsubsection*{Primer ejemplo del modelo bpwpm}
+\subsubsection*{Ejemplo 1 - modelo bpwpm} \label{sec:Test1Ej1}
 Ahora, se prueba contra el modelo \textit{bpwpm} de este trabajo. Se esperaría que, al menos, se comportara como el probit anterior, pues, dada la estructura tan robusta que se tiene, este podría colapsar en uno lineal. \\
 
 Como un primer ejemplo sencillo de comprender, se corren un modelo donde los polinomios por partes son rectas disjuntas en cada segmento con un solo nodo. Se realizan mil simulaciones del muestreo Gibbs, de donde se descartan las primeras 500 observaciones y posteriormente se toma cada segunda observación. Estas especificaciones se resumen en la siguiente tabla que se presentará antes de cada modelo. \\
+\begin{table}[H]
 $$\paramsmod{2}{2}{0}{4}{2}{350}{1000}{500}{2}$$
+\caption*{Ejemplo 1}
+\label{ej:1}
+\end{table}
 Dado que este es un modelo extremadamente sencillo y que se tiene un número pequeño de bases para los polinomios, $\N = 4$, se presenta por única ocasión, la expansión completa para poderla comparar contra el modelo anterior (\ref{ec:Test1ModGLM}). Esto es\footnote{Para $w_{l,j}$, se usa la convención de subíndices $l = \for{1}{\N}$ de la biyección de la Tabla \ref{tab:Biyeccion} y $j = \for{1},{d}$ para indicar la dimensión}: 
 \begin{align}
 	p_i &= P(y_i = 1) =\E[y|\xni] = \Phi(f(\xni))  \quad \Rightarrow  			\nonumber \\
@@ -126,13 +130,13 @@ La Figura \ref{fig:Test1Ej1}, es clave para entender el modelo, en ella se prese
 \begin{figure}[h]
 	\centering
 	\begin{subfigure}[b]{0.45\textwidth}
-    	\includegraphics[width =\textwidth]{Tests/Test1/Ej1}
+    	\includegraphics[width =\textwidth]{Tests/Test1/Ej1Frontera}
 		\caption{Regiones de predicción para modelo con $M = 2$, $J = 2$ y $K = 0$}
 	\label{fig:Test1Ej1}
 	\end{subfigure}
 	\hfill    
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Tests/Test1/3D}
+        \includegraphics[width=\textwidth]{Tests/Test1/Ej13D}
         \caption{Representación en 3D de $\hat{f}$}
         \label{fig:Test1Ej13D}
     \end{subfigure}
@@ -141,12 +145,12 @@ La Figura \ref{fig:Test1Ej1}, es clave para entender el modelo, en ella se prese
 A diferencia de los modelos lineales donde la frontera de predicción binaria es, por ende, lineal, el modelo presentado en este trabajo permite tener fronteras tan complejas como se quiera (aunque no siempre necesarias). Para este ejemplo en particular, la frontera refleja que se está usando un solo nodo y polinomios lineales discontinuos, es por ello que se da la rugosidad. Encontrar la frontera como tal, resulta una tarea mucho más complicada, pues correspondería a resolver la ecuación  $\hat{f}(\xsn) \equiv 0$; en los GLM, esta frontera es perfectamente lineal y el despeje se puede hacer. Sin embargo, cuando se tienen modelos no lineales, se puede hacer una proyección de ella pues, recordando, lo que interesa es discernir cuando la función $\hat{f}$ sea positiva o negativa. Gracias al hecho que $d = 2$ para este ejemplo, se puede visualizar $\hat{f}(\xsn)$ en la Figura \ref{fig:Test1Ej13D}. En esta gráfica, se marca con un plano el \textit{corte} cuando $\hat{f}(\xsn)$ se vuele positiva. Además. se detectan los \textit{pliegues} de discontinuidades derivados del nodo y de la especificación en los parámetros $\MJK$. Se hace notar, que esta representación, no es más que la suma ponderada (por $\hat{\beta})$ de las transformaciones no lineales $f_j \quad j=1,2$, por lo cual vale la pena visualizarlas en la Figura \ref{fig:Test1Ej1Fs}. \\
 \begin{figure}[h]
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Tests/Test1/f1}
+        \includegraphics[width=\textwidth]{Tests/Test1/Ej1F1}
         \caption{$\hat{f}_1(x_1)$}
     \end{subfigure}
 	\hfill
 	    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Tests/Test1/f2}
+        \includegraphics[width=\textwidth]{Tests/Test1/Ej1F2}
         \caption{$\hat{f}_2(x_2)$}
     \end{subfigure}
     \caption{Transformaciones no lineales para cada dimensión.}\label{fig:Test1Ej1Fs}
@@ -154,21 +158,314 @@ A diferencia de los modelos lineales donde la frontera de predicción binaria es
 
 Aunque la escala vertical de $f_j$ es arbitraria, pues en realidad  están ajustando a los residuales parciales, están cumpliendo su propósito de detectar y capturar el patrón que deriva en la separación de los grupos. Para valores izquierdos de ambas variables, se tiene el grupo rojo, para valores mayores, se tiene el grupo azul. Ese efecto, es capturado en el salto que dan las rectas en el nodo, mediante una mayor pendiente en las rectas del lado derecho (mayoritariamente azules), pues, al ser más positivas conforme se avanza en el rango de $x$, estas tendrán más peso en la función de proyección $\hat{f}$, volviéndola más positiva y por ende, más probable que esa región contenga observaciones del grupo azul.\\
 
-% que ya quede claro todo pues ya se incorporó todo 
-Con estas gráficas, se espera dar claridad a todos los componentes del modelo. % Mencionar que muchos elementos son más técnicos que nada como z.
-% Mencionar que las interacciones entre los nodos son un pedote
+Con estas gráficas, se espera dar claridad a todos los componentes del modelo. Este ejemplo trivial, donde $d = 2$, tiene la ventaja que todo es visualizable gráficamente. Se hace énfasis en que muchas de las variables presentadas o métodos, son puramente estructurales y que cumplen una función meramente técnica en el algoritmo, como lo son las variables auxiliares $\zsn$. Al final, y como se presentó en el la Figura \ref{fig:DiagramaMod}, el modelo tiene cierta coherencia y simplicidad fácilmente representable por regiones de dos colores. Posteriormente, se verá la flexibilidad de estas regiones, ahí donde recae la fuerza del modelo.\\
 
-% Mencionar las cadenas de Markov de las primeras imágenes
-% Mencionar que dada la estocasticidad los resultados pueden variar, que dada la estructura normal usar entre la media y asi vale verga igual que (usually) los de Thin y asi. 
-% Que si las 4 observaciones estuvieran dentro se estaría sobreajustando
+Aunque las funciones $f_j$ sean relativamente sencillas presentadas en una dimensión como en la Figura \ref{fig:Test1Ej1Fs}, una vez colapsadas en la función de proyección $f$, se pueden tener efectos inesperados o relativamente extraños. Esto se debe a que la interacción entre los nodos en más de una dimensión puede ser complicada de visualizar y al juntar todo, se dan efectos como los pliegues de la figura \ref{fig:Test1Ej13D}. Para solucionar esto, usualmente se pide cierta suavidad en los polinomios por partes haciéndolos splines para que $f$ sea también suave. Sin embargo, dependiendo de la aplicación los parámetros $\MJK$ se van calibrando hasta que el modelo sea aceptable y las cadenas hayan convergido.\\ 
 
-\subsection{Análisis de Sensibilidad}
-% Moverle el bote y ver que vale verga si se usan polinomios muy pequeños :( como nos gustaría. 
-% Que a medida que subimos el número de parámetros, la estabilidad mejora chingos. 
+\subsection{Diferentes tipos de fronteras - análisis de sensibilidad }
+Toda la flexibilidad del modelo, depende de los parámetros $\MJK$ que recaen en las manos del estadista. Estos parámetros controlan la suavidad de la frontera y es importante que se entienda como cada uno afecta la estimación de los polinomios. Por lo tanto y para pasar de esta base de datos sencilla a algunas más retadoras, se juega un poco con ellos para ver sus efectos en el modelo. Los parámetros se irán aumentando poco a poco, conforme\\
 
-\subsection{Análisis de Convergencias}
-%No quiero llegar aquí
+\subsubsection*{Ejemplo 2 - polinomios constantes}
+A principio, mientras se desarrollaba el paquete, parecía intuitivo
+que, si se está construyendo una clasificación binaria, a cada observación bidimensional $\xni = (x_{i,1}, x_{i,2})^t$ se transformara en una especie de \textit{observación de diseño}\footnote{Derivado de las \textit{matrices de diseño} que se construyen para los modelos ANOVA; si se pudiera mapear cada observación a un espacio más sencillo codificando la respuesta, se podría hacer una predicción aún mejor.}, la cual codificaría si su correspondiente respuesta $y_i$ era 0 o 1. Esta linea de pensamiento, llevo a pensar que escoger los polinomios por partes como constantes sería la mejor opción para la predicción y separación de las regiones. Por lo tanto, se corre el modelo con los parámetros:
+\begin{table}[H]
+$$\paramsmod{1}{2}{0}{2}{2}{350}{1000}{500}{2}$$
+\caption*{Ejemplo 2}
+\label{ej:2}
+\end{table}
 
+De donde se obtiene los siguientes resultados\footnote{De ahora en adelante, hasta llegar al análisis de convergencia, dado que la complejidad de los modelos comenzará a aumentar, se opta por no mostrar los estimadores $\hat{\beta}$ y $\hat{\wsn}$ pues no aportan nada a la discusión y son dificilmente interpretables. Se opta mejor por presentar las gráficas. Si existe alguno digno de mencionar se hará referencia directamente a él.}:
+\begin{align*}
+\resultados{\text{Media posterior}}{92.3}{0.2081}
+\qquad\qquad\qquad
+\matconf{174}{26}{200}{1}{149}{150}{175}{175}{350}
+\end{align*} 
+Claramente, esta no es una mejora al modelo. Tanto en precisión como en métrica log-loss el modelo empeoró significativamente. En las Figuras \ref{fig:Test1Ej2Plots}, se visualiza el porqué.
+\begin{figure}[h]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej2Frontera}
+            \caption{Frontera}   
+            \label{fig:Test1Ej2Frontera}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej23D}
+            \caption{Representación 3D de $\hat{f}$}
+            \label{fig:Test1Ej23D}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej2F1}
+            \caption{$\hat{f}_1(x_1)$}
+            \label{fig:Test1Ej2F1}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej2F2}
+            \caption{$\hat{f}_2(x_2)$}    
+            \label{fig:Test1Ej2F2}
+        \end{subfigure}
+        \caption{Ejemplo 2, con $M = 1$, $J = 2$, $K = 0$, derivando en una función escalonada}
+        \label{fig:Test1Ej2Plots}
+\end{figure}
+Al tener únicamente 1 nodo y polinomios por partes constantes, la región de predicción es la más sencilla posible: dos planos que separan las regiones rojas y azules. En la imagen \ref{fig:Test1Ej23D}, se visualiza la función escalonada resultante con 4 \textit{mesetas} producto de las interacciones entre los dos nodos. Se hace notar que la región inferior izquierda es más negativa pues se tiene menor probabilidad de ser del grupo azul. En las imágenes \ref{fig:Test1Ej2F1} y \ref{fig:Test1Ej2F2} se ven estos polinomios constantes que logran lo que se buscaba, esto es codificar de forma más sencilla la variable real $\xsn$, sin embargo, al considerar las interacciones entre los nodos, la intuición pierde. Se hace notar que en la Figura \ref{fig:Test1Ej2F2} los polinomios están invertidos, esto se debe a que $\beta_2$ es negativo, por lo tanto, a mayores valores de $\hat{f_2}$,la $f$ global aumenta. Lo cual indica que los parámetros están captando bien los patrones.\\
+
+Como un tercer ejemplo, se podría pensar que aumentando el número de nodos y dejando todo lo demás constante mejora la predicción, sin embargo, lo hace de forma marginal. Tomando $J = 3$ (equivalente a dos nodos) se obtiene una precisión del $95.7\%$, en las Figuras \ref{fig:Test1Ej3} se presentan los resultados visuales. Se hace notar, que en este caso en especifico, si la posición del segundo nodo en $x_1$ fuera ligeramente menor (más cercano a $x_1 = 3$) la región mejoraría. De igual forma, se hace notar que se tienen $J^2 = 9$ mesetas en la representación 3D y que, en las regiones de confusión, las $f_j$ tienen valores más cercanos a cero, identificando esta incertidumbre.
+\begin{figure}[h]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej3Frontera}
+            \caption{Frontera}   
+            \label{fig:Test1Ej3Frontera}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej33D}
+            \caption{Representación 3D de $\hat{f}$}
+            \label{fig:Test1Ej33D}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej3F1}
+            \caption{$\hat{f}_1(x_1)$}
+            \label{fig:Test1Ej3F1}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej3F2}
+            \caption{$\hat{f}_2(x_2)$}    
+            \label{fig:Test1Ej3F2}
+        \end{subfigure}
+        \caption{Ejemplo 3, con $M = 1$, $J = 3$, $K = 0$, derivando en una función escalonada}
+        \label{fig:Test1Ej3Plots}
+\end{figure}
+Finalmente, seguir aumentando el número de nodos, no mejora sustancialmente la estimación. Por lo tanto, lo que se debe de hacer es romper la linealidad aumentando $M$.
+
+\subsubsection*{Ejemplo 4 - linealidad + continuidad}
+Para el primer ejemplo de la Sección \ref{sec:Test1Ej1}, se usaron los parámetros, $M = 2$, $J = 2$ y $K = 0$. Esto corresponde a expansiones polinómicas lineales pero discontinuas. Parecería contraintuitivo usar polinomios continuos en los nodos pensando en que se buscan predicciones binarias, sin embargo, resulta que al aumentar la \textit{suavidad} en los polinomios, se logra al menos igualar el nivel de precisión para este ejemplo. En otras bases de datos se verá que esta suavidad es inclusive necesaria para dar mejores predicciones. Asimismo, se ve empiricamente, que al aumentar el numero de parámetros y la suavidad, se tienen estimaciones más robustas que convergen mejor a distribuciones estacionarias.\\
+
+Para este nuevo ejemplo, se aumenta $K = 1$ haciendo que la doble suma en la expansión de bases de \ref{ec:PoliMallik} de la página \ref{ec:PoliMallik} se desvanezca regresando a la definición de splines lineales. Se tiene el modelo:
+\begin{table}[H]
+$$\paramsmod{2}{2}{1}{3}{2}{350}{1000}{500}{2}$$
+\caption*{Ejemplo 4}
+\label{ej:4}
+\end{table}
+Con resultados:
+\begin{align*}
+\resultados{\text{Media posterior}}{98.85}{0.04109}
+\qquad\qquad\qquad
+\matconf{198}{2}{200}{2}{148}{150}{200}{150}{350}
+\end{align*}
+igual de buenos que en el primer ejemplo, y un valor de log-loss marginalmente mayor. Una vez más, se presentan las cuatro imágenes para evaluarlo en la Figura \ref{fig:Test1Ej4Plots}. Otra característica contraintuitiva de este modelo en particular, es que se tiene un parámetro menos para cada expansión de bases, ahora $\N = 3$, pues al añadir la restricción de continuidad por nodo se elimina uno de los dos términos independientes en las expansiones de las ecuaciones (\ref{ec:Test1Ej1F1}) y (\ref{ec:Test1Ej1F2}).  
+\begin{figure}[h]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej4Frontera}
+            \caption{Frontera}   
+            \label{fig:Test1Ej4Frontera}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej43D}
+            \caption{Representación 3D de $\hat{f}$}
+            \label{fig:Test1Ej43D}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej4F1}
+            \caption{$\hat{f}_1(x_1)$}
+            \label{fig:Test1Ej4F1}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej4F2}
+            \caption{$\hat{f}_2(x_2)$}    
+            \label{fig:Test1Ej4F2}
+        \end{subfigure}
+        \caption{Ejemplo 4, con $M = 2$, $J = 2$, $K = 1$, el modelo lineal continuo}
+        \label{fig:Test1Ej4Plots}
+\end{figure}
+Con estas imágenes, es claro ver que se está buscando mayor suavidad progresivamente. En \ref{fig:Test1Ej43D}, se ve que la \textit{sabana} ya no da brincos discontinuos y, aunque aún no sea suave, si retiene la estructura de predicción. Esta frontera se ve mejor en \ref{fig:Test1Ej4Frontera}, donde logra detectar perfectamente bien la región problemática. Finalmente, de \ref{fig:Test1Ej4F1} y \ref{fig:Test1Ej4F2}, se pueden apreciar las rectas ya continuas. Analizándolas, se ve claramente que existe muy poca confusión en cuanto a la primera región roja por lo que $\hat{f}_1(x_1)$ es plana al principio y después da un salto grande. Pasa lo mismo con $\hat{f}_2(x_2)$, sin embargo, la escala es un poco diferente, ya que $\hat{\beta}_2$ es cercana a cero, confirmando nuestra creencia de que la región se puede separar de excelente forma casi, únicamente, con la información de $x_1$. Aunque no se implementó, técnicas de \textit{selección de variables} también podrían ser aplicadas a este tipo de modelos. La precisión mejoró una vez más regresando al modelo óptimo. Asimismo, aumentar el número de nodos no mejora sustancialmente las cosas y solo agrega muchos más parámetros por estimar. 
+
+\subsubsection*{Ejemplo 5 y 6 - polinomios de orden mayor} \label{sec:Test1Ej6}
+Para cerrar las pruebas con esta base de datos y empezar a probarlo con regiones más interesantes, se corren dos últimos modelos con polinomios de orden mayor. En particular para el ejemplo 5, se usan parábolas discontinuas con 2 nodos para ver las capacidades del modelo. Finalmente para el ejemplo 6 se usan los famosos splines cúbicos para ver que tan suave puede llegar a ser el modelo. Esto es:
+\begin{table}[H]
+	\begin{subtable}{0.45\textwidth}
+	\centering
+	$\paramsmod{3}{3}{0}{9}{2}{350}{1000}{500}{2}$
+	\caption*{Ejemplo 5}
+	\end{subtable}
+	\quad
+	\begin{subtable}{0.45\textwidth}
+	\centering
+	$\paramsmod{4}{3}{3}{6}{2}{350}{2000}{1000}{3}$	
+	\caption*{Ejemplo 6}
+	\label{ej:6}
+	\end{subtable}
+\end{table}
+Se hace notar, que para el ejemplo 6 se corre una cadena relativamente más larga y con periodo de \textit{burn-in} $k^*$ también mayor. Esto se debe a el ejemplo 6 es el elegido para analizar su convergencia en la Sección \ref{sec:AnalisisConv} ya que se dan resultados interesantes.\\
+
+Para el ejemplo 5, se obtuvo lo siguiente:
+\begin{align*}
+\resultados{\text{Media posterior}}{98.85}{0.03189}
+\qquad\qquad\qquad
+\matconf{198}{2}{200}{2}{148}{150}{200}{150}{350}
+\end{align*}
+con las imágenes presentadas en la Figura \ref{fig:Test1Ej5Plots}.
+\begin{figure}[h]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej5Frontera}
+            \caption{Frontera}   
+            \label{fig:Test1Ej5Frontera}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej53D}
+            \caption{Representación 3D de $\hat{f}$}
+            \label{fig:Test1Ej53D}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej5F1}
+            \caption{$\hat{f}_1(x_1)$}
+            \label{fig:Test1Ej5F1}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej5F2}
+            \caption{$\hat{f}_2(x_2)$}    
+            \label{fig:Test1Ej5F2}
+        \end{subfigure}
+        \caption{Ejemplo 5, con $M = 3$, $J = 3$, $K = 0$, el modelo lineal continuo}
+        \label{fig:Test1Ej5Plots}
+\end{figure}
+De donde lo único diferente son la forma de las $\hat{f}_j$. La Figura \ref{fig:Test1Ej5F1}, presenta un comportamiento interesante; se conserva algo de la continuidad, casi como si las parábolas \textit{quisieran} ser continuas pues esa es la mejor opción para hacer la predicción. Asimismo \ref{fig:Test1Ej53D} y \ref{fig:Test1Ej5Frontera} presentan claramente los efectos de las discontinuidades derivados de elegir $K = 0$. Este ejemplo, funciona mejor como un referente de las capacidades del modelo preservando la precisión, en la práctica tener 21 parámetros para un ejemplo tan sencillo no es nada útil.\\
+
+Finalmente, el ejemplo 6, es más de lo mismo, los resultados son prácticamente iguales que los obtenidos con los demás modelos. 
+%Esta similitud, se debe al hecho que la base de datos es muy sencilla.
+Sin embargo, se presentan las imágenes en la Figura 6 donde se puede ver claramente la \textit{suavidad} obtenida en la frontera, en la función $\hat{f}$ y las correspondientes $\hat{f}_j$. 
+\begin{figure}[h]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej6Frontera}
+            \caption{Frontera}   
+            \label{fig:Test1Ej6Frontera}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej63D}
+            \caption{Representación 3D de $\hat{f}$}
+            \label{fig:Test1Ej63D}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej6F1}
+            \caption{$\hat{f}_1(x_1)$}
+            \label{fig:Test1Ej6F1}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test1/Ej6F2}
+            \caption{$\hat{f}_2(x_2)$}    
+            \label{fig:Test1Ej6F2}
+        \end{subfigure}
+        \caption{Ejemplo 6, con $M = 4$, $J = 3$, $K = 3$, el modelo lineal continuo}
+        \label{fig:Test1Ej6Plots}
+\end{figure}
+Al tener una cadena más larga, la escala de las $\hat{f}_j$, empieza a ser relativamente arbitraria, sobre todo para la segunda pues, conforme converge el modelo los parámetros $\wsn$ compensan la escala de $\beta$ y viceversa. Se continúa con este ejemplo en la siguiente sección.\\
+
+En la practica, escoger el \textit{mejor} modelo es subjetivo pues depende del proceso de calibración de los parámetros y los resultados que se busquen obtener. Dado que el algoritmo es realmente rápido, sobre todo para $d$ pequeñas, se puede jugar mucho con el, y explorar una serie de modelos. En casi todos los ejemplos presentados en esta base de datos se obtuvo la precisión del $98.85\%$ y sería inverosímil tratar de mejorarla pues obligaría al modelo a sobreajustar y hacer regiones pequeñas para los 4 puntos que quedan en regiones de predicción opuestas. Asimismo, el número de nodos, al menos en este ejemplo, parece no importar mucho, aumentarlo, únicamente aumenta la complejidad del modelo y no aporta mucho, se ve claramente que con pocos parámetros y nodos, se tiene excelentes resultados. \\
+
+Como comentario final, se hace notar que dado el algoritmo es \textit{estocástico} y depende de la simulación de parámetros aleatorios, replicar exactamente las cadenas es una tarea casi imposible; mas, los resultados y las regiones son consistentes. Al menos para este ejemplo, los valores de $k^*$ y $\kthin$ también parecieran no importar mucho pues las cadenas convergen muy rápido por las propiedades del Gibbs Sampler que se usa. 
+
+\subsection{Análisis de Convergencias} \label{sec:AnalisisConv}
+El ejemplo 6 es interesante, pues ya se había explorado, sin saberlo, cuando se hablo de mustreo Gibbs en la sección \ref{sec:GibbsSampler}. En las imágenes de la página \ref{fig:GibbsSamplerSimulado} se aprecian las trazas y los histogramas de los parámetros $\beta$ derivados de la simulación del modelo. Analizando la imagen \ref{fig:GibbsChain}, a primera vista, se observan varias cosas; la linea azul, que representa el parámetro $\hat{\beta}_2$ es prácticamente cero, la linea verde del parámetro $\hat{\beta}_1$ es muy consistente, casi sin variar, y la traza de $\hat{\beta}_0$ sube y baja sin aparente patrón. La imagen \ref{fig:GibbsChain} únicamente confirma esta creencia.\\
+
+Este es el inicio de un análisis de convergencia que se debe realizar independientemente de los resultados tan positivos que se mostraron anteriormente. Pues, se recuerda, que estos fueron derivados de estimaciones puntuales para los parámetros usando la media posterior, además de tomar en cuenta el periodo de calentamiento y  adelgazamiento, dados por los parámetros $k^*$ y $k_thin$. Asimismo, este proceso se debe realizar para todos los parámetros del modelo, es decir, los vectores $w_j j = 1,2$. Por lo tanto, en la tabla \ref{tab:ParametrosConv} se presentan métricas interesantes para todos los parámetros del modelo, una vez \textit{corregidas}\footnote{Es decir, descartando las observaciones antes de $k^*$ y adelgazando.} las cadenas.
+\begin{table}
+	\centering
+	\begin{subtable}{\textwidth}
+		$\arraycolsep=12pt
+		\begin{array}{l|c:c:c}
+		\text{Métrica} &	\hat{\beta}_0 & \hat{\beta}_1 & \hat{\beta}_2\\
+		\hline
+		\text{Mínimo}              & -3.34 & 0.63 & 0.00 \\
+		\text{Primer Quartíl}      & -2.50 & 0.79 & 0.00 \\
+		\text{Media}               & -1.65 & 0.82 & 0.00 \\
+		\text{Mediana}             & -1.74 & 0.81 & 0.00 \\
+		\text{Tercer Quartíl}      & -0.93 & 0.85 & 0.00 \\
+		\text{Máximo}              & 1.01 & 0.99 & 0.00 \\
+		\text{Desviación Estandar} & 0.93 & 0.06 & 0.00 \\
+		\end{array}$
+	%\caption{\hat{\beta}}
+	\end{subtable}
+	\vskip\baselineskip
+	\begin{subtable}{\textwidth}
+		$\begin{array}{l|c:c:c:c:c:c}
+		\multicolumn{7}{c}{\hat{w}_1} \\
+		\text{Métrica} & \hat{w}_{1,1} & \hat{w}_{1,2} & \hat{w}_{1,3} & \hat{w}_{1,4} & \hat{w}_{1,5} & \hat{w}_{1,6} \\
+        \hline                    
+        \text{Mínimo} 			& -12.60 & -9.18 & -23.62 & -0.14 & -16.06 & -1.59 \\
+        \text{Primer Quartíl} 	& -2.44  & -2.87 & -2.27  & 0.45  & -3.31  & 0.28  \\
+        \text{Media} 			& -1.55  & -1.94 & -1.64  & 0.97  & -2.27  & 1.46  \\
+        \text{Mediana} 			& -1.24  & -1.56 & -1.20  & 0.69  & -1.53  & 0.88  \\
+        \text{Tercer Quartíl} 	& -0.32  & -0.72 & -0.53  & 1.30  & -0.90  & 2.29  \\
+        \text{Máximo} 			& 15.22  & 4.67  & 4.10   & 7.74  & 0.60   & 11.55 \\
+        \text{Desviación Estandar} & 2.10   & 1.74  & 1.94   & 0.78  & 1.98   & 1.84 
+		\end{array}$
+	%\caption{$\hat{w}_1$}
+	\end{subtable}	
+	\vskip\baselineskip
+	\begin{subtable}{\textwidth}	
+		$\begin{array}{l|c:c:c:c:c:c}
+		\multicolumn{7}{c}{\hat{w}_2} \\
+		\text{Métrica} & \hat{w}_{2,1} & \hat{w}_{2,2} & \hat{w}_{2,3} & \hat{w}_{2,4} & \hat{w}_{2,5} & \hat{w}_{2,6} \\
+        \hline                    
+		\text{Mínimo} 			& 		  0.00 & -61080 &  -46710	&  -7448 &	-25550  &  0.00 \\
+		\text{Primer Quartíl} 	&  		  0.00 &  -7509 &  -5396	&  77.7	 &	-4444   &  -43.9 \\
+		\text{Media} 			&   	  0.00 &  -4693 &  -3515	&  1543  &	-2917   &  160.07 \\
+		\text{Mediana} 			&         0.00 &  -2846 &  -1887	&  1227  &	-2320   &  355.6 \\
+		\text{Tercer Quartíl} 	&         0.00 &    -69 &    -82	&  2293  &	-103.2  &  3185 \\
+		\text{Máximo} 			&         0.00 &  29420 &  36720	&  4110  &	14410   &  3092 \\
+		\text{Desviación Estandar} &      0.00 &   7147 &   5691	&  1799  &	3562    &  452 
+		\end{array}$
+	%\caption{$\hat{w}_2$}
+	\end{subtable}
+	\caption{Resumenes numéricos para los parámetros del modelo presentado en el ejemplo 6.}
+	\label{tab:ParametrosConv}
+\end{table}
+% Analizar estos parámetros
+% Hablar de que se busca normalidad en los histogramas derivado del algoritmo
+
+% Que betas son pequeñas y w's grandes for la falta de ortogonalidad pero que algunas estimaciones si son super estables y que siempre logra hacer buenas predicciones
+
+% Presentar la media ergófica
+Una manera usual de realizar esto es revisando la \textit{media ergódica} que no es más que el promedio móvil de las trazas. 
+% Demás gráficas ya en carpeta y concluir.
+
+% Mencionar que en la practica jala de huevos siempre
 
 \section{Otros resultados interesantes}
 Estos ejemplos, son más expositivos que analíticos, es decir, se analizan más las caracteristicas fundamentales que todos los detalles del modelo como se hizo en la sección anterior. Sin embargo, usando el paquete, se puede hacer el análisis de la misma forma. 
