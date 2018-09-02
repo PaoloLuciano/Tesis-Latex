@@ -45,13 +45,13 @@
 %							DECLARACIÓN LEGAL
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \thispagestyle{empty}
-\vspace*{\fill}
+%\vspace*{\fill}
 \begingroup
 ``Con fundamento en los artículos 21 y 27 de la Ley Federal del Derecho de Autor y como titular de los derechos moral y patrimonial de la obra titulada ``\textbf{\tituloMayus}'', otorgo de manera gratuita y permanente al Instituto Tecnológico Autónomo de México y a la Biblioteca Raúl Bailléres Jr., la autorización para que fijen la obra en cualquier medio, incluido el electrónico, y la divulguen entre sus usuarios, profesores, estudiantes o terceras personas, sin que pueda percibir por tal divulgación una contraprestación''.
 
 \centering
 
-\hspace{3em}
+\hspace{2em}
 
 \textsc{Gianpaolo Luciano Rivera}
 
@@ -61,7 +61,7 @@
 
 \textsc{Fecha}
  
-\vspace{8em}
+\vspace{5em}
 
 \rule[1em]{20em}{0.5pt} % Línea para la firma
 
@@ -75,8 +75,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 	\begin{singlespace}
-	En respuesta al cambiante mundo de \textit{Machine Learning}, se desarrolla un modelo de este tipo. El modelo, no es más que un modelo lineal generalizado, particularmente un probit, que busca la predicción de variables binarias, en un contexto de regresión bayesiana. A este, se le añadió un proyector aditivo no lineal para transformar, previamente a las covariables y lograr captar patrones no lineales. La transformación esta basada en polinomios por partes de continuidad arbitraria. El modelo posteriormente se implementa en un paquete para el software estadístico \verb|R|. Los resultados resultan ser suficientemente atractivos y prometedores para continuar robusteciendo el modelo. 
-	\noindent \textbf{Palabras clave: modelos lineales generalizados, probit, modelos aditivos, bayesiano, no lineal, machine learning.}
+	En respuesta al cambiante mundo del \textit{Aprendizaje de Máquina}, se desarrolla, desde sus cimientos, un modelo aplicable a esta categoría. El modelo, no es más que un modelo lineal generalizado, particularmente un probit, que busca la predicción de variables binarias. A este, se le añadió un proyector aditivo no lineal para transformar a las covariables y lograr captar patrones más complejos. La transformación esta basada en polinomios por partes de continuidad arbitraria los cuales se explican en detalle. Bajo un paradigma de aprendizaje bayesiano, se desarrolla un algoritmo eficiente para su entrenamiento. Posteriormente, este algoritmo se implementa en un paquete para el software estadístico \verb|R|. Usando este paquete, finalmente, se prueba y valida el modelo, presentan una variedad de resultados, que exponen de forma clara las capacidades de el modelo. 
+	\noindent \textbf{Palabras clave: modelos lineales generalizados, probit, modelos aditivos, bayesiano, no lineal, machine learning, splines, polinomios por partes.}
 	\end{singlespace}
 \end{abstract}
 \clearpage
@@ -89,35 +89,39 @@
 \setcounter{page}{0} %% para que las dedicatorias no tuvieran número de hoja. Si te hace reido quítaselo. 
 \begin{flushright}
 	\null\vspace{\stretch{1}}
-	\emph{A mi madre, Irma, que no solo le debo la vida, sino todo lo que soy y todo lo que tengo; que está tesis, también es suya.} 
+	\emph{A mi madre, Irma, que no solo le debo la vida, sino todo lo que soy y todo lo que tengo; que está tesis también es suya.} 
 	\\
 	\emph{A mi padre, Antonio, que aunque no esté, siempre lo he sentido presente.} 
 	\\
-	\emph{A mi otro padre, Fernando, por su guía y apoyo incondicioanl.}
+	\emph{A mi otro padre, Fernando, por su guía, apoyo incondicional y sobre todo el amor que siempre me ha dado.}
 	\\
 	\emph{A mi abuelo, Carlos, por enseñarme el amor a la sabiduría y el valor del trabajo.}	
 	\\
-	\emph{Al profesor Juan Carlos Martínez-Ovando que sin su guía y consejo, jamás habría logrado avanzar de la primera página.}
+	\emph{A Paulina, que es lo mejor que me ha pasado en la vida.}
 	\\
-	\emph{A Iñigo por su amistad sin medida, por su apoyo, compañía e inteligencia fuera de este mundo. }
+	\emph{A Iñigo por su amistad sin medida, por su apoyo, compañía e inteligencia fuera de este mundo.}
 	\\
-	\emph{A Pamela, Ro, Pau, Bren, Hector y George. Por ser los mejores amigos que alguien podría pedir, las personas más exitosas que conozco y por siempre inspirarme a crecer y seguir adelante. Todos unos DonChis.}
+	\emph{A los DonChis: Pamela, Rodrigo, Brenda, Hector y George. Por ser los mejores amigos que alguien podría pedir, las personas más exitosas que conozco y por siempre inspirarme a crecer y seguir adelante.}
 	\\
-	\emph{A Luis, Jimena, Carlos, Mercedes, Santiago, Tulio y Alejandro por acompañarme en la carrera y rompernos más de una vez la cabeza en demostraciones oscuras.}
+	\emph{A Luis, Jime, Eli, Charly, Mercy, Santiago, Tulio y Alejandro por acompañarme en la carrera y rompernos más de una vez la cabeza en demostraciones oscuras.}
 	\\
-	\emph{A Toño, Chris, Edu, Mau y Luis por ser los mejores actuarios que conozco.}
+	\emph{A Toño, Chris, Edu, Mau y Luis V. por ser los mejores actuarios que conozco.}
 	\\
-	\emph{A Jorge, por enseñarme de perseverancia y resiliencia y por ser uno de mis más viejos amigos. }
+	\emph{A Jorge, por enseñarme de perseverancia y resiliencia y por ser uno de mis más viejos amigos.}
 	\\
-	\emph{A Paulina C. y a Fernanda, por acompañarme y siempre motivarme. }
+	\emph{A Pau C. y a Fernanda, por ser algunas de las mejores amigas que podría pedir.}
 	\\
-	\emph{A todos mis alumnos, porque más que un negocio, fue una forma de aprender igual o mejor que mis profesores.}
+	\emph{A todos mis alumnos, porque más que un negocio, fueron un medio para consolidar mis conocimientos y siempre aprender más.}
 	\\
-	\emph{A los grandes profesores que tuve en la carrera, que no solo me enseñaron, sino que me inculcaron el amor por las matemáticas . En particular al profesor E. Barrios, M. Gregorio, J. Alfaro, R. Espinoza, G. Gravinsky y Z. Parada}
+	\emph{A mi asesor, Juan Carlos Martínez-Ovando que, aunque no siempre fácil,  sin su guía y consejo jamás habría logrado avanzar de la primera página.}	
 	\\
-	\emph{A lo grandes estadistas que han dedicados sus vidas a los datos. En particular a T.Hastie, R. Tibshirani y J. Friedman que sin su excelente libro \textit{Elements of Statistical Learning} hubiera estado perdido.} 
+	\emph{A los grandes profesores que tuve en la carrera, que no solo me enseñaron, sino que me inculcaron el amor por las matemáticas. En particular al profesor E. Barrios, M. Gregorio, J. Alfaro, R. Espinoza, G. Gravinsky y Z. Parada}
 	\\
-	\emph{Al Café Parabien por ser un espacio de trabajo y un hogar para mi estos meses de arduo trabajo.}
+	\emph{A mis profesores de matemáticas y física del Green Hills que plantaron en mi la curiosidad por sus temas y siempre creyeron en mi, impuslandome a seguir mis sueños.}
+	\\	
+	\emph{A lo grandes estadistas que han dedicados sus vidas a los datos. En particular a T.Hastie, R. Tibshirani y J. Friedman que sin sus contribuciones, hubiera estado perdido.} 
+	\\
+	\emph{Al Café Parabien por ser un espacio de trabajo y un hogar para mi los meses de arduo trabajo.}
 	\vspace{\stretch{2}}\null
 \end{flushright}
 \end{document}

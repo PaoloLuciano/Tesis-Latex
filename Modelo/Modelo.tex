@@ -234,7 +234,7 @@ f(\xsn) \approx \beta_0 +\sum_{i=1}^d \beta_i f_i(x_i) = \beta^t \mathbf{f}(\xsn
 $$
 donde usando notación vectorial $\beta\in\mathbb{R}^{d+1}$ y 
 $\mathbf{f}(\xsn) \in\mathbb{R}^{d+1}$:
-\begin{align}
+\begin{align}\label{ec:fvector}
 \mathbf{f}(\xsn) &=  
 \left[
 	\begin{array}{c} 
@@ -254,7 +254,7 @@ $\mathbf{f}(\xsn) \in\mathbb{R}^{d+1}$:
 	\vdots   \\
  	w_d^t\Psi_d(x_d,\P_d)\\
 	\end{array}
-\right]	\label{ec:fvector}
+\right]	
 \end{align} 
 La segunda modificación, se ve en la expresión anterior (\ref{ec:fvector}). Aunque es muy práctico manejar las $f_j$'s como indeterminadas y estimarlas con procedimientos de suavizamiento no paramétricos, también se puede optar por la vía en la que se especifica su forma funcional, en este caso $w_j^t\Psi_j(\cdot)$.
 No por ello, se le quita flexibilidad al procedimiento; esto se verá con todo detalle en la siguiente sección \ref{sec:fj}, donde se trata de adapart el procedimiento de \autocite{mallik1998automatic}. Esta modificación, obedece a que para ciertas aplicaciones, sirve hacer el modelo paramétrico en donde cada $f_j$ se modela en su expansión de bases (Vease Capitulo 9.1 y Ejemplo 5.2.2 de \autocite{hastie2008elements}).

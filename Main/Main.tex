@@ -1,7 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							PREAMBLE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[pdftex,11pt]{report}
+\documentclass[pdftex,11pt, oneside]{book}
+
+% Para tener páginas sin header
+\pagestyle{plain}
 
 % Tamaño Página normal
 \usepackage[left=2cm,top=1.5cm,right=2cm,bottom=2cm]{geometry} 
@@ -13,6 +16,7 @@
 \usepackage[utf8]{inputenc} % Acentos y demás
 \usepackage{csquotes} % Fuck los errores de tex
 \decimalpoint % Malditos anormales que usan comas
+\usepackage[title]{appendix}
 
 % Math
 \usepackage{amsmath} % Simbolos y cosas bonitas
@@ -60,6 +64,9 @@
 \usepackage[authordate, backend = biber]{biblatex-chicago}
 \addbibresource{Tesis.bib} 
  \usepackage[nottoc,numbib]{tocbibind}
+ 
+% Para hacer listas sin bullets
+\usepackage{enumitem}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							COMMANDS
@@ -141,19 +148,29 @@ K = #3 & n = #6	& \kthin = #9
 %							DOCUMENTO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{document} 
+\begin{document}
+\subfile{../PortadaYMas/PortadaGrande}
 %\subfile{../PortadaYMas/Portada}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%							ÍNDICE
+%						PREÁMBULO E ÍNDICE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pagebreak
+\frontmatter
 \tableofcontents
+\listoffigures
+\listoftables
+
+\chapter{Notación} \label{ap:Notacion}
+\subfile{../Apendices/Notacion/Notacion}
+
+\chapter{Definiciones, teoremas y abreviaciones} \label{ap:Definiciones}
+\subfile{../Apendices/Definiciones/Definiciones}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							CAPITULOS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\mainmatter
 \chapter{Introducción} \label{cap:Intro}
 \subfile{../Introduccion/Introduccion}
 
@@ -179,15 +196,9 @@ K = #3 & n = #6	& \kthin = #9
 \subfile{../Apendices/AnalisisFunc/AnalisisFunc}
 
 \chapter{Paquete en R. Desarrollo y Lista de Funciones} \label{ap:Paquete}
-\subfile{../Apendices/Paquete/Paquete}
-
-\chapter{Notación} \label{ap:Notacion}
-\subfile{../Apendices/Notacion/Notacion}
-
-\chapter{Definiciones} \label{ap:Definiciones}
-\subfile{../Apendices/Definiciones/Definiciones}
 
 %Bibliografía
+\backmatter
 \addcontentsline{toc}{chapter}{Bibliografía}
 \printbibliography
 
