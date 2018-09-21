@@ -7,15 +7,15 @@
 \pagestyle{plain}
 
 % Tamaño Página normal
-\usepackage[left=2cm,top=1.5cm,right=2cm,bottom=2cm]{geometry} 
+%\usepackage[left=2cm,top=1.5cm,right=2cm,bottom=2cm]{geometry} 
 % Para ya formato bueno Tesis ITAM
-%\usepackage[paperwidth = 18cm, paperheight = 22.5cm, bottom = 2.5cm, right = 2cm, left = 2cm]{geometry} 
+\usepackage[paperwidth = 18cm, paperheight = 22.5cm, bottom = 2.5cm, right = 2cm, left = 2cm]{geometry} 
 
 % Lenguaje 
 \usepackage[spanish,es-tabla]{babel} % Español y la palabra tabla para las tablas...
 \usepackage[utf8]{inputenc} % Acentos y demás
 \usepackage{csquotes} % Fuck los errores de tex
-\decimalpoint % Malditos anormales que usan comas
+\decimalpoint % Malditos an1ormales que usan comas
 \usepackage[title]{appendix}
 
 % Math
@@ -61,9 +61,10 @@
 \setlength{\parskip}{1.5em} % Espacio entre parrafos
 
 % Biblografía (uso Biblatex-Chicago con backend en biber) 	
-\usepackage[authordate, backend = biber]{biblatex-chicago}
+\usepackage[authordate, bibencoding=auto, strict, backend=biber, natbib]{biblatex-chicago}
 \addbibresource{Tesis.bib} 
- \usepackage[nottoc,numbib]{tocbibind}
+\usepackage[nottoc,numbib]{tocbibind}
+% \citet, para citas donde usas el nombre de los autrores y solo el año entre paréntesis.
  
 % Para hacer listas sin bullets
 \usepackage{enumitem}
@@ -108,7 +109,7 @@ N_2 \left(
 	\right| \;
 	\mu_{#6} = \left( \begin{array}{c} #1 \\ #2 \end{array} \right), \;
 	\Sigma_{#6} = \left( \begin{array}{cc} 
-						#3 & #4d \\ 
+						#3 & #4 \\ 
 						#4 & #5 \end{array} \right) \right)}
 
 % Matriz confusión
@@ -133,8 +134,8 @@ K = #3 & n = #6	& \kthin = #9
 
 % Tabla de resultados
 \newcommand{\resultados}[3]{
-\begin{array}{c|l}
-\multicolumn{2}{c}{\text{Info. predicción}} \\
+\begin{array}{l|l}
+\multicolumn{2}{l}{\text{Info. predicción}} \\
 \hline
 \text{Est. Puntual} & #1 \\
 \text{Precisión} & #2\% \\
@@ -144,13 +145,42 @@ K = #3 & n = #6	& \kthin = #9
 % Definiendo el enviroment Teorema
 \newtheorem{theorem}{Teorema}
 
+% Poder hacer abstacts en fomato book... 
+\newcommand\abstractname{Abstract}
+ 
+\makeatletter
+\if@titlepage
+  \newenvironment{abstract}{%
+      \titlepage
+      \null\vfil
+      \@beginparpenalty\@lowpenalty
+      \begin{center}%
+        \bfseries \abstractname
+        \@endparpenalty\@M
+      \end{center}}%
+     {\par\vfil\null\endtitlepage}
+\else
+  \newenvironment{abstract}{%
+      \if@twocolumn
+        \section*{\abstractname}%
+      \else
+        \small
+        \begin{center}%
+          {\bfseries \abstractname\vspace{-.5em}\vspace{\z@}}%
+        \end{center}%
+        \quotation
+      \fi}
+      {\if@twocolumn\else\endquotation\fi}
+\fi
+\makeatother
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							DOCUMENTO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\subfile{../PortadaYMas/PortadaGrande}
-%\subfile{../PortadaYMas/Portada}
+%\subfile{../PortadaYMas/PortadaGrande}
+\subfile{../PortadaYMas/Portada}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %						PREÁMBULO E ÍNDICE
@@ -191,11 +221,16 @@ K = #3 & n = #6	& \kthin = #9
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
-\chapter{Análisis Funcional} \label{ap:AnalisisFunc}
+%\chapter{Análisis Funcional} \label{ap:AnalisisFunc}
 %HC SVNT DRACONES
-\subfile{../Apendices/AnalisisFunc/AnalisisFunc}
+%\subfile{../Apendices/AnalisisFunc/AnalisisFunc}
+
+\chapter{Distribuciones Conjugadas} 
+\label{ap:DistrosConjugadas}
+%\subfile{../Apendices/DistrosConjugadas/DistrosConjugadas}
 
 \chapter{Paquete en R. Desarrollo y Lista de Funciones} \label{ap:Paquete}
+%\subfile{../Apendices/Paquete/Paquete}
 
 %Bibliografía
 \backmatter
