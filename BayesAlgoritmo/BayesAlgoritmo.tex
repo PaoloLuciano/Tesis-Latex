@@ -4,7 +4,7 @@
 Pasar de un modelo tan estructurado a su implementación computacional no resulto fácil. Sin embargo, se logró desarrollar un algoritmo que estima todos los parámetros del modelo de una forma eficiente y que funciona en la práctica. En el fondo, el algoritmo recae en el método de Gibbs sampling propuesto en \citet{albert1993bayesian}, por lo que se hace una breve introducción a la escuela de inferencia bayesiana, y en el algortimo de backfitting descrito en \citet{hastie1986generalized}. Al algoritmo se le titula: \textit{bayesian piece wise polinomial model (bpwpm)}. Para facilitar la utilización del modelo en diversas bases de datos, así como  su validación y visualización, a la par del algoritmo se desarrolló un paquete de código abierto (con el mismo nombre) para el software estadístico \verb|R|, más detalles en le Apéndice \ref{ap:Paquete}.
 
 Al darle un tratamiento bayesiano a los parámetros, más que estimarlos, se busca regresar una muestra de tamaño arbitrario de sus correspondientes distribuciones posteriores. La idea, es que estas distribuciones posteriores, se haya capturado toda la información de los datos de entrenamiento. Se considera, que una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis notacional. De las ecuaciones del modelo: (\ref{ec:Y-Z}) a (\ref{ec:fj}), se tienen dos grupos de parámetros por estimar, $\beta \in \mathbb{R}^{d+1}$ y $w_j \in \mathbb{R}^{\N} \quad \forall j = 1,\ldots,d$, donde:
-\begin{align*}
+\begin{align}
 \beta &= 
 \left[ 
 	\begin{array}{c}
@@ -29,7 +29,7 @@ w_d =
 	\vdots\\
 	w_{d,\N}
 	\end{array}\right]
-\end{align*}
+\end{align}
 Se hace énfasis en que existen $d$ vectores $w_j$, cada uno de tamaño $\N$. Por lo tanto, se tienen un total de $1 + d + d\times\N$ parámetros. Se usa el símbolo $\wsn$ para designar todos los vectores $w_j$, correspondiente a una matriz: $\wsn\in\mathbb{R}^{d\times\N}$. Cuando se habla de datos: $\{(y_i,\xni)\}_{i = 1}^n$, estos se pueden  representar en una tabla (o matriz):
 $$\left[\begin{array}{c|ccc} 
 y_1 & x_{1,1} & \ldots & x_{1,d} \\ 
@@ -147,7 +147,7 @@ Para esta figura, se toman y se grafican los últimos 500 valores de las cadenas
 
 En la practica, muchos de los pormenores derivados del muestreo Gibbs, pueden ser mejorados. Dado que el valor inicial $\theta\iter{0}$ es dado por el estadista, en ocasiones el método tiene que explorar una región extensa de posibles valores para $\theta$, por lo que podría tardar en converger. Esto deriva en que las primeras observaciones deban ser descartadas pues no son realizaciones de la distribución final buscada. A este periodo se le conoce como \textit{burn-in}. En el ejemplo anterior, se utilizó $k^*$ para designar la iteración a partir de cual se toman los valores simulados. En la practica, usualmente se guarda toda la cadena, se explora, tanto por resúmenes numéricos como con representaciones gráficas y se decide (de forma subjetiva) el corte  $k^*$. Otro método ampliamente usado es el de adelgazamiento o \textit{thinning}. Por las mismas características de la estimación por Gibbs, sobre todo en casos multivariados, los valores de las cadenas tienen correlaciones altas. Si se quieren muestras independientes, la bibliografía recomienda tomar cada $(\kthin$)-ésimo valor de la cadena generada para reducir la dependencia entre los parámetros. Usualmente se usan valores pequeños para $\kthin$.  Estos sencillos pasos pasos para mejorar las cadenas, ya se encuentran implementados en el paquete \textit{bpwpm} para \verb|R| para el análisis rápido de las cadenas.
 
-\subsection{Algoritmo de Albert y Chib}
+\subsection{Algoritmo de Albert y Chib} \label{sec:AlbertChib}
 El algoritmo particular del Gibbs sampler que se usa en este trabajo, es una versión modificada del presentado en \citet{albert1993bayesian}. Este método ofrece varias ventajas para el modelo propuesto, pues se desarrolló específicamente para regresiones probit usando la variables latente $z$. Además es un método muy eficiente pues usa distribuciones conjugadas, por lo que las distribuciones condicionales, se pueden calcular directamente y la parte estocástica depende únicamente de simular distribuciones conocidas. Esto lleva a que los periodos de burn-in sean relativamente pequeños y que el adelgazamiento no sea fundamentalmente necesario.
 
 A su algoritmo, ellos lo llaman \textit{data augmentation for binary data} y son los pioneros en el uso de variables latentes para unir la respuesta $y$ con las covariables $\xsn$ como se revisa en la Sección \ref{sec:GLM}. En su exposición, ellos utilizan una función de proyección lineal $f(\xsn) = \beta^t\xsn$, diferente. Por lo mismo, (y por un breve momento) esta se utiliza para explicar la idea fundamental. Usando la misma notación, se introducen $n$ variables latentes $\zsn = (z_1,\ldots,z_n)^t$, con $z_i \sim N(\beta^t\xni,1)$, sobre las que se definien se redefinen las respuestas:

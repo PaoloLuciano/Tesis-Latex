@@ -21,7 +21,9 @@
 % Math
 \usepackage{amsmath} % Simbolos y cosas bonitas
 \usepackage{amsfonts} 
+\usepackage{amsthm}
 \usepackage[makeroom]{cancel} % Strikeout diagonal
+\usepackage{bbm} % Función indicadora
 
 % Tablas e Imagenes
 \usepackage[pdftex]{graphicx} 
@@ -69,6 +71,9 @@
 % Para hacer listas sin bullets
 \usepackage{enumitem}
 
+% Por mamar en las pruebas
+\renewcommand\qedsymbol{Q.E.D.}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							COMMANDS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,6 +101,7 @@
 \renewcommand{\P}{\mathcal{P}}
 \renewcommand{\H}{\mathcal{H}}
 \newcommand{\intinfty}{\int_{-\infty}^\infty}
+\newcommand{\junod}{j = 1\ldots,d}
 
 % Otros
 \newcommand{\E}{\mathbb{E}}
@@ -180,7 +186,7 @@ K = #3 & n = #6	& \kthin = #9
 
 \begin{document}
 %\subfile{../PortadaYMas/PortadaGrande}
-\subfile{../PortadaYMas/Portada}
+%\subfile{../PortadaYMas/Portada}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %						PREÁMBULO E ÍNDICE
@@ -191,7 +197,7 @@ K = #3 & n = #6	& \kthin = #9
 \listoftables
 
 \chapter{Notación y abreviaciones} \label{ap:Notacion}
-\subfile{../Apendices/Notacion/Notacion}
+%\subfile{../Apendices/Notacion/Notacion}
 
 %\chapter{Definiciones, teoremas y abreviaciones} 
 %\label{ap:Definiciones}

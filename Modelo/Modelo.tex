@@ -1,50 +1,77 @@
 \documentclass[../Main/Main.tex]{subfiles}
 
 \begin{document}
-Como base fundamental de este trabajo, a continuación, se expondrá a detalle la formulación matemática. A grandes rasgos, se tiene un modelo de clasificación supervisada. Por lo tanto, se irá construyendo construir un clasificador binario flexible con buena capacidad predictiva. La notación se irá explicando conforme aparece pero existe un compendio en el preámbulo del trabajo. En general, se trata de respetar la notación que usan en los libros de  \citet{hastie2008elements} y \citet{james2013introduction}.
+Como base fundamental de este trabajo, a continuación, se expone a detalle la formulación matemática del modelo.  Para su exposición, se encoje una presentación de \textit{arriba hacia abajo}, es decir, de la parte más general del modelo (el modelo probit) a la parte más profunda (las funciones de proyección $f_j$); este enfoque facilita en gran medida su comprensión. En general, se trata de respetar la notación que usada en los libros de  \citet{hastie2008elements} y \citet{james2013introduction}, asimismo, al comienzo de este trabajo se presenta un compendio de los símbolos y signos usados.
 
-Se supone la siguiente estructura en los datos:
-\begin{itemize}[label = {}]
-	\item $\{(y_i,\xni)\}_{i = 1}^n$ con $n$ el tamaño de la muestra.
-	\item $y_i \in \{0,1\}\quad \forall i = 1\ldots,n$  variables de respuesta binarias o \textit{output}.
-	\item $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d \quad \forall \; i = 1\ldots,n$ covariables, regresores o \textit{input}.
-	\item $d \in \mathbb{N}$ dimensionalidad de las covariables.
-\end{itemize}
+%A grandes rasgos, el modelo es una extensión del modelo probit bayesiano presentado en \citet{albert1993bayesian}, el cual se flexibiliza\footnote{Entendido como que el modelo puede ajustar un mayor número de bases de datos.} utilizando las ideas de \citet{mallik1998automatic} y \citet{hastie1986generalized}.
 
-El modelo, se presenta a continuación de forma general para cualquier pareja de datos $(y,\xsn)$:
+Se asume la siguiente estructura: $\{(y_i,\xni)\}_{i = 1}^n$ es el conjunto de datos observados independientes, con $n$ el tamaño de la muestra donde, $y_i \in \{0,1\}\quad \forall i = 1\ldots,n$ son las  variables de respuesta binarias o \textit{output}, $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d \quad \forall \; i = 1\ldots,n$ las covariables, regresores o \textit{input}\footnote{Se utiliza la convención de usar negritas para distinguir las observaciones, o vistos de otra forma, los vectores fila $\xni = (x_{i,1},\ldots,x_{i,n}) \quad i = 1,\ldots,n$} y $d \in \mathbb{N}$ la dimensionalidad de las covariables. Estos datos se organizan y se representan en una tabla (o matriz) como la presentada en la Tabla \ref{tab:datos}. En ella, cada fila $i = 1,\ldots,n$ representa una observación, la primer columna es el vector de respuestas y las columnas subsecuentes $\junod$ representa una variable o dimensión. Asimismo, se define el espacio de covariables como el producto cartesiano de los rangos de cada columna $j$, es decir:
+
+\begin{align*}
+	\mathcal{X}^d &= [a_1,b_1]\times[a_2,b_2]\times\ldots\times[a_d,b_d] \subseteq \mathbb{R}^d \quad \text{ con} \\ 
+	a_j &= \min\left\{x_{1,j}\, ,\ldots,x_{n,j}\right\} \quad \forall j = 1,\ldots,d \\
+	b_j &= \max\left\{x_{1,j}\, ,\ldots,x_{n,j}\right\} \quad \forall j = 1,\ldots,d. \\
+\end{align*}
+
+\begin{table}[H]
+$$
+\left[\begin{array}{c|c} 
+y_1 & \mathbf{x}_1 \\ 
+\vdots & \vdots \\ 
+y_n & \mathbf{x}_n \end{array}\right] 
+\quad = \quad
+\left[\begin{array}{c|ccc} 
+y_1 & x_{1,1} & \ldots & x_{1,d} \\ 
+\vdots & \vdots & ~ & \vdots \\ 
+y_n & x_{n,d} & \ldots & x_{n,d}
+\end{array}\right]
+$$
+\caption{Estructura de los datos}
+\label{tab:datos}
+\end{table}
+
+El modelo, se define a continuación $\forall i = 1,\ldots,n$:
+
 \begin{align}
-y\,|\,z\, &\sim \text{Be}(y\,|\Phi(z)) \label{ec:Y-Z} \\ 
-z\,|\,x\, &\sim \text{N}(z\,|f(\xsn),1) \label{ec:Z-X}\\
-f(\xsn) &\approx \sum_{j=0}^d \beta_j f_j(x_j) = \beta^t\fsn(\xsn) \label{ec:fproy} \\[4pt]
-f_j(x_j) &\approx \sum_{l = 1}^{\N} w_{j,l} \Psi_{j,l}(x_j, \mathcal{P}_j) \quad \forall j= 0,1,\ldots,d \label{ec:fj}
+z_i\,|\,\xni\, &\sim \text{N}(z_i\,|f(\xni),1)\quad \label{ec:DefZ-X} \\[2pt]
+y_i &= 
+	\begin{cases}
+		1 & \text{si y solo si }\, z_i > 0 \\									0 & \text{si y solo si }\, z_i \leq 0
+	\end{cases} \label{ec:DefY-Z} \\[2pt]
+f(\xni) &= f_0 + f_1(x_{i,1}) + f_2(x_{i,2}) + \ldots + f_d(x_{i,d}) \label{ec:fpred} \\[4pt]
+f_j(x_{i,j}) &= \sum_{l = 1}^{\N} w_{j,l} \Psi_{j,l}(x_{i,j}, \mathcal{P}_j) \quad \forall j = 1,\ldots,d \label{ec:fj}
 \end{align}	
 
-En las expresiones (\ref{ec:Y-Z}) y (\ref{ec:fproy}), se tiene una versión ligeramente modificada de un GLM (Sec. \ref{sec:GLM}). Esto, pues la variable de respuesta binaria $y$ es perfectamente modelada a través de una distribución Bernoulli. En (\ref{ec:fproy}), $f$ es una función de proyección lineal como las que se usan el los modelos de regresión lineales tradicionales. En el contexto de un modelo de clasificación, esta función $f$ busca separar el espacio $d$-dimensional de covariables $\mathcal{X}^d$ en regiones identificables donde se tengan \textit{éxitos o fracasos}. Lo logra, colapsando $\mathcal{X}^d$ en una sola dimensión $\mathbb{R}$ donde se puede hacer la clasificación con la ayuda de la variable latente $z$. Esta variable latente vista en la ecuación (\ref{ec:Z-X}), es la liga entre $y$ y $\xsn$. Cabe mencionar, que es meramente estructural pues es modelada a través de una distribución normal, lo cual deriva en un modelo probit. 
+La expresión (\ref{ec:DefZ-X}) introduce $n$ variables independientes $z_i$, llamadas variables latentes, con distribución normal condicionada a los datos observados $\xni$. Las variables latentes, se asocian a cada respuesta $y_i$ por medio de la expresión (\ref{ec:DefY-Z}). Esta definición, es equivalente a la definición de un modelo probit tradicional. Los modelos GLM y la demostración de equivalencia entre definiciones, se detallan en la Sección \ref{sec:GLM} \autocite{maccullagh1989generalized, sundberg2016exponential}. Se adopta este enfoque pues \citet{albert1993bayesian} desarrollan un método de simulación, bajo el paradigma bayesiano, para el cómputo exacto de las distribuciones posteriores de los parámetros $w_{j,l}$ de los modelos probit.
+ 
+Posteriormente, la ecuación (\ref{ec:fpred}) especifica la media de las variables latentes definidas en la expresión (\ref{ec:DefZ-X}), es decir, se le da forma funcional a $\E[z_i|\xni] = f(\xni)$. A esta función $f(\cdot)$ se le conoce como función de predicción. La idea es suponer que la relación entre los componentes de las covariables $j = 1,\ldots,d$, es modelable como la suma de funciones (usualmente suaves) $f_j$ más un término independiente $f_0$. Esta definición corresponde a los GAM introducidos en \citet{hastie1986generalized}; en la Sección \ref{sec:FuncPred}, se estudia el detalle de este tipo de modelos.
 
-La función de proyección $f$, asume que la dependencia entre covariables se puede modelar como la suma ponderada de los componentes $f_j$ (Sec. \ref{sec:FuncProy}). En las ecuaciones (\ref{ec:fj}) se definen las funciones $f_j$ las cuales son transformación no lineales para cada dimensión $j$. Su trabajo, es el de tratar de encontrar las tendencias individuales de cada una de las covariables. Lo logran, haciendo un suavizamiento por medio de polinomios por partes que dependen de 3 componentes: una partición del intervalo $\P_j$, un vector de pesos $w_j$ y parámetros que captura la $\N$ especificando la forma y grado de los polinomios. La forma funcional de $\Psi$ es compleja y relativamente arbitraria dependiendo de la selección de la base, por lo tanto, no se especifican aún y se posterga para la Sección \ref{sec:fj}. Se hace notar que el componente bayesiano se explora hasta el Capítulo \ref{cap:BayesAlgoritmo} pues va estrechamente ligado con su implementación.  En la Figura \ref{fig:DiagramaMod} se hace una representación visual del modelo para su mejor comprensión.
+Finalmente, la expresión (\ref{ec:fj}) define a las funciones $f_j$, para $\junod$, en la parte más profunda del modelo. Estas funciones realizan una transformación no lineal de las covariables $x_{i,j}$. Este proceso se lleva a cabo mediante una expansión en bases funcionales revisada a detalle en la Sección \ref{sec:fj}. El objetivo de esta expansión es ponderar cada función base $\Psi_{j,l}(x_{i,j},\P_j)$ por parámetros desconocidos $w_{j,l}$ los cuales se deben de estimar. Del mismo modo, las formas funcionales de las funciones base $\Psi_{j,l}$ dependen de tres componentes: las covariables $x_{i,j}$, una partición $\P_j$ para cada dimensión y el número total de funciones base $\N\in\mathbb{N}$. 
+Por el momento, se decide dejar a las funciones bases $\Psi_{j,l}$ no especificadas pues su construcción, y definición del número de ellas $\N$, es compleja. Sin embargo, más adelante en las ecuaciones (\ref{ec:ExpBase_NEstrella}) y (\ref{ec:PoliMallik}) se presentan a detalle. El modelo en si, es lineal en los parámetros más no en las covariables pues, se verá, que las funciones $\Psi_{j,l}(\cdot)$ introducen polinomios de orden mayor, particularmente, se escoge la expansión en bases de polinomios truncados presentada en \citet{mallik1998automatic} pues resulta muy atractivo el nivel de flexibilidad logrado. 
+
+Antes de continuar y para esclarecer el trabajo un poco más, en la Figura \ref{fig:DiagramaMod} se presenta un diagrama del modelo y  sus componentes. De izquierda a derecha y para toda $i=1,\ldots,n$: se busca transformar de forma no lineal a cada una de las covariables $x_{i,j} \quad \forall j = 1,\ldots,d$ a través polinomios por partes condensados en las funciones $f_j$. Estas transformaciones dependen de los parámetros por estimar $w_{j,l}$, donde $l =1,\ldots,\N$, y la partición de cada dimensión $P_j$. Una vez se tienen los datos transformados, se suman las funciones $f_j$ con un intercepto $f_0$ para obtener una función de predicción $f$. Esta función actúa como la media de la variable latente $z_i$, a su vez, $z_i$ conecta a la respuesta $y_i$ con la información adicional contenida en las covariables $\xni$, a través de un modelo probit para lograr la clasificación binaria en $y_i$. 
 
 % Diagrama del modelo
 \begin{figure}[h] 
 \centering
 \begin{tikzpicture}
-
 % Nodos Input
 \begin{scope}[
 		every node/.style = {shape = circle, draw = black,
 			minimum size = 10mm,
-			text width = 10mm, align = center}]
-	\node (x1) at (0,6) {$x_1$};
-	\node (x2) at (0,4) {$x_2$};
+			text width = 11mm, align = center}]
+	\node (x1) at (0,6) {$x_{i,1}$};
+	\node (x2) at (0,4) {$x_{i,2}$};
 	\node[draw = white]     at (0,2.5) {$\vdots$};
-	\node (xd) at (0,1) {$x_d$};
+	\node (xd) at (0,1) {$x_{i,d}$};
 
 % Nodos Segunda Capa
-	\node (f1) at (3.5,6) {$f_1(x_1)$};
-	\node (f2) at (3.5,4) {$f_2(x_2)$};
+	\node (f1) at (4,6) {$f_1(x_{i,1})$};
+	\node (f2) at (4,4) {$f_2(x_{i,2})$};
 	\node[draw = white]     at (3.5,2.5) {$\vdots$};
-	\node (fd) at (3.5,1) {$f_d(x_d)$};
+	\node (fd) at (4,1) {$f_d(x_{i,d})$};
 \end{scope}
-
+	
 % Nodos Lineales
 \begin{scope}[
 		every node/.style = {shape = circle, draw = black,
@@ -56,10 +83,9 @@ La función de proyección $f$, asume que la dependencia entre covariables se pu
 \end{scope}
 
 % Nodos Texto 
-
 \node[right] at (-1,7.2) {Covariables};
 \node[right] at (0.2,-0.2) {Transformación No Lineal};
-\node[right] at (5.5,6) {Regresión Lineal};
+%\node[right] at (5.5,6) {Regresión Lineal};
 \node[right] at (9,5) {GLM - probit};
 
 % Pahts x a f_j y f_j a f
@@ -68,75 +94,99 @@ La función de proyección $f$, asume que la dependencia entre covariables se pu
 	    every edge/.style={draw = black, ->}]
 	 
 	% Paths x a f_j
-	\path (x1) edge node {$w_1, \, \P_1$} (f1);
-	\path (x2) edge node {$w_2, \, \P_2$} (f2);
-	\path (xd) edge node {$w_d, \, \P_d$} (fd);
+	\path (x1) edge node {$w_{1,l}, \, \P_1$} (f1);
+	\path (x2) edge node {$w_{2,l}, \, \P_2$} (f2);
+	\path (xd) edge node {$w_{d,l}, \, \P_d$} (fd);
 
 	% Paths f_j a f
-	\path (3.5,7.7) edge node {$\beta_0$} (f);	
-	\path (f1) edge node {$\beta_1$} (f);
-	\path (f2) edge node {$\beta_2$} (f);
-	\path (fd) edge node {$\beta_d$} (f);
+	\path (4,8) edge node {$f_0$} (f);	
+	\path (f1) edge (f);
+	\path (f2) edge (f);
+	\path (fd) edge (f);
 \end{scope}
 
 % Ultimos Paths
 	\path[->, dashed] (f) edge [bend left = 45]
 	node [fill = white] {$\Phi$}(y);	
-	\draw[->] (y) -- (z);	
-	\draw[->] (z) -- (f);
+	\draw[<->] (y) -- (z);	
+	\draw[<->] (z) -- (f);
 
 \end{tikzpicture}
 \caption{Diagrama del modelo}
 \label{fig:DiagramaMod}
-\medskip
-  \begin{flushleft}
-  \small
-Se hace una transformación no lineal de cada una de las covariables $x_j$ a través de los parámetros $w_j$, $P_j$ y $\N$ por medio de las funciones $f_j$. Con los datos transformados, se lleva a cabo un modelo probit con función liga $\Psi$ para lograr la clasificación binaria en $y$.
-	\end{flushleft}  
 \end{figure}
 
-Antes de continuar, vale la pena mencionar que al trabajar bajo la perspectiva de modelación:
+Las aparentemente complejas interacciones entre todos los componentes del modelo no son más que respuestas estructurales a un proceso de \textit{síntesis} de la información. El modelo está buscando un patrón en las covariables $\xni$ para la correcta clasificación de su respuesta binaria asociada $y_i$. Para llevar a cabo este proceso y bajo este modelo, se realizan tres transformaciones:
+
+\begin{align}
+	f_j&:\mathcal{X}_j=[a_j,b_j]\rightarrow \mathbb{R} \quad \forall j = 1,\ldots,d \label{ec:Tranfj}\\
+	f&:\mathbb{R}^d \rightarrow \mathbb{R} \label{ec:Tranf} \\
+	\Phi&:\mathbb{R} \rightarrow (0,1 \label{ec:TranPhi}).
+\end{align}
+
+La primera (\ref{ec:Tranfj}), mapea cada dato $x_{i,j}$, dentro de su espacio correspondiente $\mathcal{X}_j$, a un número real. La segunda (\ref{ec:Tranf}), colapsa las $j=1,\ldots,d$ dimensiones o variables a un único número real. Se espera que $f$ logre separe el espacio $d$-dimensional a regiones más identificables (para la clasificación) que las originales. La última (\ref{ec:TranPhi}), escala este real al intervalo unitario el cual, se interpreta como la probabilidad de que la respuesta asociada $y_{i}$ sea uno o cero. Este proceso de síntesis de información es precisamente el objetivo del modelo, por lo tanto, es fundamental que cada componente esté bien ligada a los otros. De igual forma, es fundamental que la estimación de los parámetros del modelo $w_{i,j}$ sea correcta, de tal forma que cada transformación preserve la información y efectivamente se encuentren los patrones buscados. El Capítulo \ref{cap:EjemYRes}, cuenta con visualizaciones que vuelven estos conceptos teóricos en algo más concreto. 
+
+El resto del Capítulo, se enfocará en estudiar a detalle cada uno de los componentes que constituyen al modelo. Sin embargo y antes de continuar, vale la pena aludir a la celebre frase:
 \begin{quote}
 \textit{All models are wrong but some are useful}\footnote{\citet{box1979robustnessinthe}}
 \end{quote}
 
-Escoger un modelo que explique perfectamente los datos o que logre predecir todo sería una tarea inútil. Sin embargo, no significa que no se pueda intentar discernir un patrón y esto, es justamente lo que se busca con la construcción de este modelo. Además de entender a profundidad la base de modelos más avanzados que se están usando en el mundo de la inteligencia artificial. En particular, este modelo tiene la ventaja que es flexible y, al menos en teoría, debería de servir para representar una gran cantidad de datos.
+Es la perspectiva del autor que, tratar de construir un modelo que explique perfectamente los datos sería una tarea inútil. Sin embargo, esto no significa que no se pueda intentar discernir patrones en ellos y esto, es justamente lo que se busca con la construcción de este modelo; además de profundizar sobre conceptos claves para el aprendizaje de máquina y entender las bases de modelos más avanzados.
 
 \section{Modelos lineales generalizados (GLM)} \label{sec:GLM}
-Los modelos lineales generalizados, surgen como una generalización del modelo lineal ordinario $$y = \beta^tx + \epsilon$$ donde $y \in\mathbb{R}$, $\beta$ es un vector de parámetros y $\epsilon$ es error estadistico \autocite{sundberg2016exponential},  \autocite{maccullagh1989generalized}. En esta generalización, se busca darle rangos diferentes a $y$ pues, se tienen casos donde los datos están restringidos a un subconjunto de los reales como lo es el caso binario. Sin embargo, este cambio vuelve el modelo más complejo y deriva en diversas técnicas para la estimación de $\beta$. Asimismo, el cambio hace que se pierda algo de la interpretabiliad del modelo. Dependiendo de la especificación, su interpretación puede ser complicada.\footnote{Por ejemplo, cuando se tiene un modelo logit, se logra expresar el logaritmo de la proporción de probabilidades (\textit{Log-Odds-Ratio}) como una combinación lineal de las covariables. $\ln(\pi_i / \pi_0) = \beta^t x$.} Sin embargo, estos modelos han resultado ser realmente útiles. 
+Los modelos lineales generalizados, surgen como una generalización del modelo lineal ordinario:
+$$y_i = \beta_0 + \beta^t\xni + \epsilon_i \qquad \forall i=1,\ldots,n$$ donde $y_i \in\mathbb{R}$, $\beta \in \mathbb{R}^{d+1}$ es un vector de parámetros y $\epsilon_i$ es error estadistico \autocite{sundberg2016exponential}. Los GLM, busca flexibilizar las regresiones ordinarias al darle diferentes rangos a la respuesta $y_i$, por ejemplo, los casos donde los datos están restringidos a un subconjunto de los reales como lo es el caso binario. Sin embargo, esta modificación vuelve al modelo más complejo y deriva en técnicas diversas para la estimación de $\beta$. Asimismo, la generalización del modelo lleva a que la intrepretación de los parámetros sea más compleja.\footnote{Por ejemplo, en un modelo logit que busca la predicción de variables binarias, se logra expresar el logaritmo de la proporción de probabilidades (\textit{Log-Odds-Ratio}) como una combinación lineal de las covariables. $\ln(\pi_1 / \pi_0) = \beta^t x$, donde $\pi_k$ con  $k = \left\{0,1\right\}$, es la probabilidad de que la respuesta $y$ sea $0$ o $1$ respectivamente.}
 
 Los GLM se especifican (de manera muy general) de la siguiente manera:
 \begin{align} 
-	y &\sim F(\theta(x)) \label{ec:GLM} \\ 
-	z &= \beta^tx \nonumber \\ 
-	\theta &= g^{-1}(z) \nonumber
+	y &\sim F(\mu(\xsn)) \label{ec:GLM} \\ 
+	\eta &= \beta^t\xsn \nonumber \\ 
+	\mu &= g^{-1}(\eta) \nonumber
 \end{align}
 con los siguientes tres elementos:
 
 \begin{itemize}[label={}]
-	\item $F$: tipo de distribución de la familia exponencial que describe el dominio de las respuestas $y$. Por ejemplo: Bernoulli si $y$ es binaria, Poisson si $y \in \mathbb{Z}^+$ o una distribución Gamma si $y \in \mathbb{R}^+$
-	\item $z$: proyector lineal que explique (linealmente) la variabilidad sistemática de tus datos.\footnote{Como restricción adicional, en el modelo clásico se pide que $\text{dim}(\beta) = d < n.$}
-	\item $g$: función liga que una la media (o los parámetros canónicos) $\theta$ de mi distribución con el proyector lineal. Es decir: $\theta(x) = \E[y|x] = g^{-1}(\beta^tx)$. 
-	
-	$g$ puede ser cualquier función monotónica diferenciable. Como ejemplos clásicos se tiene la función $\text{logit}(p) = \ln(p/(1-p))$ o la $\text{probit(p)} = \Phi^{-1}(p)$, donde $p = \E[y|x]$ y $\Phi(\cdot)$ es la función de acumulación de una distribución normal estándar. 
+	\item $F$: distribución de la familia exponencial que describe el dominio de las respuestas $y$, cuya media $\mu(\cdot)$ es dependiente de las covariables. Por ejemplo: Bernoulli si $y$ es binaria, Poisson si $y \in \mathbb{Z}^+$ o una distribución Gamma si $y \in \mathbb{R}^+$
+	\item $\eta$: predictor lineal que explique (linealmente) la variabilidad sistemática de los datos.\footnote{Como restricción adicional, en el modelo clásico se pide que $\text{dim}(\beta) = d < n.$}
+	\item $g$: función liga que une la media $\mu$ de la distribución con el predictor lineal,\footnote{Al especificar un GLM, particularmente al trabajar con distribuciones exponenciales, es usual parametrizar la distribución no con la media $\mu$ sino con el parámetro canónico $\theta$. Si la función $g$ es tal que $\eta \equiv \theta$ entonces se dice que $g$ es la función liga canónica. } es decir: $\mu(x) = \E[y|x] = g^{-1}(\beta^tx)$. $g$ puede ser cualquier función monótona que, idealmente, mapee de forma suave y biyectiva el dominio de la media $\mu$ con el rango del predictor lineal $\eta$. 
 \end{itemize}
-En la Figura \ref{fig:DiagramaFuncLiga} se presenta una representación gráfica de $g$ para su mejor comprensión.
+
+\subsubsection*{Modelo probit}
+Dado que para este trabajo se busca construir un clasificador donde los datos son binarios, i.e. $y_i \in \{0,1\} \; \forall i=1,\ldots,n$; la discusión se centrará en la distribución Bernoulli pues, dado su dominio, resulta natural modelar con ella los datos. Esto es: 
+\begin{align}
+	y_i \sim \Be(y_i \, |\, p_i). \label{ec:ModBernoulli}
+\end{align}
+
+Esta restricción acota mucho las variedades de modelos que se pueden obtener bajo la especificación de (\ref{ec:GLM}). Sin embargo, en \citet{maccullagh1989generalized} se presenta con todo formalismo y rigor la rica extensión de los GLM's además de ejemplos prácticos de su aplicación y de su desarrollo histórico. 
+
+La distribución Bernoulli (\ref{ec:ModBernoulli}), tiene una estructura sencilla que puede ser resumida en las siguientes expresiones $\forall i = 1,\ldots,n$:  
+\begin{align}
+	f(y_i;p_i) &= p_i^{y_i}(1 - p_i)^{1 - y_i}  \quad \text{donde }\, y_i \in \{0,1\} \label{ec:DensidadBernoulli} \\[2pt]
+			&= \exp\left\{y_i\ln\left(\frac{p_i}{1 - p_i}\right) + \ln(1-p_i)\right\} \label{ec:DensidadBernoulliCanon}\\
+	\E[y_i] &= \mu_i = P(y_i = 1) = p_i \label{ec:MediaBernoulli}\\
+	\Var[y_i] &= p_i(1 - p_i) \label{ec:VarBernoulli}. 
+\end{align}
+
+En (\ref{ec:DensidadBernoulli}) se observa la función de densidad Bernoulli en su forma tradicional que al ser expresada como en (\ref{ec:DensidadBernoulliCanon}) cumpla la definición de la familia exponencial.\footnote{Una distribución (de un solo parámetro) se dice que pertenece a la familia exponencial si se puede expresar de la forma: $f(y;\theta) = h(y)exp\left\{y\cdot\theta - A(\theta)\right\}$ con $h(y), y A(\theta)$ funciones conocidas y $\theta$ el parámetro canónico, en este caso $\theta(p) = \ln p/(1-p)$.} Dada el soporte y la definición de la distribución Bernoulli, la media de la distribución $\mu = p$ coincide con la probabilidad de que la variable aleatoria tome el valor de uno como lo resume la ecuación (\ref{ec:MediaBernoulli}). Asimismo, la varianza queda especificada por el mismo parámetro $p$, expresión (\ref{ec:VarBernoulli}). 
+
+Esta propiedad de la media (\ref{ec:MediaBernoulli}) es de gran utilidad para un GLM por dos razones. Primero, además de modelar la media $\mu = p$, se está caracterizando por completo la distribución y la predicción de la variable $y$. Segundo, se restringen las posibles funciones liga a las funciones que mapeean de forma biyectiva $\mathbb{R}$, el dominio del predictor lineal $\eta$, al intervalo $(0,1)$, el dominio de la media. Dadas las propiedades buscadas, es usual usar como función liga a las inversas de funciones \textit{sigmoidales}. Las funciones sigmoidales, son funciones $s:\mathbb{R}\rightarrow (0,1)$, estrictamente monótonas y por ende, biyectivas. Algunos ejemplos son la ya mencionada logit, la función probit que concierne a este trabajo o la curva de Gompertz. Estas funciones cumplen un papel de activación, es decir, una vez que el predictor lineal rebase cierto umbral, crecen rápidamente y toman valores más cercanos a uno, \textit{activando} así la probabilidad de que $y$ sea un éxito.\footnote{En un contexto de redes neuronales, lo que se activa es la neurona y recientemente, se usa mucho la función $\textit{ReLu}(x):= \max\left\{0,x\right\}$.}
+
+En particular, en este trabajo se escoge como función liga a la función probit, la inversa de la función de acumulación normal estándar $\Phi(\cdot)$, i.e. $g(\mu) = g(p) = \text{probit}(p) = \Phi^{-1}(p)$, dándole nombre al modelo. Esta decisión, es consecuencia del trabajo de \citet{albert1993bayesian}; en el, los autores describen un algoritmo bajo el paradigma bayesiano para la estimación de los parámetros del modelo que se estudiará más a detalles en la Sección \ref{sec:VarLat} y \ref{sec:AlbertChib}. Dado que la notación puede ser confusa, en la Figura \ref{fig:DiagramaFuncLiga} se presenta una representación gráfica de la función liga para un modelo probit.\footnote{Para no caer en redundancia se tiene a partir de ahora: $s(x) = g^{-1}(x) = \Phi(x)$ la función de acumulación normal estándar. Asimismo, se deja de usar $\mu$ para referirse a la media y se utiliza únicamente $p$}
+
 % Diagrama de g
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
-
 % Flechas (circulo) (s para demostrar que el orden importa en rikz
 %\draw [black] (0,0) circle [radius = 2];
-
 % Dibujo nodos
 \begin{scope}[
 		every node/.style = {fill = white, shape = rectangle }]
 		
-	\node (g) at (0,1) {$g$};
-	\node (ginv) at (0,-1) {$g^{-1}$};
-	\node (R) at (1,0) {$\mathbb{R}$};
-	\node (int) at (-1,0) {$[0,1]$};
+	\node (g) at (0,1.5) {$g(p)$};
+	\node (ginv) at (0,-1.5) {$g^{-1}(\eta)$};
+	\node (R) at (1.5,0) {$\eta \in \mathbb{R}$};
+	\node (int) at (-1.5,0) {$p \in [0,1]$};
 	
 \end{scope}
 
@@ -147,27 +197,53 @@ En la Figura \ref{fig:DiagramaFuncLiga} se presenta una representación gráfica
 	
 	\path (g) edge [bend left] node [above right] 
 	{e.g. $\Phi^{-1}(p)$} (R);
-	\path (R) edge [bend left] node [below right] {x} (ginv);
-	\path (ginv) edge [bend left] node [below left]
-	{e.g. $\Phi(x)$} (int);
-	\path (int) edge [bend left] node [above left] {p} (g);
+	\path (R) edge [bend left] (ginv);
+	\path (ginv) edge [bend left] node [below left] {e.g. $\Phi(\eta)$} (int);
+	\path (int) edge [bend left] (g);
 	
 \end{scope}
 
 \end{tikzpicture}
-\caption{Esquema de función liga $g$}
+\caption{Esquema de función liga $g$ para un modelo probit}
 \label{fig:DiagramaFuncLiga}
 \end{figure}
 
-Para este trabajo, se busca construir un clasificador binario donde $y \in \{0,1\}$, por lo cual, es natural modelar $y$ como una distribución Bernoulli. Notese que si $Y \sim \Be(y|p)$ se tienen las siguientes propiedades: 
-\begin{align*}
-	\E[Y] &= p = P(y = 1) \\
-	\Var[Y] &= p(1-p)
-\end{align*}
-Por lo que con un solo parámetro $p$, la varianza queda determinada automáticamente. Además, esta especificación deja como  opción para las función liga, a las inversas de las funciones \textit{sigmoidales} $s(x)$. Las funciones sigmoidales, son funciones $s:\mathbb{R}\rightarrow (0,1)$, estrictamente monótonas y por ende, biyectivas. Algunos ejemplos son las ya mencionadas logit, probit y la curva de Gompertz\footnote{Para no caer en redundancia de notación para este trabajo se tiene a partir de ahora: $s(x) = g^{-1}(x) = \Phi(x)$}. Estas funciones cumplen un papel de activación, es decir, una vez que se rebase cierto umbral, crecen rápidamente y toman valores más cercanos a uno, \textit{activando} asi la probabilidad de que $y$ sea un éxito.\footnote{En un contexto de redes neuronales, lo que se activa es la neurona y recientemente, se usa la función \textit{ReLu} $(x):= \max\left\{0,x\right\}$} Las propiedades de las funciones liga, las hacen perfectas herramientas para ligar el proyector lineal $z\in\mathbb{R}$ con probabilidades $p\in(0,1)$.
+Juntando todos los componentes, se está en posibilidades de detallar el modelo probit en su forma más rigurosa, rescatando la notación de un GLM con sus respectivas covariables $\xni$: 
+\begin{align}
+y_i|\xni & \sim \Be(y_i|p_i)  \forall i = 1,\ldots,n\label{ec:ModProbitA}\\
+\eta &= f(\xni) \label{ec:ModProbitB} \\
+p_i &= \Phi(\eta) = \Phi(f(\xni)) \label{ec:ModProbitC}
+\end{align}
 
-\subsection{Uso de la variable latente}
-Para entender el papel de $z$, se necesita entender que es posible estructurar estos modelos como \textit{modelos de variable latente} \autocite{albert1993bayesian}. Bajo esta formulación, se asume que la relación entre $y$ y $x$ no es directa, sin embargo, existe una variable no observada $z$ estructural que ayuda a discernir un vínculo entre ellas. En la Figura \ref{fig:DiagramaVar} se tiene una representación gráfica de esto. 
+\subsubsection*{Equivalencia en las definiciones del modelo}
+El lector notará, sin embargo, que la especificación del modelo probit en las ecuaciones anteriores no corresponde a la definición mostrada al principio del Capítulo. Sin embargo, a continuación se prueba de forma muy sencilla la equivalencia entre ellas.\\
+
+\begin{theorem}
+Un modelo probit especificado en \eqref{ec:ModProbitA}, \eqref{ec:ModProbitB} y \eqref{ec:ModProbitC}, es equivalente a un modelo de variable latente como el presentado en \eqref{ec:DefZ-X} y \eqref{ec:DefY-Z}.
+\end{theorem}
+
+\begin{proof} Dado un modelo probit se tiene, sin perdida de generalidad $\forall i = 1,\ldots,n$:
+\begin{align*}
+	\E[y_i\,|\,x_i] &= p_i  \\
+				&= P(y_i = 1\,|\,\xni)  \qquad \text{por \eqref{ec:ModProbitA}}\\
+				&= \Phi(f(\xni)) \qquad \text{por \eqref{ec:ModProbitC}}
+\end{align*}
+Lo cual, es equivalente a introducir $n$ variables aleatorias $\tilde{z}_i \sim N(\tilde{z}_i|0,1)$ tales que:
+\begin{align*}
+	\Phi(f(\xni)) 	&= P(\tilde{z}_i < f(\xni)\,|\,\xni)\\
+			      	&= P(\tilde{z}_i > +f(\xni)\,|\,\xni) \quad \text{por simetría de la distribución normal}\\
+			      	&= P\left(\dfrac{\tilde{z}_i - f(\xni)}{1} > 0\,\bigg|\,\xni\right)\\
+			      	&= P(z_i > 0\,|\,\xni)
+\end{align*}
+Donde $z_i = \tilde{z_i} + f(\xni)$ es una transformación inyectiva de $\tilde{z}_i$ tal que $z_i|\xni \sim N(z_i|f(\xni),1)$ idéntico a la expresión \eqref{ec:DefZ-X}. Asimismo, al tener la igualdad $P(y_i = 1|\xni) = P(z_i > 0|\xni)$ y su probabilidad complementaria $P(y_i = 0|\xni) = P(z_i \leq 0|\xni)$, se da una correspondencia uno a uno entre espacios de probabilidad y se puede definir $y_i$ en terminos de $z_i$ y viceversa, dando lugar a la definición \eqref{ec:DefY-Z}. 
+\end{proof}
+
+La ecuación \eqref{ec:ModProbitB} realmente no influye en la prueba pues esta puede tener la forma funcional que se requiera para la aplicación especifica, ya sea lineal $\eta = \beta\xni$ o algo diferente como se opta en este trabajo $\eta = f(\xni)$.
+
+\subsection{La variable latente $z$ y el predictor lineal $f$} \label{sec:VarLat}
+Para entender como se conectan las $n$ variables latente $z_i$ con sus respectivos predictores lineales $f(\xni)$, se necesita profundizar un poco más en el objetivo del modelo. En la Sección \ref{sec:AlbertChib} se detalla el detalle algorítmico, derivado de la implicación bayesiana, de las variables latentes $z$ y su conexión con los parámetros $\wsn$. 
+
+, se necesita entender que es posible estructurar estos modelos como \textit{modelos de variable latente} \autocite{albert1993bayesian}. Bajo esta formulación, se asume que la relación entre $y$ y $x$ no es directa, sin embargo, existe una variable no observada $z$ estructural que ayuda a discernir un vínculo entre ellas. En la Figura \ref{fig:DiagramaVar} se tiene una representación gráfica de esto. 
 
 %Diagrama de Variable latente
 \begin{figure}[h]
@@ -224,17 +300,17 @@ Recapitulando, mediante la función liga $\Phi$ se une la media $p$, la probabil
 	P(y = 1) = p(\xsn) &=\E[y|\xsn] = g^{-1}(f(\xsn)) = \Phi(f(\xsn))
 \end{align}
 
-\section{Función de proyección $f$} \label{sec:FuncProy} 
+\section{Función de predicción $f$} \label{sec:FuncPred} 
 En la sección anteriór, se vió que tradicionalmente, se asumía $z$ como una combinación lineal de los parámetros $\beta$ y las covariables $x$.\footnote{Segunda ecuación de (\ref{ec:GLM})} Pero, como se explica en la página 6 de \citet{james2013introduction}, conforme avanzaron los métodos y el poder computacional disponible se fueron desarrollando técnicas cada vez más poderosas que permitieron romper la linealidad. En 1986, Hastie y Tibshirani introducen los modelos aditivos generalizados (GAM), una clase de modelos donde se rompe la linealidad en las covariables, flexibilizando aún más el  modelo.
 
-Se hace notar que esta generalización es sutil pues el modelo aún conserva una parte lineal \textit{a lo largo}.\footnote{Con esta frase se hace alusión a que, en una tabla de datos de tamaño $n \times d$, siendo cada fila una observación y cada columna una variable, el \textit{largo} se piensa como la segunda dimensión de tamaño $d$. Por lo tanto, al usar esta expresión se busca considerar todas las variables. En este trabajo y en su implementación, se usa el subíndice $j$ para denotar esta idea.} Se ve en la ecuación (\ref{ec:fproy}) que el modelo aún es lineal en las $\beta_j$ y en las $f_j$. Donde se pierde la linealidad es \textit{hacia abajo},\footnote{De forma análoga, esta idea, hace alusión a las diferentes observaciones. Denotado por el subíndice $i$, el cual no se ha usado para simplificar la notación.} pues cada $f_j$ en realidad es la transformación no lineal de la covariables $x_j$. Además, las dimensiones $j$'s se asumen independientes entre si pues, se busca que corresponden a diferentes \textit{características} o variables con las que se planea modelar la variable de respuesta.
+Se hace notar que esta generalización es sutil pues el modelo aún conserva una parte lineal \textit{a lo largo}.\footnote{Con esta frase se hace alusión a que, en una tabla de datos de tamaño $n \times d$, siendo cada fila una observación y cada columna una variable, el \textit{largo} se piensa como la segunda dimensión de tamaño $d$. Por lo tanto, al usar esta expresión se busca considerar todas las variables. En este trabajo y en su implementación, se usa el subíndice $j$ para denotar esta idea.} Se ve en la ecuación (\ref{ec:fpred}) que el modelo aún es lineal en las $\beta_j$ y en las $f_j$. Donde se pierde la linealidad es \textit{hacia abajo},\footnote{De forma análoga, esta idea, hace alusión a las diferentes observaciones. Denotado por el subíndice $i$, el cual no se ha usado para simplificar la notación.} pues cada $f_j$ en realidad es la transformación no lineal de la covariables $x_j$. Además, las dimensiones $j$'s se asumen independientes entre si pues, se busca que corresponden a diferentes \textit{características} o variables con las que se planea modelar la variable de respuesta.
 
-En este modelo, el proyector $f$ de la ecuación (\ref{ec:fproy}), no hace otra cosa más que ir colapsando dimensiones, en particular: $\mathcal{X}^d \rightarrow \mathbb{R}$ que posteriormente se colapsa por medio de $\Phi$ en $[0,1]$. Es por esto que se le llama función de proyección, pues \textit{proyecta} el espacio $\mathcal{X}^d$ en $\mathbb{R}$. Sin embargo, la forma en la que lo haga, debe de ser lo más precisa posible pues el modelo recae en que este colapso detecte los patrones correctos en las covariables que llevan a la correcta identificación de $y$. Por lo tanto, $f$ como función de proyección es el corazón del modelo, por lo que su correcto entrenamiento es fundamental. La idea, recapitulando, es que $f$ separe el espacio de covariables para que sea positiva en las regiones donde se tengan éxitos y negativa donde se tengan fracasos; para ello, es fundamental entender los GAM.
+En este modelo, el proyector $f$ de la ecuación (\ref{ec:fpred}), no hace otra cosa más que ir colapsando dimensiones, en particular: $\mathcal{X}^d \rightarrow \mathbb{R}$ que posteriormente se colapsa por medio de $\Phi$ en $[0,1]$. Es por esto que se le llama función de proyección, pues \textit{proyecta} el espacio $\mathcal{X}^d$ en $\mathbb{R}$. Sin embargo, la forma en la que lo haga, debe de ser lo más precisa posible pues el modelo recae en que este colapso detecte los patrones correctos en las covariables que llevan a la correcta identificación de $y$. Por lo tanto, $f$ como función de proyección es el corazón del modelo, por lo que su correcto entrenamiento es fundamental. La idea, recapitulando, es que $f$ separe el espacio de covariables para que sea positiva en las regiones donde se tengan éxitos y negativa donde se tengan fracasos; para ello, es fundamental entender los GAM.
 
 \subsection{Modelos aditivos generalizados (GAM)} \label{sec:GAM}
 Un GAM como se introduce en \citet{hastie1986generalized} remplaza la forma lineal $\sum_{1}^d\beta_jx_j = \beta^tx$ con una suma de funciones \textit{suaves} $\sum_j^d f_j(x_j)$. Estas funciones no tienen una forma analiítica cerrada y son no especificadas, es decir, no hay tienen una forma funcional concreta y representable algebraicamente. Donde recae la fuerza de estos modelos, es que se estiman usando técnicas no paramétricas de suavizamiento\footnote{Las técnicas no paraméticas están fuera del alcance de este trabajo. Sin embargo, vale la pena una mención especial por su funcionalidad, practicidad y forma intuitiva, además del sinfín de aplicaciones que tienen. Una guía comprensiva de estas se encuentra en el libro \citet{wasserman2007all}.} como lo sería un suavizamiento loess. En estos modelos, se supone que por más grande que sea $\mathcal{X}^d$, la relación que existe entre cada una de las dimensiones $j$, se puede explicar de manera aditiva, es por ello que cada función $f_j$ tiene como argumento exclusivamente de $x_j$. Esta especificación fue revolucionaria pues no sólo regresa interpretabilidad al modelo, sino que simplifica la estimación usando técnicas prácticamente automáticas con el algoritmo de \textit{backfitting}. La idea fundamental de este algoritmo será de vital importancia para el ajuste de el modelo. Los principal ventaja de los GAM es que logran descubrir efectos no lineales en las covariables, justamente lo que se busca. La función $f$ de este trabajo, es una versión versión modificada de un GAM con tres cambios fundamentales. 
 
-La primera modificación es que se está ponderando cada $f_j$ por un parámetro $\beta_j$, esto, para suavizar aún más cada dimensión y captar el patrón general y no tanto los componentes individuales de cada $x_j$. Al entender que cada $f_j$ es una transformación no-lineal de $x_j$ (como lo sería una transformación logarítmica o una transformación Box-Cox) se le regresa cierta interpretabilidad al parámetro $\beta_j$ como el efecto que tiene la dimensión $i$ en particular para el modelo. Asimismo, se reincorpora un término independiente $\beta_0$ pues este ayuda a ajustar la escala en la estimación de los parámetros. La inclusión de este parámetro es fundamental para la correcta especificación del modelo pues ayuda a dar un \textit{sesgo o nivel} base contra el cual comparar la suma y escalar la $f$ para que sea compatible con el umbral de corte en $0$ haciendo equivalente la parametrización de $z$ con una distribución normal estándar. Por convención $f_0(\cdot) = 1$ por lo que se puede re-expresar la ecuación (\ref{ec:fproy}) como:
+La primera modificación es que se está ponderando cada $f_j$ por un parámetro $\beta_j$, esto, para suavizar aún más cada dimensión y captar el patrón general y no tanto los componentes individuales de cada $x_j$. Al entender que cada $f_j$ es una transformación no-lineal de $x_j$ (como lo sería una transformación logarítmica o una transformación Box-Cox) se le regresa cierta interpretabilidad al parámetro $\beta_j$ como el efecto que tiene la dimensión $i$ en particular para el modelo. Asimismo, se reincorpora un término independiente $\beta_0$ pues este ayuda a ajustar la escala en la estimación de los parámetros. La inclusión de este parámetro es fundamental para la correcta especificación del modelo pues ayuda a dar un \textit{sesgo o nivel} base contra el cual comparar la suma y escalar la $f$ para que sea compatible con el umbral de corte en $0$ haciendo equivalente la parametrización de $z$ con una distribución normal estándar. Por convención $f_0(\cdot) = 1$ por lo que se puede re-expresar la ecuación (\ref{ec:fpred}) como:
 $$
 f(\xsn) \approx \beta_0 +\sum_{i=1}^d \beta_i f_i(x_i) = \beta^t \mathbf{f}(\xsn),
 $$
@@ -476,9 +552,9 @@ Al estar trabajando en espacios funcionales, la elección de base es relativamen
 
 En la practica, los parámetros $\MJK$ se calibran pues, como ya se mencionó anteriormente, hacer $J$ variable y automático es muy complejo. Asimismo, la elección de $M$ y $K$ requeriría cierta exploración previa de los datos. No obstante, existen algoritmos que realizan esta tarea que, para los fines de este trabajo no aportaría mucho. Además de que los resultados que se obtuvieron por el método de calibración son bastante buenos.
 
-Si se le da rigor al modelo, en realidad, hay dos expansiones en bases. La primera la primera \textit{a lo largo} de la ecuación lineal (\ref{ec:fproy}) cuyos coeficientes son $\beta$ y las funciones base $\mathbf{f}$. Posteriormente, se tiene la expansión de la ecuación de polinomios por partes de (\ref{ec:fj}) cuyos coeficientes son $w_j$ y las funciones base $\Psi_j$ para toda $j$. Esto explica el salto conceptual y notacional que se da entre las representaciones de (\ref{ec:ExpansionBases1}) y (\ref{ec:ExpansionBases2}).
+Si se le da rigor al modelo, en realidad, hay dos expansiones en bases. La primera la primera \textit{a lo largo} de la ecuación lineal (\ref{ec:fpred}) cuyos coeficientes son $\beta$ y las funciones base $\mathbf{f}$. Posteriormente, se tiene la expansión de la ecuación de polinomios por partes de (\ref{ec:fj}) cuyos coeficientes son $w_j$ y las funciones base $\Psi_j$ para toda $j$. Esto explica el salto conceptual y notacional que se da entre las representaciones de (\ref{ec:ExpansionBases1}) y (\ref{ec:ExpansionBases2}).
 
-Al tener en mente que se tienen $d$ covariables, y por ende $d$ polinomios por partes, además de la estructura lineal de (\ref{ec:ExpBase_NEstrella}) se puede sustituir (\ref{ec:fj}) dentro de (\ref{ec:fproy}) dando la siguiente estructura con doble suma:
+Al tener en mente que se tienen $d$ covariables, y por ende $d$ polinomios por partes, además de la estructura lineal de (\ref{ec:ExpBase_NEstrella}) se puede sustituir (\ref{ec:fj}) dentro de (\ref{ec:fpred}) dando la siguiente estructura con doble suma:
 \begin{align*}
 	f(\xsn) &\approx \sum_{j=0}^d \beta_j f_j(x_j) \\
 			&\approx \beta_0 + \sum_{j=1}^d \beta_j \left[\sum_{l=1}^{N^*} w_{j,l}\Psi_{j,l}(x_j, \P_j)\right].
