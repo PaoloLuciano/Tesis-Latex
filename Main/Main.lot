@@ -9,53 +9,53 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {table}{\numberline {2.1}{\ignorespaces Estructura de los datos\relax }}{8}{table.caption.6}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {2.2}{\ignorespaces Biyecci\IeC {\'o}n entre $w_l$, $w_{i,j}$ y sus correspondientes funciones base $\Psi _l$.\relax }}{44}{table.caption.17}
+\contentsline {table}{\numberline {2.2}{\ignorespaces Biyecci\IeC {\'o}n entre $w_l$, $w_{i,j}$ y sus correspondientes funciones base $\Psi _l$.\relax }}{43}{table.caption.16}
 \defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {3.1}{\ignorespaces Algoritmo de Albert y Chib para modelos probit\relax }}{69}{table.caption.22}
+\contentsline {table}{\numberline {3.1}{\ignorespaces Algoritmo de Albert y Chib para modelos probit\relax }}{68}{table.caption.21}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {3.2}{\ignorespaces Algoritmo de backfitting para modelos GAM\relax }}{72}{table.caption.23}
+\contentsline {table}{\numberline {3.2}{\ignorespaces Algoritmo de backfitting para modelos GAM\relax }}{71}{table.caption.22}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {3.3}{\ignorespaces Algoritmo \textit {bayesian piecewise polinomial model}\relax }}{77}{table.caption.26}
+\contentsline {table}{\numberline {3.3}{\ignorespaces Algoritmo \textit {bayesian piecewise polinomial model}\relax }}{76}{table.caption.25}
 \defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.1}{\ignorespaces Matriz de confusi\IeC {\'o}n\relax }}{81}{table.caption.27}
+\contentsline {table}{\numberline {4.1}{\ignorespaces Matriz de confusi\IeC {\'o}n\relax }}{80}{table.caption.26}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.2}{\ignorespaces Resultados para modelo probit\relax }}{84}{table.caption.30}
+\contentsline {table}{\numberline {4.2}{\ignorespaces Resultados para modelo probit\relax }}{83}{table.caption.29}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.3}{\ignorespaces Ejemplo 1, rectas disjuntas, un solo nodo\relax }}{86}{table.caption.33}
+\contentsline {table}{\numberline {4.3}{\ignorespaces Ejemplo 1, rectas disjuntas, un solo nodo\relax }}{85}{table.caption.32}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.4}{\ignorespaces Ejemplo 1, resultados\relax }}{88}{table.caption.34}
+\contentsline {table}{\numberline {4.4}{\ignorespaces Ejemplo 1, resultados\relax }}{87}{table.caption.33}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.5}{\ignorespaces Ejemplo 2, rectas constantes, un solo nodo\relax }}{92}{table.caption.38}
+\contentsline {table}{\numberline {4.5}{\ignorespaces Ejemplo 2, rectas constantes, un solo nodo\relax }}{91}{table.caption.37}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.6}{\ignorespaces Ejemplo 2, resultados\relax }}{94}{table.caption.39}
+\contentsline {table}{\numberline {4.6}{\ignorespaces Ejemplo 2, resultados\relax }}{93}{table.caption.38}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.7}{\ignorespaces Ejemplo 4, rectas continuas, un nodo\relax }}{97}{table.caption.44}
+\contentsline {table}{\numberline {4.7}{\ignorespaces Ejemplo 4, rectas continuas, un nodo\relax }}{96}{table.caption.43}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.8}{\ignorespaces Ejemplo 4, resultados\relax }}{97}{table.caption.45}
+\contentsline {table}{\numberline {4.8}{\ignorespaces Ejemplo 4, resultados\relax }}{96}{table.caption.44}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.10}{\ignorespaces Ejemplo 5, resultados\relax }}{100}{table.caption.49}
+\contentsline {table}{\numberline {4.10}{\ignorespaces Ejemplo 5, resultados\relax }}{99}{table.caption.48}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.11}{\ignorespaces Res\IeC {\'u}menes num\IeC {\'e}ricos para los par\IeC {\'a}metros del modelo presentado en el ejemplo 6\relax }}{106}{table.caption.52}
+\contentsline {table}{\numberline {4.11}{\ignorespaces Res\IeC {\'u}menes num\IeC {\'e}ricos para los par\IeC {\'a}metros del modelo presentado en el ejemplo 6\relax }}{105}{table.caption.51}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.12}{\ignorespaces Ejemplo 7, datos normales bivariados modificados\relax }}{111}{table.caption.56}
+\contentsline {table}{\numberline {4.12}{\ignorespaces Ejemplo 7, datos normales bivariados modificados\relax }}{110}{table.caption.55}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.13}{\ignorespaces Ejemplo 7, resultados\relax }}{111}{table.caption.57}
+\contentsline {table}{\numberline {4.13}{\ignorespaces Ejemplo 7, resultados\relax }}{110}{table.caption.56}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.14}{\ignorespaces Ejemplo 8, datos parab\IeC {\'o}licos anidados\relax }}{113}{table.caption.60}
+\contentsline {table}{\numberline {4.14}{\ignorespaces Ejemplo 8, datos parab\IeC {\'o}licos anidados\relax }}{112}{table.caption.59}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.15}{\ignorespaces Ejemplo 8, resultados\relax }}{115}{table.caption.61}
+\contentsline {table}{\numberline {4.15}{\ignorespaces Ejemplo 8, resultados\relax }}{114}{table.caption.60}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.16}{\ignorespaces Ejemplo 9, datos circulares\relax }}{117}{table.caption.63}
+\contentsline {table}{\numberline {4.16}{\ignorespaces Ejemplo 9, datos circulares\relax }}{116}{table.caption.62}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.17}{\ignorespaces Ejemplo 9, resultados\relax }}{117}{table.caption.64}
+\contentsline {table}{\numberline {4.17}{\ignorespaces Ejemplo 9, resultados\relax }}{116}{table.caption.63}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.18}{\ignorespaces Prueba con datos m\IeC {\'e}dicos reales\relax }}{124}{table.caption.71}
+\contentsline {table}{\numberline {4.18}{\ignorespaces Prueba con datos m\IeC {\'e}dicos reales\relax }}{123}{table.caption.70}
 \defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {4.19}{\ignorespaces Datos m\IeC {\'e}dicos, resultados\relax }}{125}{table.caption.72}
+\contentsline {table}{\numberline {4.19}{\ignorespaces Datos m\IeC {\'e}dicos, resultados\relax }}{124}{table.caption.71}
 \defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 

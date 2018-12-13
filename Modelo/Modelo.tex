@@ -210,9 +210,9 @@ En particular, en este trabajo se escoge como función liga a la función probit
 
 Juntando todos los componentes, se está en posibilidades de detallar el modelo probit en su forma más rigurosa, rescatando la notación de un GLM con sus respectivas covariables $\xni$: 
 \begin{align}
-y_i|\xni & \sim \Be(y_i|p_i)  \forall i = 1,\ldots,n\label{ec:ModProbitA}\\
-\eta &= f(\xni) \label{ec:ModProbitB} \\
-p_i &= \Phi(\eta) = \Phi(f(\xni)) \label{ec:ModProbitC}
+y_i|\xni & \sim \Be(y_i|p_i) \qquad \forall i = 1,\ldots,n\label{ec:ModProbitA}\\
+\eta_i &= f(\xni) \label{ec:ModProbitB} \\
+p_i &= \Phi(\eta_i) = \Phi(f(\xni)) \label{ec:ModProbitC}
 \end{align}
 
 \subsubsection*{Equivalencia en las definiciones del modelo}
@@ -224,91 +224,51 @@ Un modelo probit especificado en \eqref{ec:ModProbitA}, \eqref{ec:ModProbitB} y 
 
 \begin{proof} Dado un modelo probit se tiene, sin perdida de generalidad $\forall i = 1,\ldots,n$:
 \begin{align*}
-	\E[y_i\,|\,x_i] &= p_i  \\
+	\E[y_i\,|\,\xni] &= p_i  \\
 				&= P(y_i = 1\,|\,\xni)  \qquad \text{por \eqref{ec:ModProbitA}}\\
 				&= \Phi(f(\xni)) \qquad \text{por \eqref{ec:ModProbitC}}
 \end{align*}
 Lo cual, es equivalente a introducir $n$ variables aleatorias $\tilde{z}_i \sim N(\tilde{z}_i|0,1)$ tales que:
 \begin{align*}
-	\Phi(f(\xni)) 	&= P(\tilde{z}_i < f(\xni)\,|\,\xni)\\
-			      	&= P(\tilde{z}_i > +f(\xni)\,|\,\xni) \quad \text{por simetría de la distribución normal}\\
-			      	&= P\left(\dfrac{\tilde{z}_i - f(\xni)}{1} > 0\,\bigg|\,\xni\right)\\
-			      	&= P(z_i > 0\,|\,\xni)
+	\Phi(f(\xni)) 	&= P(\tilde{z}_i \leq f(\xni)\,|\,\xni)\\
+			      	&= P(\tilde{z}_i > - f(\xni)\,|\,\xni) \quad \text{por simetría de la distribución normal}\\
+			      	&= P\left(\dfrac{\tilde{z}_i + f(\xni)}{1} > 0\,\bigg|\,\xni\right)\\
+			      	&= P(z_i > 0\,|\,\xni).
 \end{align*}
-Donde $z_i = \tilde{z_i} + f(\xni)$ es una transformación inyectiva de $\tilde{z}_i$ tal que $z_i|\xni \sim N(z_i|f(\xni),1)$ idéntico a la expresión \eqref{ec:DefZ-X}. Asimismo, al tener la igualdad $P(y_i = 1|\xni) = P(z_i > 0|\xni)$ y su probabilidad complementaria $P(y_i = 0|\xni) = P(z_i \leq 0|\xni)$, se da una correspondencia uno a uno entre espacios de probabilidad y se puede definir $y_i$ en terminos de $z_i$ y viceversa, dando lugar a la definición \eqref{ec:DefY-Z}. 
+Donde $z_i = \tilde{z_i} + f(\xni)$ es una transformación de $\tilde{z}_i$ tal que: 
+$$z_i|\xni \sim N(z_i|f(\xni),1),$$ 
+
+lo cual es idéntico a la expresión \eqref{ec:DefZ-X}. Asimismo, al tener la igualdad $P(y_i = 1|\xni) = P(z_i > 0|\xni)$ y por ende su probabilidad complementaria $P(y_i = 0|\xni) = P(z_i \leq 0|\xni)$, se da una correspondencia uno a uno entre espacios de probabilidad y se puede definir $y_i$ en terminos de $z_i$ y viceversa, dando lugar a la definición \eqref{ec:DefY-Z}. 
+
+El argumento es similar si la demostración se comienza asumiendo la definición de un modelo de variable latente como en \eqref{ec:DefZ-X} y \eqref{ec:DefY-Z} y se construye hasta llegar a un GLM como en  \eqref{ec:ModProbitA} y \eqref{ec:ModProbitC}. Sin embargo, se tiene la peculiaridad de que la varianza debe de ser igual a uno para ser que la correspondencia definiciones sea exacta\footnote{Asumir comenzar con $z_i|\xni \sim N(z_i|f(\xni),\sigma^2)$ con $\sigma^2\neq 1$ deriva en que $p_i = \Phi(f(\xni)/\sigma)$ lo cual es diferente a lo que se tiene en \eqref{ec:ModProbitC}}. 
 \end{proof}
 
-La ecuación \eqref{ec:ModProbitB} realmente no influye en la prueba pues esta puede tener la forma funcional que se requiera para la aplicación especifica, ya sea lineal $\eta = \beta\xni$ o algo diferente como se opta en este trabajo $\eta = f(\xni)$.
+La ecuación \eqref{ec:ModProbitB} realmente no influye en la prueba pues esta puede tener la forma funcional que se requiera para la aplicación especifica, ya sea lineal $\eta_i = \beta^t\xni$ como en \eqref{ec:GLM} o algo diferente como se opta en este trabajo $\eta_i = f(\xni)$.
 
 \subsection{La variable latente $z$ y el predictor lineal $f$} \label{sec:VarLat}
-Para entender como se conectan las $n$ variables latente $z_i$ con sus respectivos predictores lineales $f(\xni)$, se necesita profundizar un poco más en el objetivo del modelo. En la Sección \ref{sec:AlbertChib} se detalla el detalle algorítmico, derivado de la implicación bayesiana, de las variables latentes $z$ y su conexión con los parámetros $\wsn$. 
+Para entender como se conectan las $n$ variables latente $z_i$ con sus respectivos predictores lineales $f(\xni)$, se necesita profundizar un poco más en el objetivo del modelo. En la Sección \ref{sec:AlbertChib} se detalla el detalle algorítmico, derivado del paradigma bayesiano, de las variables latentes $z$ y su conexión con los parámetros $\wsn$. 
 
-, se necesita entender que es posible estructurar estos modelos como \textit{modelos de variable latente} \autocite{albert1993bayesian}. Bajo esta formulación, se asume que la relación entre $y$ y $x$ no es directa, sin embargo, existe una variable no observada $z$ estructural que ayuda a discernir un vínculo entre ellas. En la Figura \ref{fig:DiagramaVar} se tiene una representación gráfica de esto. 
-
-%Diagrama de Variable latente
-\begin{figure}[h]
-\centering
-\begin{tikzpicture}
-
-% Nodos Input
-\begin{scope}[
-		every node/.style = {shape = circle, 
-		draw = black, minimum size = .7cm}]
-	\node (X) at (0,2) {$x$};
-	\node (Y) at (4,2) {$y$};
-	\node (Z) at (2,0) {$z$};
-\end{scope}
-
-% Paths
-\begin{scope}[
-		every node/.style={fill = white, circle},
-	    every edge/.style={draw = black, ->}]
-	\path (Z) edge node {$g^{-1}$} (Y);
-	
-	\draw[dashed, ->] (X) to (Y);
-	\draw[->](X) to (Z);
-\end{scope}
-\end{tikzpicture}
-\caption{Modelo de variable latente}
-\label{fig:DiagramaVar}
-\end{figure}
-
-Tradicionalmente, la normalidad en $z$ es derivada de suponer normalidad en los errores; es decir, dada la regresión lineal $z = \beta^tx + e$ se supone (y se debe verificar) que $e \sim N(0,\sigma^2)$. Lo cual lleva a $z \sim N(\beta^tx,\sigma^2)$. Además este supuesto facilita la estructura de los modelos y el algoritmo de ajuste. Bajo un paradigma frecuentista, la estimación de los parámetros $\beta$ se reduce a encontrar los estimadores de mínimos cuadrados. Sin embargo, bajo el paradigma bayesiano, dentro de un modelo probit como el de este trabajo, se adopta la normalidad en $z$ pues en \citet{albert1993bayesian}, se sugiere un algoritmo \textit{Gibbs sampler} con distribuciones truncadas de la normal para encontrar $\beta$.
-
-La función liga probit se escoge como consecuencia de la normalidad en $z$, o viceversa, dependiendo de como se quiera ver. Esta función $\Phi^{-1}(p)$ es la inversa de la función de acumulación normal estándar:
-$$\Phi(x) = \int_{-\infty}^x \dfrac{1}{\sqrt{2\pi}}e^{-\frac{t^2}{2}}\, dt$$
-la cual no tiene forma analítica cerrada, sin embargo, es claramente sigmoide. Esta función, cumple el propósito de modelar y cuantificar la incertidumbre pues está transformando la variable real $z$ en una probabilidad $p$ con su característica forma de ``s''. Se hace notar, que se podría haber usado una función más flexible o que, incluso, se podría dejar la función como una parte del modelo a estimar. Sin embargo, al adoptar el algoritmo antes citado, se requiere esta especificación.\footnote{En modelos multinomiales bayesianos, tomar esta decisión estructural lleva a que se puede asumir una estructura de interdependencia en los errores aleatorios. $\epsilon_k \sim N_k(0, \Sigma)$ con $\Sigma$ una matriz de correlaciones} La parte flexible de este modelo se encuentra en el proyector lineal.
-
-Habiendo definido la función liga, distinguir entre si $y = 1$ ó 0, éxito o fracaso respectivamente, se reduce a distinguir en que área del espacio de covariables $\mathcal{X}^d$ se encuentra el dato. Esto se debe a que $y = 1$ cuando $\Phi(z) > 1/2$ que sucede \textit{si y sólo si} $z>0$ lo cual, depende en gran media de su media; en este caso la función de proyección $f(\xsn)$. Si esta función es muy positiva en alguna región, implicará que el modelo tiene mucha evidencia para confiar que, al menos en esa área, la respuesta $y$ es un éxito. El razonamiento, funciona de forma análoga para los casos donde $y = 0$, claramente, para esas regiones, se busca que $f(\xsn)$ sea negativa. Por lo tanto, es fundamental para el modelo que se realice una correcta estimación de los parámetros de la función de proyección.  Nótese además, que $z$ le agrega cierta \textit{estocasticidad} al modelo. Bajo la suposición que existe una pareja $(y_i,\xni)$ tal que $f(\xni) = 0$; alrededor de una vecindad de este punto, no se tendría evidencia para clasificar a $y_i$ como un éxito o como un fracaso; sería mejor dejar la clasificación a la suerte.
-
-Otro factor importante a considerar, es que el modelo supone que la varianza de $z$ es constante, específicamente $\sigma^2 = 1$. Dado que la escala de $z$ es completamente arbitraria pues es una variable auxiliar, se puede \textit{restringir} $z$ al rango que se desee. El método de simulación para $z$ usando una distribución normal truncada se simplifica ligeramente usando esta varianza unitaria. Se verá en los resultados, sin embargo, que dada la naturaleza global de los polinomios que se usan, la escala de $z$, o al menos la estimación de su media $\hat{f}(\xsn)$, puede variar mucho dependiendo de los datos, mas esto no representa un problema. Pues, en la practica, al  usar el algoritmo de Albert y Chibb $z$ sirve mucho más, para hacer la ligadura de $y$ hacia $f$ y no viceversa. En $z$ se codifica, mediante una distribución normal truncada, los casos de éxito y de fracasos de $y$; posteriormente, se estima el vector $\beta$ para la función $f$. Por ello, en la Figura \ref{fig:DiagramaMod}, se representan las flechas de $y$ a $f$ por medio de $z$ y solidas, en contraposición con la flecha punteada que va, directamente de $f$ a $y$ y pasa por la función $\Phi$. Los detalles y su justificación probabilista, se tocan en detalle en el Capítulo \ref{cap:BayesAlgoritmo}.
-
-Es importante mencionar, que el \textit{corte} que se hace en $z = 0$ para la clasificación, es resultado de hacer una clasificación binaria. En modelos multinomiales también se debe tomar en cuenta los intervalos en $\mathbb{R}$ para los que la observación se clasificaría en alguna de las posibles clases y por ende, estimar los umbrales o usar una función diferente a las sigmoides. Este hecho, lleva a la realización de que $z$ y su media $f$ son \textit{ajenas más no independientes}. Esto quiere decir que la parametrización de $z$ como una normal $N(\mu,1)$ es equivalente a la parametrización $N(0,1)$. Este hecho se hará más claro cuando se hable del papel de $\beta_0$ en la función de proyección.
-
-Finalmente, si se quisiera ver la relación de $x$ en $y$ directamente, se puede lograr usando el teorema de la probabilidad total. Se puede calcular (al menos de forma teórica), la distribución marginal de $y$ dado $\xsn$ sumando sobre $z$:
-
-\begin{align*}
-P(y|x) 	&= \intinfty P(y|z)P(z|x)\, dz \\
-		&= \intinfty p(y;\Phi(z))p(z;f(\xsn),\sigma^2)\, dz \\
-		&= \intinfty \Phi(z)^y (1-\Phi(z))^{1-y}
-		\dfrac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{1}{2\sigma^2}(z-f(\xsn))^2} \, dz
-\end{align*}
-Sin embargo, está claro que esta derivación no lleva a ningún resultado analítico cerrado pues la relación es bastante más compleja como para resultar en una distribución  tradicional; si lo hiciera, el propósito de la $z$ se perdería.
-
-Recapitulando, mediante la función liga $\Phi$ se une la media $p$, la probabilidad de éxito o fracaso de la respuesta $y$ con los datos $\xsn$. Esto se logra, a través de una variable auxiliar $z$ cuya media $f(\xsn)$ es una función de proyección lineal. 
+Recapitulando, mediante la función liga $\Phi$ se une la media $p_i$, la probabilidad de éxito de la respuesta $y_i$ con los datos $\xni$. Esto se logra, a través de una variable latente $z_i$ con distribución normal cuya media $f(\xni)$, la función de predicción, es una transformación de las covariables $\xni$.
 \begin{align} \label{ec:RegMedia}
-	P(y = 1) = p(\xsn) &=\E[y|\xsn] = g^{-1}(f(\xsn)) = \Phi(f(\xsn))
+	P(z_i > 0|\xni) = P(y_i = 1|\xni)= p_i(\xsn) &=\E[y_i|\xni] = g^{-1}(f(\xni)) = \Phi(f(\xni))
 \end{align}
 
+Este enfoque funciona, además de por el componente algorítmico, por la siguiente idea altamente intuitiva. Si se quiere crear una regla de decisión que clasifique observaciones en categorías binarias con base en cierta información, parecería intuitivo condensar esta información de  forma que proporcione suficiente evidencia para inducir la clasificación. Es decir y traduciendo en términos matemáticos: la información $\xni$ se condensa en la función $f(\xni)$ la cual induce la clasificación de $y_i$ a través de la ecuación \eqref{ec:RegMedia}. Por ejemplo, si se tiene una $f(\xni)$ muy positiva para alguna observación $i$, implicaría que $P(z_i > 0|\xni)$ es cercano a uno y por lo tanto, es muy probable que $y_i$ sea un éxito ($y_i = 1$). El argumento es idéntico para la probabilidad complementaria.
+
+Al final, como se detalló en las ecuaciones \eqref{ec:Tranfj}, \eqref{ec:Tranf} y \eqref{ec:TranPhi} el modelo está resumiendo información al ir colapsando dimensiones. El siguiente paso en el modelo consiste en detallar la transformación que debe realizar el predictor lineal $f(\xni)$. Tradicionalmente como se mencionó en \eqref{ec:GLM}, esta transformación era lineal tanto en parámetros como en covariables, dando lugar a fronteras de decisión lineales. Sin embargo, el siguiente paso lógico es generalizar estos modelos para que las fronteras puedan ser tan flexibles como sea necesario, rompiendo la linealidad en las covariables para lograr encontrar patrones más complejos. En esta tarea se concentrará el resto del Capítulo.
+
+% Revisar esto
+% Es importante mencionar, que el \textit{corte} que se hace en $z = 0$ para la clasificación, es resultado de hacer una clasificación binaria. En modelos multinomiales también se debe tomar en cuenta los intervalos en $\mathbb{R}$ para los que la observación se clasificaría en alguna de las posibles clases y por ende, estimar los umbrales o usar una función diferente a las sigmoides. Este hecho, lleva a la realización de que $z$ y su media $f$ son \textit{ajenas más no independientes}. Esto quiere decir que la parametrización de $z$ como una normal $N(\mu,1)$ es equivalente a la parametrización $N(0,1)$. Este hecho se hará más claro cuando se hable del papel de $\beta_0$ en la función de proyección.
+
 \section{Función de predicción $f$} \label{sec:FuncPred} 
-En la sección anteriór, se vió que tradicionalmente, se asumía $z$ como una combinación lineal de los parámetros $\beta$ y las covariables $x$.\footnote{Segunda ecuación de (\ref{ec:GLM})} Pero, como se explica en la página 6 de \citet{james2013introduction}, conforme avanzaron los métodos y el poder computacional disponible se fueron desarrollando técnicas cada vez más poderosas que permitieron romper la linealidad. En 1986, Hastie y Tibshirani introducen los modelos aditivos generalizados (GAM), una clase de modelos donde se rompe la linealidad en las covariables, flexibilizando aún más el  modelo.
+Como se detalla en la página 6 de \citet{james2013introduction}, conforme avanzaron los métodos y el poder computacional disponible se fueron desarrollando técnicas cada vez más poderosas que permitieron romper la linealidad. En 1986, Hastie y Tibshirani introducen los Modelos Aditivos Generalizados (GAM) una clase de modelos que rompen la linealidad usando métodos no paraméticos \autocite{hastie1986generalized}. 
 
 Se hace notar que esta generalización es sutil pues el modelo aún conserva una parte lineal \textit{a lo largo}.\footnote{Con esta frase se hace alusión a que, en una tabla de datos de tamaño $n \times d$, siendo cada fila una observación y cada columna una variable, el \textit{largo} se piensa como la segunda dimensión de tamaño $d$. Por lo tanto, al usar esta expresión se busca considerar todas las variables. En este trabajo y en su implementación, se usa el subíndice $j$ para denotar esta idea.} Se ve en la ecuación (\ref{ec:fpred}) que el modelo aún es lineal en las $\beta_j$ y en las $f_j$. Donde se pierde la linealidad es \textit{hacia abajo},\footnote{De forma análoga, esta idea, hace alusión a las diferentes observaciones. Denotado por el subíndice $i$, el cual no se ha usado para simplificar la notación.} pues cada $f_j$ en realidad es la transformación no lineal de la covariables $x_j$. Además, las dimensiones $j$'s se asumen independientes entre si pues, se busca que corresponden a diferentes \textit{características} o variables con las que se planea modelar la variable de respuesta.
 
 En este modelo, el proyector $f$ de la ecuación (\ref{ec:fpred}), no hace otra cosa más que ir colapsando dimensiones, en particular: $\mathcal{X}^d \rightarrow \mathbb{R}$ que posteriormente se colapsa por medio de $\Phi$ en $[0,1]$. Es por esto que se le llama función de proyección, pues \textit{proyecta} el espacio $\mathcal{X}^d$ en $\mathbb{R}$. Sin embargo, la forma en la que lo haga, debe de ser lo más precisa posible pues el modelo recae en que este colapso detecte los patrones correctos en las covariables que llevan a la correcta identificación de $y$. Por lo tanto, $f$ como función de proyección es el corazón del modelo, por lo que su correcto entrenamiento es fundamental. La idea, recapitulando, es que $f$ separe el espacio de covariables para que sea positiva en las regiones donde se tengan éxitos y negativa donde se tengan fracasos; para ello, es fundamental entender los GAM.
 
 \subsection{Modelos aditivos generalizados (GAM)} \label{sec:GAM}
-Un GAM como se introduce en \citet{hastie1986generalized} remplaza la forma lineal $\sum_{1}^d\beta_jx_j = \beta^tx$ con una suma de funciones \textit{suaves} $\sum_j^d f_j(x_j)$. Estas funciones no tienen una forma analiítica cerrada y son no especificadas, es decir, no hay tienen una forma funcional concreta y representable algebraicamente. Donde recae la fuerza de estos modelos, es que se estiman usando técnicas no paramétricas de suavizamiento\footnote{Las técnicas no paraméticas están fuera del alcance de este trabajo. Sin embargo, vale la pena una mención especial por su funcionalidad, practicidad y forma intuitiva, además del sinfín de aplicaciones que tienen. Una guía comprensiva de estas se encuentra en el libro \citet{wasserman2007all}.} como lo sería un suavizamiento loess. En estos modelos, se supone que por más grande que sea $\mathcal{X}^d$, la relación que existe entre cada una de las dimensiones $j$, se puede explicar de manera aditiva, es por ello que cada función $f_j$ tiene como argumento exclusivamente de $x_j$. Esta especificación fue revolucionaria pues no sólo regresa interpretabilidad al modelo, sino que simplifica la estimación usando técnicas prácticamente automáticas con el algoritmo de \textit{backfitting}. La idea fundamental de este algoritmo será de vital importancia para el ajuste de el modelo. Los principal ventaja de los GAM es que logran descubrir efectos no lineales en las covariables, justamente lo que se busca. La función $f$ de este trabajo, es una versión versión modificada de un GAM con tres cambios fundamentales. 
+Un GAM como se introduce en \citet{hastie1986generalized} remplaza la forma lineal $\sum_{1}^d\beta_jx_j = \beta^tx$ con una suma de funciones \textit{suaves} $\sum_j^d f_j(x_j)$. Estas funciones no tienen una forma analítica cerrada y son no especificadas, es decir, no tienen una forma funcional concreta y representable algebraicamente. Donde recae la fuerza de estos modelos, es que se estiman usando técnicas no paramétricas de suavizamiento\footnote{Las técnicas no paraméticas están fuera del alcance de este trabajo. Sin embargo, vale la pena una mención especial por su funcionalidad, practicidad y forma intuitiva, además del sinfín de aplicaciones que tienen. Una guía comprensiva de estas se encuentra en el libro \citet{wasserman2007all}.} como lo sería un suavizamiento LOESS\footnote{El suavizamiento LOESS, \textit{locally estimated scatterplot smoothing}}, es una técnica no paramtérica para el ajuste de ... \autocite{cleveland1988locally}. En estos modelos, se supone que por más grande que sea $\mathcal{X}^d$, la relación que existe entre cada una de las dimensiones $j$, se puede explicar de manera aditiva, es por ello que cada función $f_j$ tiene como argumento exclusivamente de $x_j$. Esta especificación fue revolucionaria pues no sólo regresa interpretabilidad al modelo, sino que simplifica la estimación usando técnicas prácticamente automáticas con el algoritmo de \textit{backfitting}. La idea fundamental de este algoritmo será de vital importancia para el ajuste de el modelo. Los principal ventaja de los GAM es que logran descubrir efectos no lineales en las covariables, justamente lo que se busca. La función $f$ de este trabajo, es una versión versión modificada de un GAM con tres cambios fundamentales. 
 
 La primera modificación es que se está ponderando cada $f_j$ por un parámetro $\beta_j$, esto, para suavizar aún más cada dimensión y captar el patrón general y no tanto los componentes individuales de cada $x_j$. Al entender que cada $f_j$ es una transformación no-lineal de $x_j$ (como lo sería una transformación logarítmica o una transformación Box-Cox) se le regresa cierta interpretabilidad al parámetro $\beta_j$ como el efecto que tiene la dimensión $i$ en particular para el modelo. Asimismo, se reincorpora un término independiente $\beta_0$ pues este ayuda a ajustar la escala en la estimación de los parámetros. La inclusión de este parámetro es fundamental para la correcta especificación del modelo pues ayuda a dar un \textit{sesgo o nivel} base contra el cual comparar la suma y escalar la $f$ para que sea compatible con el umbral de corte en $0$ haciendo equivalente la parametrización de $z$ con una distribución normal estándar. Por convención $f_0(\cdot) = 1$ por lo que se puede re-expresar la ecuación (\ref{ec:fpred}) como:
 $$
