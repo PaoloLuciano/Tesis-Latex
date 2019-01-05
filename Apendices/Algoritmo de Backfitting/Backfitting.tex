@@ -1,0 +1,57 @@
+% Parrafó que de MODELO para justificar la inclusión de f_0
+Al plantear el problema de suavizamiento como un de optimización (utilizando respuestas reales, $y_i \in \mathbb{R}$) se requiere incluir la restricción adicional:
+$$\sum_{i = 1}^nf_j(x_{i,j}) = 0 \quad \forall j = 1,\ldots,d$$
+para garantizar la unicidad del resultado. Esta restricción implica que las funciones sumen cero sobre los datos, bajo lo cual es fácil ver que:
+$$\hat{f}_0 = \dfrac{1}{n}\sum_{i = 1}^n y_i.$$
+
+% Demás parte de GAM :(
+\subsection{Algoritmo de \textit{backfitting} para ajuste de modelos GAM} \label{sec:AlgoBackfitting}
+El \textit{algoritmo de backfitting} fue desarollado para hacer la estimación (frecuentista) de las funciones $f_j$ que componen los modelos GAM revisados en la sección \ref{sec:GAM} \autocite{hastie1986generalized}. Como se mencionó, la idea central recae en que, cada dimensión $j = 1,\ldots,d$, más un término independiente $f_0$, capture de forma aditiva, toda la información posible del regresor, en este caso $z\in\mathbb{R}$, a través de transformaciones no lineales $f_j$, es decir:  
+\begin{align}
+	z = f_0 + f_1(x_1) + \ldots + f_d(x_d) + e, \label{ec:GAM}
+\end{align}
+con $\epsilon$ el tradicional error aleatorio. Estas $f_j$ son muy flexibles y se demuestra (bajo ciertos supuestos) que son splines cúbicos. En la práctica, usualmente se dejan indeterminados y son estimadas mediante procedimientos no paramétricos. Usar estas funciones en vez de un proyector lineal está justificado si $\E(z|\xsn)$ no es lineal, lo cual se da muchas veces cuando se usan datos reales. Sin embargo, la estimación de $f_j$ es diferente a la estimación tradicional de parámetros $\beta$ pues se enfatiza, que son \textit{arbitrarias} en su escala. Por ejemplo, sea $d = 1$ y $z_i = 1$ para alguna $i$. Se podría tener $z_i = \hat{f}_0 + \hat{f}_1(x_{i,1})$  con las estimaciones $\hat{f}_0 = 3$ y $\hat{f}_1(x_{i,1}) = -2$ ó $\hat{f}_0 = -1$ y $\hat{f}_1(x_{i,1}) = 2$, sin importar el valor de $x_{i,1}$ y los dos serían modelos que (al menos para esta observación $i$) ajustarían perfectamente. Para controlar estas posibles fluctuaciones, el modelo trata de capturar la información de forma secuencial a través de los \textit{residuales parciales}. Es decir, una vez dadas, todas las $f_j$ menos una, se evalúa que tanto le falta al modelo por capturar y posteriormente, se hace un suavizamiento de estos usando una función genérica $S_j(\cdot|x_j)$ que depende de los datos. Más formalmente, los residuales parciales, reformulando la ecuación (\ref{ec:ResParciales}) con la notación de esta sección son, $\forall j^*=1,\ldots,d$,
+\begin{align}
+	\hat{r}_{j^*} &= z - f_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d f_j(x_j) = z - f_0 -  \ldots - f_{j^*-1}(x_{j^*-1}) - f_{j^*+1}(x_{j^*+1}) - \ldots - f_d(x_d).  \label{ec:ResParciales2}
+\end{align}
+Posteriormente, se da un estimado de $f_{j^*}$,
+\begin{align}
+	\hat{f}_{j^*}(x_{j^*}) = S(\hat{r}_{j^*}|x_{j^*}) = S[z - f_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d f_j(x_j)|x_{j^*}].
+\end{align}
+Por lo tanto, $\hat{f}_{j^*}(x_{j^*})$ es un suavizamiento, de esa dimensión. De forma iterativa, una vez dada la estimación para la  dimensión $j^*$, se puede mejorar, a su vez, la estimación de $f_{j^*\pm 1}$, dando paso a un algoritmo secuencial hasta que no haya mucha variación en las $f_j$. Un paso importante que se debe hacer es \textit{identificar} el modelo, esto es, centrar los residuales en $0$ tomando el término independiente, como el promedio de las respuestas, es decir: $f_0 = \bar{z}$, de tal forma que todas las $f_j$ queden alrededor de cero. 
+
+El algoritmo de backfitting en pseudocódigo y usando una función de suavizamiento arbitraria, se presenta en la Tabla \ref{alg:Backfitting}:
+
+\begin{table}[h]
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\begin{verbatim}
+    AlgoritmoBackfitting(z, X, f_init):
+        f(0) <- Promedio(z)
+        f(j) <- f_init(j) para toda j = 1,...,d
+        MIENTRAS convergencia:
+            PARA j = 1,...,d,1,...,d,...:
+                f(j) <- Suavizar(z - f(0) - suma[f(k), 
+                			para toda k != j], x(j)) 
+\end{verbatim}
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\caption{Algoritmo de backfitting para modelos GAM}
+\label{alg:Backfitting}
+\end{table}
+
+\subsubsection{Aplicando los métodos GAM al modelo}
+Este principio de suavizamiento iterativo de los residuales parciales, es justamente lo que se buscaba para poder finalizar el algoritmo.  Recordando la función de projección (\ref{ec:fproy}) del modelo, una vez estimada $z$, se tiene una representación análoga a un GAM,
+\begin{align*}
+	\hat{z} = \beta_0 + \beta_1f_1(x_1) + \ldots + \beta_df_d(x_d) + e = \beta^t\fsn(\xsn) + e,
+\end{align*}
+con la adición de las $\beta_j$. De donde se pueden obtener, usando la misma idea los residuales parciales, $\forall j^*=1,\ldots,d$,
+\begin{align}
+r_{j^*} = 1/\beta_{j^*}[\hat{z} - \beta_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d \beta_j f_j(x_j)].
+\label{ec:ResParciales3}
+\end{align}
+Estos residuales, calculándose para toda observación $i = 1,\ldots,n$, son vectores. El paso fundamental, para poder hacer la estimación de $\wsn$ recae sobre el suavizamiento. En la sección anterior, se denotó por la función arbitraria $S_j(\cdot|x_j)$ sin embargo, para este modelo se tiene una representación funcional concreta para $S_j$, los polinomios por partes flexibles dados por la ecuación (\ref{ec:ExpBase_NEstrella}) y (\ref{ec:PoliMallik}) de donde se hace la igualdad,
+\begin{equation}
+	r_{j^*} = \sum_{l = 1}^{N^*} w_{j^*,l} \; \Psi_l(x_{j^*},\P_{j^*}) = w_{j^*}^t\Psi(x_{j^*},\P_{j^*}). \label{ec:RegResiduales}
+\end{equation}
+Lo cual, no es más que un modelo de regresión lineal \textit{hacia abajo},\footnote{y no \textit{a lo largo}, como sería para $\beta$.} usando a $w_{j^*}$ como coeficientes y a las transformaciones $\Psi(x_{j^*},\P_{j^*})$ como covariables. Este hecho, se debe a la \textit{dualidad} en expansiones en bases funcionales, de las que tanto se habló en el capítulo pasado. Existe una correspondencia uno a uno, entre $\beta$ y $w_j$, así como entre $\fsn$ y $\Psi$. Por lo tanto, usando las técnicas que se discutieron en la Sección \ref{sec:GibbsSampler}, las $w_j$ pueden ser estimadas exactamente de misma forma que $\beta$.
+
+Aunque intricado y notacionalmente pesado, el modelo en si, está compuesto únicamente por una serie de regresiones lineales: una regresión para $\beta$ y $d$ regresiones para $w_j (\quad j = 1,\ldots,d)$, donde se está ligando la respuesta binaria a través de la $z$. Con esta simplificación, se espera que la Figura \ref{fig:DiagramaMod} de la página \pageref{fig:DiagramaMod}, haya adquirido una nueva luz. En el siguiente capítulo, se busca esclarecer con ejemplos toda esta maraña de notación y se probará su efectividad.

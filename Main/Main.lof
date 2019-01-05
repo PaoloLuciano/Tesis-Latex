@@ -11,51 +11,53 @@
 \defcounter {refsection}{0}\relax 
 \contentsline {figure}{\numberline {2.1}{\ignorespaces Diagrama del modelo\relax }}{11}{figure.caption.7}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Esquema de funci\IeC {\'o}n liga $g$ para un modelo probit\relax }}{17}{figure.caption.9}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Esquema de funci\IeC {\'o}n liga $g$ para un modelo probit\relax }}{16}{figure.caption.8}
 \defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Muestro Gibbs para el ejemplo 6 de la Secci\IeC {\'o}n \ref {sec:Test1Ej6}\relax }}{62}{figure.caption.20}
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Muestro Gibbs para el ejemplo 1 de la Secci\IeC {\'o}n ...\relax }}{54}{figure.caption.20}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Esquema del algoritmo\relax }}{75}{figure.caption.24}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Esquema del algoritmo\relax }}{66}{figure.caption.46}
 \defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Ejemplo 1, Poco traslape entre grupos\relax }}{82}{figure.caption.27}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Ejemplo 1, Poco traslape entre grupos\relax }}{71}{figure.caption.48}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Separaci\IeC {\'o}n de los grupos por medio de un modelo probit lineal frecuentista\relax }}{84}{figure.caption.30}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Separaci\IeC {\'o}n de los grupos por medio de un modelo probit lineal frecuentista\relax }}{73}{figure.caption.51}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Ejemplo 1 con M = 2, J = 2, K = 0, modelo lineal discontinuo\relax }}{88}{figure.caption.34}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Ejemplo 1 con M = 2, J = 2, K = 0, modelo lineal discontinuo\relax }}{77}{figure.caption.55}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Transformaciones no lineales para cada dimensi\IeC {\'o}n\relax }}{89}{figure.caption.35}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Transformaciones no lineales para cada dimensi\IeC {\'o}n\relax }}{78}{figure.caption.56}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Ejemplo 2 con $M = 1$, $J = 2$, $K = 0$, funci\IeC {\'o}n escalonada\relax }}{92}{figure.caption.39}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Ejemplo 2 con $M = 1$, $J = 2$, $K = 0$, funci\IeC {\'o}n escalonada\relax }}{81}{figure.caption.60}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Ejemplo 3 con $M = 1$, $J = 3$, $K = 0$\relax }}{95}{figure.caption.41}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Ejemplo 3 con $M = 1$, $J = 3$, $K = 0$\relax }}{84}{figure.caption.62}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Ejemplo 4 con $M = 2$, $J = 2$, $K = 1$, modelo lineal continuo\relax }}{97}{figure.caption.45}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Ejemplo 4 con $M = 2$, $J = 2$, $K = 1$, modelo lineal continuo\relax }}{86}{figure.caption.66}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Ejemplo 5 con $M = 3$, $J = 3$, $K = 0$, par\IeC {\'a}bolas discontinuas\relax }}{100}{figure.caption.49}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Ejemplo 5 con $M = 3$, $J = 3$, $K = 0$, par\IeC {\'a}bolas discontinuas\relax }}{89}{figure.caption.70}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Ejemplo 6 con $M = 4$, $J = 3$, $K = 3$, splines c\IeC {\'u}bicos\relax }}{102}{figure.caption.50}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Ejemplo 6 con $M = 4$, $J = 3$, $K = 3$, splines c\IeC {\'u}bicos\relax }}{91}{figure.caption.71}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Trazas e histogramas del ejemplo 6\relax }}{106}{figure.caption.52}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Trazas e histogramas del ejemplo 6\relax }}{95}{figure.caption.73}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.11}{\ignorespaces Medias erg\IeC {\'o}dicas del ejemplo 6\relax }}{108}{figure.caption.53}
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Medias erg\IeC {\'o}dicas del ejemplo 6\relax }}{97}{figure.caption.74}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.12}{\ignorespaces Ejemplo 7 con $M = 3$, $J = 4$, $K = 1$\relax }}{111}{figure.caption.57}
+\contentsline {figure}{\numberline {4.12}{\ignorespaces Ejemplo 7 con $M = 3$, $J = 4$, $K = 1$\relax }}{100}{figure.caption.78}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.13}{\ignorespaces Ejemplo 8 con $M = 3$, $J = 4$, $K = 1$\relax }}{113}{figure.caption.61}
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Ejemplo 8 con $M = 3$, $J = 4$, $K = 1$\relax }}{102}{figure.caption.82}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.14}{\ignorespaces Ejemplo 9 con $M = 3$, $J = 4$, $K = 2$\relax }}{115}{figure.caption.64}
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Ejemplo 9 con $M = 3$, $J = 4$, $K = 2$\relax }}{104}{figure.caption.85}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.15}{\ignorespaces Patr\IeC {\'o}n yin-yang\relax }}{118}{figure.caption.66}
+\contentsline {figure}{\numberline {4.15}{\ignorespaces Patr\IeC {\'o}n yin-yang\relax }}{107}{figure.caption.87}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.16}{\ignorespaces Fronteras de varios modelos para datos yin-yang\relax }}{119}{figure.caption.67}
+\contentsline {figure}{\numberline {4.16}{\ignorespaces Fronteras de varios modelos para datos yin-yang\relax }}{108}{figure.caption.88}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.17}{\ignorespaces An\IeC {\'a}lisis exploratorio para selecci\IeC {\'o}n de variables\relax }}{122}{figure.caption.68}
+\contentsline {figure}{\numberline {4.17}{\ignorespaces An\IeC {\'a}lisis exploratorio para selecci\IeC {\'o}n de variables\relax }}{111}{figure.caption.89}
 \defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {4.18}{\ignorespaces Gr\IeC {\'a}ficos con ruido para separar las observaciones\relax }}{123}{figure.caption.69}
+\contentsline {figure}{\numberline {4.18}{\ignorespaces Gr\IeC {\'a}ficos con ruido para separar las observaciones\relax }}{112}{figure.caption.90}
+\defcounter {refsection}{0}\relax 
+\addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
 \defcounter {refsection}{0}\relax 

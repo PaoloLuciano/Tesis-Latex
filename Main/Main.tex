@@ -17,6 +17,7 @@
 \usepackage{csquotes} % Fuck los errores de tex
 \decimalpoint % Malditos an1ormales que usan comas
 \usepackage[title]{appendix}
+\usepackage[ruled,linesnumbered, spanish,onelanguage]{algorithm2e} % Para el pseudo-código
 
 % Math
 \usepackage{amsmath} % Simbolos y cosas bonitas
@@ -24,6 +25,7 @@
 \usepackage{amsthm}
 \usepackage[makeroom]{cancel} % Strikeout diagonal
 \usepackage{bbm} % Función indicadora
+\usepackage{bm}%Letras griegas en negritas - \bm
 
 % Tablas e Imagenes
 \usepackage[pdftex]{graphicx} 
@@ -34,6 +36,8 @@
 \usepackage{setspace} 
 \usepackage{float} % Poner mejor las imágenes y tablas
 \usepackage{subcaption}
+\usepackage{epigraph} % Epigrafós al principio del capítulo
+\setlength\epigraphwidth{.7\textwidth}
 
 % Diagramas
 \usepackage{tikz}
@@ -83,6 +87,7 @@
 % Negritas
 \newcommand{\xni}{\mathbf{x}_i}
 \newcommand{\xsn}{\mathbf{x}}
+\newcommand{\xnpsi}{\widetilde{\bm{\psi}}_i(\xni)}
 \newcommand{\xmat}{\mathbf{X}}
 \newcommand{\ysn}{\mathbf{y}}
 \newcommand{\zsn}{\mathbf{z}}
@@ -100,8 +105,7 @@
 \newcommand{\for}[2]{#1,\ldots,#2}
 \renewcommand{\P}{\mathcal{P}}
 \renewcommand{\H}{\mathcal{H}}
-\newcommand{\intinfty}{\int_{-\infty}^\infty}
-\newcommand{\junod}{j = 1\ldots,d}
+\newcommand{\intinfty}{\int_{-\infty}^\in1ty}
 
 % Otros
 \newcommand{\E}{\mathbb{E}}
@@ -148,8 +152,13 @@ K = #3 & n = #6	& \kthin = #9
 \text{log-loss} & #3 \\
 \end{array}}
 
-% Definiendo el enviroment Teorema
-\newtheorem{theorem}{Teorema}
+% Definiendo el enviroment Teorema y Definición con su respectiva numeración 
+\theoremstyle{plain}
+\newtheorem{theorem}{Teorema}[chapter] % Resetea la numeración para cada cap.
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definición} % Las definiciones depende de la numeración de los teoremas
+\newtheorem{example}[theorem]{Ejemplo} % Igual para los ejemplos 
 
 % Poder hacer abstacts en fomato book... 
 \newcommand\abstractname{Abstract}
@@ -232,16 +241,19 @@ K = #3 & n = #6	& \kthin = #9
 %HC SVNT DRACONES
 %\subfile{../Apendices/AnalisisFunc/AnalisisFunc}
 
-\chapter{Distribuciones Conjugadas} 
+\chapter{Splines: orígenes y justificación de su uso} 
+\label{ap:Splines}
+\subfile{../Apendices/Splines/Splines}
+
+\chapter{Distribuciones conjugadas} 
 \label{ap:DistrosConjugadas}
 %\subfile{../Apendices/DistrosConjugadas/DistrosConjugadas}
 
-\chapter{Paquete en R. Desarrollo y Lista de Funciones} \label{ap:Paquete}
+\chapter{Paquete en R: desarrollo y lista de funciones} \label{ap:Paquete}
 %\subfile{../Apendices/Paquete/Paquete}
 
 %Bibliografía
 \backmatter
 \addcontentsline{toc}{chapter}{Bibliografía}
 \printbibliography
-
 \end{document}

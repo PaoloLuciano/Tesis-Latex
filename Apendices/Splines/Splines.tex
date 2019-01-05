@@ -1,0 +1,29 @@
+\documentclass[../../Main/Main.tex]{subfiles}
+\begin{document}
+Como breviario historico, los splines originales, los desarrolla  el matemático I. J. Schoenberg como la solución al problema de encontrar la función $h$ en el espacio de Sobolev $W_{M}$ de funciones con $M-1$ derivadas continuas y $M$-ésima derivada integrable al cuadrado que minimice:
+$$\int_a^b(h^{(M)}(x))^2\,dx,$$ 
+
+sujeta a que interpole los puntos $h(x_i) = h_i \quad i = 1,2,\ldots,n$ \autocite{schoenberg1964spline}. Posteriormente, la teoría sobre los splines se fue expandiendo y fueron adoptados por ramas de la matemática tan diversas como los gráficos por computadora y, como es el caso, la estadística computacional. Bajo este contexto, los splines también surgen de forma orgánica pues, la ecuación (\ref{ec:EstCurvas}) se puede plantear como encontrar la función $h$ que minimice:
+\begin{align}
+	\sum_{i=1}^n(y_i - h(x_i))^2 + \lambda\int_a^b (h^{(M)}(x))^2 \, dx, \label{ec:SplinesConRegularizacion}
+\end{align}
+
+para alguna $\lambda > 0$. Donde, la solución se demuestra que son \textit{splines cúbicos naturales} $(M = 4)$. Cabe mencionar, que esta formulación del problema engloba muchas de técnicas estadísticas interesantes además de conceptos de optimización. El lector reconocerá que el primer término claramente es la \textit{suma de residuales cuadrados (RSS)} y el segundo término del sumando es un caso particular de los métodos de regularización mencionados anteriormente. No es el enfoque del trabajo entrar en estos detalles pues, cambios menores en la formulación y diferentes elecciones de $\lambda$ llevan a modelos que cada uno merece una tesis por si mismo. Sin embargo, es importante mencionar que la regularización y modelos de este tipo, son algunos de los más usados y útiles en ML, pues logran captar patrones muy complejos al incluir muchos términos de orden superior e interacciones sin sobreajustar en los datos. Como ejemplo, se puede encontrar fronteras de clasificación circulares usando un modelo logístico normal en $\mathbb{R}^2$ al incluir todos los términos polinomiales y las interacciones hasta orden 6. Por lo pronto, lo esencial en la expresión (\ref{ec:SplinesConRegularizacion}) es que al tratar de minimizar el RSS se puede caer en problemas de sobre-ajuste en donde los parámetros no estén capturando efectos y patrones subyacentes, sino sólo se trata de seguir los datos. Para compensar la complejidad, se penaliza la función a minimizar con segundo termino que controla el número de parámetros y la suavidad deseada mediante $\lambda$. A este segundo término, se le conoce como \textit{penalización} y crece a medida que $h$ se vuelve más complicada.\footnote{Si el lector tiene una intuición de análisis, notará que integrar la función al cuadrado, corresponde con el producto interno de las funciones pertenecientes al espacio de Hilbert $\mathcal{L}_2([a,b])$.}
+
+Posterior a estas formulaciones, los splines vuelven a ser relevantes con el modelo aditivo de Hastie y Tibshirani. Ellos extienden la formulación de un espacio de covariables en una sola dimensión, a muchas. La formulación del problema es prácticamente la misma que  (\ref{ec:SplinesConRegularizacion}) pero ahora se busca estimar $d$ funciones $h$, dando lugar a tener más parámetros $\lambda$:
+\begin{align*}
+	y &= \sum_{j = 0}^d h_j(x_j) + \epsilon \\	
+	\text{RSS}(h_0, h_1, \ldots, h_d) &= \sum_{i = 1}^n[y_i - \sum_{j = 0}^d h_j(x_{ij})]^2 \, + \, \sum_{j = 1}^d\lambda_j 			\int h_j^{''}(t_j) \, dt_j
+\end{align*}
+con la convención de que $h_0$ es una constante. Ellos muestran que $h_j \quad j = 1,\ldots,d$ son splines cúbicos. Sin embargo, sin restricciones adicionales, el modelo no sería \textit{identificable}, es decir, la $h_0$ podría ser cualquier cosa. Para asegurar la unicidad de la solución se añade la condición de que las funciones estimadas, promedien cero sobre los datos:
+\begin{align}
+	\sum_{i = 1}^n h_j(x_{ij}) = 0 \quad \forall j \label{ec:RestriccionGAM}
+\end{align}
+
+Esto lleva a la conclusión natural de que $h_0$ sea la media de las variables de respuesta, es decir: $h_0 = \bar{y}$. Por lo que si se ve cada dimensión $j$, se tiene que su función correspondiente $h_j$ está centrada alrededor de la media $\bar{y}$. Esta idea es fundamental para el modelo de este trabajo. En el, se permite que $h_j$ sean \textit{arbitrarias} para toda $j$, por lo que sólo se necesita que tenga la magnitud necesaria para ajustar los datos. Es decir, dada $h_0$, la estimación y entrenamiento de los parámetros que definen por completo a $h_{j^*}$ (con $j^*$ alguna $j=1,\ldots,d$) deben ser tales para que esta ajuste los \textit{residuales parciales}:
+\begin{align}
+\hat{h}_{j^*} &= y - h_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d h_j \label{ec:ResParciales}
+\end{align}
+
+y se vaya captando en esta $h_{j^*}$ la información aún no captada por el modelo. Esta lógica, además de brillante, es la que le da fuerza a los GAM, pero sólo se puede entender de forma completa hasta que se estudie el algoritmo de \textit{backfitting} en la Sección \ref{sec:AlgoBackfitting}. 
+\end{document}

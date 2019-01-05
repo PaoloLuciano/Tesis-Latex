@@ -1,19 +1,10 @@
 \documentclass[../Main/Main.tex]{subfiles}
 
 \begin{document}
-Como base fundamental de este trabajo, a continuación, se expone a detalle la formulación matemática del modelo.  Para su exposición, se encoje una presentación de \textit{arriba hacia abajo}, es decir, de la parte más general del modelo (el modelo probit) a la parte más profunda (las funciones de proyección $f_j$); este enfoque facilita en gran medida su comprensión. En general, se trata de respetar la notación que usada en los libros de  \citet{hastie2008elements} y \citet{james2013introduction}, asimismo, al comienzo de este trabajo se presenta un compendio de los símbolos y signos usados.
+Como base fundamental de este trabajo, a continuación y de forma preliminar,\footnote{La versión completa del modelo se presenta en la sección \ref{sec:ModFinal} de la página \pageref{sec:ModFinal}} se presenta una visión general modelo; mientras que el resto del capítulo se enfocará en profundizar en cada parta de este. Se trata de seguir la notación usada en los libros de  \citet{hastie2008elements} y \citet{james2013introduction}, asimismo al comienzo de este trabajo se presenta un glosario de los símbolos y signos usados.
 
-%A grandes rasgos, el modelo es una extensión del modelo probit bayesiano presentado en \citet{albert1993bayesian}, el cual se flexibiliza\footnote{Entendido como que el modelo puede ajustar un mayor número de bases de datos.} utilizando las ideas de \citet{mallik1998automatic} y \citet{hastie1986generalized}.
-
-Se asume la siguiente estructura: $\{(y_i,\xni)\}_{i = 1}^n$ es el conjunto de datos observados independientes, con $n$ el tamaño de la muestra donde, $y_i \in \{0,1\}\quad \forall i = 1\ldots,n$ son las  variables de respuesta binarias o \textit{output}, $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d \quad \forall \; i = 1\ldots,n$ las covariables, regresores o \textit{input}\footnote{Se utiliza la convención de usar negritas para distinguir las observaciones, o vistos de otra forma, los vectores fila $\xni = (x_{i,1},\ldots,x_{i,n}) \quad i = 1,\ldots,n$} y $d \in \mathbb{N}$ la dimensionalidad de las covariables. Estos datos se organizan y se representan en una tabla (o matriz) como la presentada en la Tabla \ref{tab:datos}. En ella, cada fila $i = 1,\ldots,n$ representa una observación, la primer columna es el vector de respuestas y las columnas subsecuentes $\junod$ representa una variable o dimensión. Asimismo, se define el espacio de covariables como el producto cartesiano de los rangos de cada columna $j$, es decir:
-
-\begin{align*}
-	\mathcal{X}^d &= [a_1,b_1]\times[a_2,b_2]\times\ldots\times[a_d,b_d] \subseteq \mathbb{R}^d \quad \text{ con} \\ 
-	a_j &= \min\left\{x_{1,j}\, ,\ldots,x_{n,j}\right\} \quad \forall j = 1,\ldots,d \\
-	b_j &= \max\left\{x_{1,j}\, ,\ldots,x_{n,j}\right\} \quad \forall j = 1,\ldots,d. \\
-\end{align*}
-
-\begin{table}[H]
+Se supone la siguiente estructura: $\{(y_i,\xni)\}_{i = 1}^n$ es el conjunto de datos observados independientes con $n$ el tamaño de la muestra donde, $y_i \in \{0,1\}$ son las variables de respuesta binarias, $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d$ las covariables o regresores\footnote{Se utiliza la convención de usar negritas para distinguir vectores $\xni = (x_{i,1},\ldots,x_{i,n}) \quad \forall i = 1,\ldots,n$} y $d \in \mathbb{N}$ la dimensionalidad de las covariables.\footnote{En el lenguaje de aprendizaje de máquina, es usual hablar de \textit{outputs} e \textit{inputs} para referirse a $y_i$ y $\xni$ respectivamente \autocite{alpaydin2014introduction}.} Estos datos se organizan y se representan en una tabla (o matriz) como la presentada en la Tabla \ref{tab:datos}. En ella, cada fila $i = 1,\ldots,n$ representa una observación, la primer columna es el vector de respuestas y las columnas subsecuentes $j = 1,\ldots,d$ representan una covariable. Es útil pensar en estas columnas como $d$ \textit{variables o dimensiones} que contienen información que induce la clasificación binaria.
+\begin{table}[h]
 $$
 \left[\begin{array}{c|c} 
 y_1 & \mathbf{x}_1 \\ 
@@ -23,34 +14,46 @@ y_n & \mathbf{x}_n \end{array}\right]
 \left[\begin{array}{c|ccc} 
 y_1 & x_{1,1} & \ldots & x_{1,d} \\ 
 \vdots & \vdots & ~ & \vdots \\ 
-y_n & x_{n,d} & \ldots & x_{n,d}
+y_n & x_{n,1} & \ldots & x_{n,d}
 \end{array}\right]
 $$
 \caption{Estructura de los datos}
 \label{tab:datos}
 \end{table}
+Asimismo, se define el espacio de covariables $\mathcal{X}^d$ como el producto cartesiano de los rangos de cada covariable $j$. Esta definición, está relacionada con los polinomios por partes $f_j$ que se estudian en la Sección: \ref{sec:fj}. 
+\begin{align*}
+	\mathcal{X}^d &= \mathcal{X}_1\times\mathcal{X}_2\times\ldots\times\mathcal{X}_d\\
+	&= [a_1,b_1]\times[a_2,b_2]\times\ldots\times[a_d,b_d] \subseteq \mathbb{R}^d \\ 
+\text{ con } \quad  a_j &= \min\left\{x_{1,j}\, ,\ldots,x_{n,j}\right\} \quad \forall j = 1,\ldots,d \\
+	b_j &= \max\left\{x_{1,j}\, ,\ldots,x_{n,j}\right\} \quad \forall j = 1,\ldots,d. \\
+\end{align*}
+\vfill
 
-El modelo, se define a continuación $\forall i = 1,\ldots,n$:
-
+\pagebreak
+\begin{definition} \label{def:BPWPMPrelim}
+El modelo probit bayesiano no lineal (preliminar), $\forall i = 1,\ldots,n$: 
 \begin{align}
-z_i\,|\,\xni\, &\sim \text{N}(z_i\,|f(\xni),1)\quad \label{ec:DefZ-X} \\[2pt]
 y_i &= 
 	\begin{cases}
-		1 & \text{si y solo si }\, z_i > 0 \\									0 & \text{si y solo si }\, z_i \leq 0
+		1 & \Longleftrightarrow \enspace z_i > 0 \\									0 & \Longleftrightarrow \enspace z_i \leq 0
 	\end{cases} \label{ec:DefY-Z} \\[2pt]
-f(\xni) &= f_0 + f_1(x_{i,1}) + f_2(x_{i,2}) + \ldots + f_d(x_{i,d}) \label{ec:fpred} \\[4pt]
-f_j(x_{i,j}) &= \sum_{l = 1}^{\N} w_{j,l} \Psi_{j,l}(x_{i,j}, \mathcal{P}_j) \quad \forall j = 1,\ldots,d \label{ec:fj}
+z_i\,|\,\xni\, &\sim \text{N}(z_i\,|\,\eta(\xni),1) \label{ec:DefZ-X} \\[2pt]
+\eta(\xni) &= f_0 + f_1(x_{i,1}) + f_2(x_{i,2}) + \ldots + f_d(x_{i,d}) \label{ec:etapred} \\[4pt]
+f_j(x_{i,j}) &= \sum_{l = 1}^{\N} \beta_{j,l} \Psi_l(x_{i,j}, \mathcal{P}_j) \quad \forall j = 1,\ldots,d \label{ec:fj}
 \end{align}	
-
-La expresión (\ref{ec:DefZ-X}) introduce $n$ variables independientes $z_i$, llamadas variables latentes, con distribución normal condicionada a los datos observados $\xni$. Las variables latentes, se asocian a cada respuesta $y_i$ por medio de la expresión (\ref{ec:DefY-Z}). Esta definición, es equivalente a la definición de un modelo probit tradicional. Los modelos GLM y la demostración de equivalencia entre definiciones, se detallan en la Sección \ref{sec:GLM} \autocite{maccullagh1989generalized, sundberg2016exponential}. Se adopta este enfoque pues \citet{albert1993bayesian} desarrollan un método de simulación, bajo el paradigma bayesiano, para el cómputo exacto de las distribuciones posteriores de los parámetros $w_{j,l}$ de los modelos probit.
+\end{definition}
+Las expresiones \eqref{ec:DefY-Z} y \eqref{ec:DefZ-X} introducen $n$ variables latentes $z_i$ independientes entre si con distribución normal. Estas variables se relacionan de forma unívoca con las respuestas $y_i$ formando una clase de equivalencia entre la probabilidad de dos eventos.  Permitiendo que se asocie el soporte binario de $y_i$ con el soporte real de $z_i$. Es decir, \eqref{ec:DefY-Z} y \eqref{ec:DefZ-X} implican:
+\begin{align}
+	P(y_i = 1 |\xni) = P(z_i > 0 \,|\, \xni) = \Phi(\eta(\xni)). 	\label{ec:IdentidadGLM}
+\end{align}
+Esta definición, \citet{albert1993bayesian}, es equivalente a la definición de un modelo probit pues la función liga resulta en la función de acumulación normal estándar $\Phi:\mathbb{R}\rightarrow (0,1)$ (Sección \ref{sec:GLM}). La identidad anterior \eqref{ec:IdentidadGLM} es inducida por la demostración de equivalencia entre definiciones que se detalla en el Teorema \ref{teo:Defs}. Una de las razones para adoptar este enfoque es que \citeauthor{albert1993bayesian} desarrollaron un método numérico vía simulación, bajo el paradigma bayesiano, para el cómputo exacto de las distribuciones posteriores de los parámetros $\beta_{j,l}$ el cual resultaba atractivo para los objetivos del trabajo.
  
-Posteriormente, la ecuación (\ref{ec:fpred}) especifica la media de las variables latentes definidas en la expresión (\ref{ec:DefZ-X}), es decir, se le da forma funcional a $\E[z_i|\xni] = f(\xni)$. A esta función $f(\cdot)$ se le conoce como función de predicción. La idea es suponer que la relación entre los componentes de las covariables $j = 1,\ldots,d$, es modelable como la suma de funciones (usualmente suaves) $f_j$ más un término independiente $f_0$. Esta definición corresponde a los GAM introducidos en \citet{hastie1986generalized}; en la Sección \ref{sec:FuncPred}, se estudia el detalle de este tipo de modelos.
+Posteriormente, la ecuación \eqref{ec:etapred} especifica la media de las variables latentes $z_i$, es decir, se le da forma funcional a $\E[z_i|\xni] = \eta(\xni)$. A esta función $\eta(\cdot):\mathbb{R}^d\rightarrow\mathbb{R}$ se le conoce como función de predicción. La idea es suponer que la relación entre los componentes de las covariables $j = 1,\ldots,d$, es modelable como la suma de funciones (usualmente suaves) $f_j$ más un término independiente $f_0$. Esta definición corresponde a los Modelos  aditivos generalizados (GAM) introducidos en \citet{hastie1986generalized}; en la Sección \ref{sec:FuncPred} se estudia el detalle de este tipo de modelos.
 
-Finalmente, la expresión (\ref{ec:fj}) define a las funciones $f_j$, para $\junod$, en la parte más profunda del modelo. Estas funciones realizan una transformación no lineal de las covariables $x_{i,j}$. Este proceso se lleva a cabo mediante una expansión en bases funcionales revisada a detalle en la Sección \ref{sec:fj}. El objetivo de esta expansión es ponderar cada función base $\Psi_{j,l}(x_{i,j},\P_j)$ por parámetros desconocidos $w_{j,l}$ los cuales se deben de estimar. Del mismo modo, las formas funcionales de las funciones base $\Psi_{j,l}$ dependen de tres componentes: las covariables $x_{i,j}$, una partición $\P_j$ para cada dimensión y el número total de funciones base $\N\in\mathbb{N}$. 
-Por el momento, se decide dejar a las funciones bases $\Psi_{j,l}$ no especificadas pues su construcción, y definición del número de ellas $\N$, es compleja. Sin embargo, más adelante en las ecuaciones (\ref{ec:ExpBase_NEstrella}) y (\ref{ec:PoliMallik}) se presentan a detalle. El modelo en si, es lineal en los parámetros más no en las covariables pues, se verá, que las funciones $\Psi_{j,l}(\cdot)$ introducen polinomios de orden mayor, particularmente, se escoge la expansión en bases de polinomios truncados presentada en \citet{mallik1998automatic} pues resulta muy atractivo el nivel de flexibilidad logrado. 
+Finalmente, la expresión \eqref{ec:fj} define a las funciones $f_j \quad \forall j$ en la parte más profunda del modelo. Estas funciones, $f_j: \mathcal{X}_j = [a_j,b_j] \rightarrow \mathbb{R}$ realizan una transformación no lineal de las covariables $x_{i,j}$. Este proceso se lleva a cabo mediante una expansión en bases funcionales revisada a detalle en la Sección \ref{sec:fj}. El objetivo de esta expansión es expresar cada $f_j$ de una forma flexible, a través de la suma ponderada de funciones bases $\Psi_{j,l}(x_{i,j},\P_j)$ y parámetros desconocidos $\beta_{j,l}$ los cuales se deben de estimar. Asimismo, las funciones bases dependen de tres componentes: las covariables $x_{i,j}$, una partición $\P_j$ para cada dimensión\footnote{Definida sobre el intervalo $\mathcal{X}_j = [a_j, b_j] \quad \forall j = 1,\ldots,d$} y el número total de funciones base $\N\in\mathbb{N}$. Sus formas funcionales, no son más que truncamientos de orden mayor en las covariables, por ejemplo: $(x_{i,j} - a)_+^b$ con $a,b$ constantes definidas por $\N$ y $(\cdot)_+$ la función parte positiva; dando lugar a una expansión en  
+polinomios por partes, particularmente, la presentada en \citet{mallik1998automatic}. Por el momento, se deja a las funciones bases $\Psi_{j,l}$ no especificadas por completo pues se decide presentarlas de forma constructiva en la Sección \ref{sec:PolisYSplines}, derivando en su forma funcional final en las ecuaciones \eqref{ec:ExpBase_NEstrella} y \eqref{ec:PoliMallik}.
 
-Antes de continuar y para esclarecer el trabajo un poco más, en la Figura \ref{fig:DiagramaMod} se presenta un diagrama del modelo y  sus componentes. De izquierda a derecha y para toda $i=1,\ldots,n$: se busca transformar de forma no lineal a cada una de las covariables $x_{i,j} \quad \forall j = 1,\ldots,d$ a través polinomios por partes condensados en las funciones $f_j$. Estas transformaciones dependen de los parámetros por estimar $w_{j,l}$, donde $l =1,\ldots,\N$, y la partición de cada dimensión $P_j$. Una vez se tienen los datos transformados, se suman las funciones $f_j$ con un intercepto $f_0$ para obtener una función de predicción $f$. Esta función actúa como la media de la variable latente $z_i$, a su vez, $z_i$ conecta a la respuesta $y_i$ con la información adicional contenida en las covariables $\xni$, a través de un modelo probit para lograr la clasificación binaria en $y_i$. 
-
+Antes de continuar y para esclarecer el trabajo un poco más, en la Figura \ref{fig:DiagramaMod} se presenta un diagrama del modelo y sus componentes. De izquierda a derecha y para toda $i=1,\ldots,n$: se busca transformar de forma no lineal a cada una de las covariables observadas $x_{i,j} \quad \forall j = 1,\ldots,d$ a través polinomios por partes condensados en las funciones $f_j$. Estas transformaciones dependen de parámetros desconocidos $\beta_{j,l}$ con $l =1,\ldots,\N$ y la partición de cada covariable $P_j$. Una vez se tienen las covariables transformados, se suman las funciones $f_j$ con un intercepto local $f_0$ para obtener una función de predicción $\eta$. Esta función actúa como la media de la variable latente $z_i$, que a su vez, conecta a la respuesta $y_i$ con la información adicional contenida en las covariables $\xni$, a través de un modelo probit para lograr la clasificación binaria en $y_i$. 
 % Diagrama del modelo
 \begin{figure}[h] 
 \centering
@@ -70,6 +73,7 @@ Antes de continuar y para esclarecer el trabajo un poco más, en la Figura \ref{
 	\node (f2) at (4,4) {$f_2(x_{i,2})$};
 	\node[draw = white]     at (3.5,2.5) {$\vdots$};
 	\node (fd) at (4,1) {$f_d(x_{i,d})$};
+	\node (f0) at (4,8) {$f_0$};
 \end{scope}
 	
 % Nodos Lineales
@@ -77,101 +81,92 @@ Antes de continuar y para esclarecer el trabajo un poco más, en la Figura \ref{
 		every node/.style = {shape = circle, draw = black,
 			minimum size = 7mm,
 			text width = 7mm, align = center}]
-\node (f) at (7,3.5) {$f(\xsn)\quad$};
-\node (z) at (9,3.5) {$z$};
-\node (y) at (11,3.5) {$y$};
+\node (eta) at (7,3.5) {$\eta(\xni)\quad$};
+\node (z) at (9,3.5) {$z_i$};
+\node (y) at (11,3.5) {$y_i$};
 \end{scope}
 
 % Nodos Texto 
 \node[right] at (-1,7.2) {Covariables};
-\node[right] at (0.2,-0.2) {Transformación No Lineal};
-%\node[right] at (5.5,6) {Regresión Lineal};
+\node[right] at (0.2,-0.2) {Transformación No Lineal donde $l = 1,\ldots,\N$};
 \node[right] at (9,5) {GLM - probit};
+\node[right] at (5,8) {Término independiente};
 
-% Pahts x a f_j y f_j a f
+% Pahts x a f_j y f_j a eta
 \begin{scope}[
 		every node/.style={fill = white, circle},
 	    every edge/.style={draw = black, ->}]
 	 
 	% Paths x a f_j
-	\path (x1) edge node {$w_{1,l}, \, \P_1$} (f1);
-	\path (x2) edge node {$w_{2,l}, \, \P_2$} (f2);
-	\path (xd) edge node {$w_{d,l}, \, \P_d$} (fd);
+	\path (x1) edge node {$\beta_{1,l}, \, \P_1$} (f1);
+	\path (x2) edge node {$\beta_{2,l}, \, \P_2$} (f2);
+	\path (xd) edge node {$\beta_{d,l}, \, \P_d$} (fd);
 
 	% Paths f_j a f
-	\path (4,8) edge node {$f_0$} (f);	
-	\path (f1) edge (f);
-	\path (f2) edge (f);
-	\path (fd) edge (f);
+	\path (f0) edge (eta);	
+	\path (f1) edge (eta);
+	\path (f2) edge (eta);
+	\path (fd) edge (eta);
 \end{scope}
 
 % Ultimos Paths
-	\path[->, dashed] (f) edge [bend left = 45]
+	\path[->, dashed] (eta) edge [bend left = 45]
 	node [fill = white] {$\Phi$}(y);	
 	\draw[<->] (y) -- (z);	
-	\draw[<->] (z) -- (f);
-
+	\draw[<->] (z) -- (eta);
 \end{tikzpicture}
 \caption{Diagrama del modelo}
 \label{fig:DiagramaMod}
 \end{figure}
+Las aparentemente complejas interacciones entre todos los componentes del modelo no son más que respuestas estructurales a un proceso de \textit{síntesis} de la información. El modelo está buscando un patrón en las covariables $\xni$ para la correcta clasificación de su respuesta binaria asociada $y_i$. Este proceso, se lleva a cabo mediante tres transformaciones $f_j(x_{i,j}) \quad \forall j$, $\eta(\xni)$ y finalmente $\Phi(\eta(\xni))$ las cuales cumplen el propósito de ir colapsando dimensiones. Se espera que este proceso, logre separar de forma flexible el espacio $d$-dimensional $\mathcal{X}^d$ a regiones más identificables (para la clasificación) que las regiones originales; donde finalmente, se le asigne una probabilidad a cada región de clasificación mediante $\Phi$. El Capítulo \ref{cap:EjYRes} cuenta con visualizaciones que esperan volver estos conceptos teóricos en algo más concreto. 
 
-Las aparentemente complejas interacciones entre todos los componentes del modelo no son más que respuestas estructurales a un proceso de \textit{síntesis} de la información. El modelo está buscando un patrón en las covariables $\xni$ para la correcta clasificación de su respuesta binaria asociada $y_i$. Para llevar a cabo este proceso y bajo este modelo, se realizan tres transformaciones:
-
-\begin{align}
-	f_j&:\mathcal{X}_j=[a_j,b_j]\rightarrow \mathbb{R} \quad \forall j = 1,\ldots,d \label{ec:Tranfj}\\
-	f&:\mathbb{R}^d \rightarrow \mathbb{R} \label{ec:Tranf} \\
-	\Phi&:\mathbb{R} \rightarrow (0,1 \label{ec:TranPhi}).
-\end{align}
-
-La primera (\ref{ec:Tranfj}), mapea cada dato $x_{i,j}$, dentro de su espacio correspondiente $\mathcal{X}_j$, a un número real. La segunda (\ref{ec:Tranf}), colapsa las $j=1,\ldots,d$ dimensiones o variables a un único número real. Se espera que $f$ logre separe el espacio $d$-dimensional a regiones más identificables (para la clasificación) que las originales. La última (\ref{ec:TranPhi}), escala este real al intervalo unitario el cual, se interpreta como la probabilidad de que la respuesta asociada $y_{i}$ sea uno o cero. Este proceso de síntesis de información es precisamente el objetivo del modelo, por lo tanto, es fundamental que cada componente esté bien ligada a los otros. De igual forma, es fundamental que la estimación de los parámetros del modelo $w_{i,j}$ sea correcta, de tal forma que cada transformación preserve la información y efectivamente se encuentren los patrones buscados. El Capítulo \ref{cap:EjemYRes}, cuenta con visualizaciones que vuelven estos conceptos teóricos en algo más concreto. 
-
-El resto del Capítulo, se enfocará en estudiar a detalle cada uno de los componentes que constituyen al modelo. Sin embargo y antes de continuar, vale la pena aludir a la celebre frase:
+Antes de continuar, vale la pena mencionar el precepto de \citet{box1979robustnessinthe}:
 \begin{quote}
-\textit{All models are wrong but some are useful}\footnote{\citet{box1979robustnessinthe}}
+\textit{All models are wrong but some are useful}
 \end{quote}
-
-Es la perspectiva del autor que, tratar de construir un modelo que explique perfectamente los datos sería una tarea inútil. Sin embargo, esto no significa que no se pueda intentar discernir patrones en ellos y esto, es justamente lo que se busca con la construcción de este modelo; además de profundizar sobre conceptos claves para el aprendizaje de máquina y entender las bases de modelos más avanzados.
+En la perspectiva del autor, no se está tratando de construir un modelo que replique el proceso generador de los datos. Más bien, se está tratando de construir una útil abstracción de la realidad a través de un modelo matemático. Escoger cualquier enfoque de modelado, es un proceso reduccionista y por ende, falible. Sin embargo, no significa que no se puedan discernir patrones en los datos y aprender de ellos. 
 
 \section{Modelos lineales generalizados (GLM)} \label{sec:GLM}
-Los modelos lineales generalizados, surgen como una generalización del modelo lineal ordinario:
-$$y_i = \beta_0 + \beta^t\xni + \epsilon_i \qquad \forall i=1,\ldots,n$$ donde $y_i \in\mathbb{R}$, $\beta \in \mathbb{R}^{d+1}$ es un vector de parámetros y $\epsilon_i$ es error estadistico \autocite{sundberg2016exponential}. Los GLM, busca flexibilizar las regresiones ordinarias al darle diferentes rangos a la respuesta $y_i$, por ejemplo, los casos donde los datos están restringidos a un subconjunto de los reales como lo es el caso binario. Sin embargo, esta modificación vuelve al modelo más complejo y deriva en técnicas diversas para la estimación de $\beta$. Asimismo, la generalización del modelo lleva a que la intrepretación de los parámetros sea más compleja.\footnote{Por ejemplo, en un modelo logit que busca la predicción de variables binarias, se logra expresar el logaritmo de la proporción de probabilidades (\textit{Log-Odds-Ratio}) como una combinación lineal de las covariables. $\ln(\pi_1 / \pi_0) = \beta^t x$, donde $\pi_k$ con  $k = \left\{0,1\right\}$, es la probabilidad de que la respuesta $y$ sea $0$ o $1$ respectivamente.}
+Los modelos lineales generalizados (GLM), \citet{maccullagh1989generalized}, surgen como una generalización del modelo de regresión lineal:
+\begin{align*}
+	y_i|x_i &\sim N(\mu(\xni), \sigma^2)  \quad \forall i = 1,\ldots,n\\
+	\mu(\xni) &= \beta_0 + \beta^t\xni,
+\end{align*}
+donde $y_i \in\mathbb{R}$, $\beta \in \mathbb{R}^{d}$ es un vector de parámetros y $\mu(\xni) = \E[y_i|x_i]$. Las regresiones lineales, como su nombre lo indica, están acotadas a datos donde la variable de respuesta $y_i$ tenga soporte real. En consecuencia se desarrollan los GLM, que busca flexibilizar este soporte a una mayor cantidad de respuestas. Esta modificación vuelve al modelo más complejo y deriva en diversas técnicas para la estimación de $\beta$. Asimismo, la generalización del modelo lleva a que la intrepretación de los parámetros no sea trivial.\footnote{Por ejemplo, en un modelo logit que busca la predicción de variables binarias, se logra expresar el logaritmo de la proporción de probabilidades (\textit{Log-Odds-Ratio}) como una combinación lineal de las covariables. $\ln(\pi_1 / \pi_0) = \beta^t x$, donde $\pi_k$ con  $k = \left\{0,1\right\}$, es la probabilidad de que la respuesta $y$ sea $0$ o $1$ respectivamente.}\\
 
-Los GLM se especifican (de manera muy general) de la siguiente manera:
+\begin{definition} El modelo lineal generalizado, \citet{sundberg2016exponential}:
 \begin{align} 
 	y &\sim F(\mu(\xsn)) \label{ec:GLM} \\ 
-	\eta &= \beta^t\xsn \nonumber \\ 
+	\eta &= \beta_0 + \bm{\beta}^t\xsn \nonumber \\ 
 	\mu &= g^{-1}(\eta) \nonumber
 \end{align}
-con los siguientes tres elementos:
-
+\end{definition}
+que cuenta con los siguientes tres elementos:
 \begin{itemize}[label={}]
-	\item $F$: distribución de la familia exponencial que describe el dominio de las respuestas $y$, cuya media $\mu(\cdot)$ es dependiente de las covariables. Por ejemplo: Bernoulli si $y$ es binaria, Poisson si $y \in \mathbb{Z}^+$ o una distribución Gamma si $y \in \mathbb{R}^+$
+	\item $F$: distribución de la familia exponencial que describe el dominio de las respuestas $y$, cuya media $\mu(\cdot)$ es dependiente de las covariables.\footnote{Al trabajar con distribuciones de la familia exponencial es usual parametrizar la distribución no con la media $\mu$ sino con el parámetro canónico $\theta$.} Por ejemplo: Bernoulli si $y$ es binaria, Poisson si $y \in \mathbb{Z}^+$ o una distribución Gamma si $y \in \mathbb{R}^+$
 	\item $\eta$: predictor lineal que explique (linealmente) la variabilidad sistemática de los datos.\footnote{Como restricción adicional, en el modelo clásico se pide que $\text{dim}(\beta) = d < n.$}
-	\item $g$: función liga que une la media $\mu$ de la distribución con el predictor lineal,\footnote{Al especificar un GLM, particularmente al trabajar con distribuciones exponenciales, es usual parametrizar la distribución no con la media $\mu$ sino con el parámetro canónico $\theta$. Si la función $g$ es tal que $\eta \equiv \theta$ entonces se dice que $g$ es la función liga canónica. } es decir: $\mu(x) = \E[y|x] = g^{-1}(\beta^tx)$. $g$ puede ser cualquier función monótona que, idealmente, mapee de forma suave y biyectiva el dominio de la media $\mu$ con el rango del predictor lineal $\eta$. 
+	\item $g$: función liga que une la media $\mu$ de la distribución con el predictor lineal,\footnote{Si la función $g$ es tal que $\eta \equiv \theta$ entonces se dice que $g$ es la función liga canónica. } es decir: $\mu(x) = \E[y|x] = g^{-1}(\bm{\beta}^tx)$. $g$ puede ser cualquier función monótona que idealmente mapee de forma suave y biyectiva el dominio de la media $\mu$ con el rango del predictor lineal $\eta$ \autocite{hardle2004semiparametric}. 
 \end{itemize}
 
-\subsubsection*{Modelo probit}
-Dado que para este trabajo se busca construir un clasificador donde los datos son binarios, i.e. $y_i \in \{0,1\} \; \forall i=1,\ldots,n$; la discusión se centrará en la distribución Bernoulli pues, dado su dominio, resulta natural modelar con ella los datos. Esto es: 
+\subsection{El modelo probit}
+Dado que para este trabajo se busca construir un clasificador supervisado donde las respuestas observadas sean binarias, i.e. $y_i \in \{0,1\} \; \forall i=1,\ldots,n$; la discusión se centrará en la distribución Bernoulli pues resulta de forma natural. Esto es:
 \begin{align}
 	y_i \sim \Be(y_i \, |\, p_i). \label{ec:ModBernoulli}
 \end{align}
-
-Esta restricción acota mucho las variedades de modelos que se pueden obtener bajo la especificación de (\ref{ec:GLM}). Sin embargo, en \citet{maccullagh1989generalized} se presenta con todo formalismo y rigor la rica extensión de los GLM's además de ejemplos prácticos de su aplicación y de su desarrollo histórico. 
-
-La distribución Bernoulli (\ref{ec:ModBernoulli}), tiene una estructura sencilla que puede ser resumida en las siguientes expresiones $\forall i = 1,\ldots,n$:  
+La distribución Bernoulli (\ref{ec:ModBernoulli}) tiene una estructura sencilla que puede ser resumida en las siguientes expresiones $\forall i = 1,\ldots,n$:  
 \begin{align}
-	f(y_i;p_i) &= p_i^{y_i}(1 - p_i)^{1 - y_i}  \quad \text{donde }\, y_i \in \{0,1\} \label{ec:DensidadBernoulli} \\[2pt]
-			&= \exp\left\{y_i\ln\left(\frac{p_i}{1 - p_i}\right) + \ln(1-p_i)\right\} \label{ec:DensidadBernoulliCanon}\\
-	\E[y_i] &= \mu_i = P(y_i = 1) = p_i \label{ec:MediaBernoulli}\\
-	\Var[y_i] &= p_i(1 - p_i) \label{ec:VarBernoulli}. 
-\end{align}
+	f(y_i|p_i) &= p_i^{y_i}(1 - p_i)^{1 - y_i} \label{ec:DensidadBernoulli} \\
+	\text{donde }\, y_i &\in \{0,1\}  \nonumber\\
+	\E[y_i] &= \mu_i = P(y_i = 1) = p_i  \nonumber\\
+	\Var[y_i] &= p_i(1 - p_i) \nonumber. 
+\end{align}			
+%&= \exp\left\{y_i\ln\left(\frac{p_i}{1 - p_i}\right) + \ln(1-p_i)\right\} \label{ec:DensidadBernoulliCanon} \\
 
-En (\ref{ec:DensidadBernoulli}) se observa la función de densidad Bernoulli en su forma tradicional que al ser expresada como en (\ref{ec:DensidadBernoulliCanon}) cumpla la definición de la familia exponencial.\footnote{Una distribución (de un solo parámetro) se dice que pertenece a la familia exponencial si se puede expresar de la forma: $f(y;\theta) = h(y)exp\left\{y\cdot\theta - A(\theta)\right\}$ con $h(y), y A(\theta)$ funciones conocidas y $\theta$ el parámetro canónico, en este caso $\theta(p) = \ln p/(1-p)$.} Dada el soporte y la definición de la distribución Bernoulli, la media de la distribución $\mu = p$ coincide con la probabilidad de que la variable aleatoria tome el valor de uno como lo resume la ecuación (\ref{ec:MediaBernoulli}). Asimismo, la varianza queda especificada por el mismo parámetro $p$, expresión (\ref{ec:VarBernoulli}). 
+En (\ref{ec:DensidadBernoulli}) se observa la función de masa de probabilidad Bernoulli en su forma tradicional que puede ser reexpresada para que cumpla la definición de la familia exponencial.\footnote{Una distribución (de un solo parámetro) se dice que pertenece a la familia exponencial si se puede expresar de la forma: $f(y;\theta) = h(y)exp\left\{y\cdot\theta - A(\theta)\right\}$ con $h(y)$, $A(\theta)$ funciones conocidas y $\theta$ el parámetro canónico, en el caso Bernoulli: $\theta(p) = \ln p/(1-p)$.} Dado el soporte y la definición de la distribución Bernoulli, la media de la distribución $\mu = p$ coincide con la probabilidad de que la variable aleatoria tome el valor de uno. Asimismo, la varianza queda especificada por el mismo parámetro $p$. 
 
-Esta propiedad de la media (\ref{ec:MediaBernoulli}) es de gran utilidad para un GLM por dos razones. Primero, además de modelar la media $\mu = p$, se está caracterizando por completo la distribución y la predicción de la variable $y$. Segundo, se restringen las posibles funciones liga a las funciones que mapeean de forma biyectiva $\mathbb{R}$, el dominio del predictor lineal $\eta$, al intervalo $(0,1)$, el dominio de la media. Dadas las propiedades buscadas, es usual usar como función liga a las inversas de funciones \textit{sigmoidales}. Las funciones sigmoidales, son funciones $s:\mathbb{R}\rightarrow (0,1)$, estrictamente monótonas y por ende, biyectivas. Algunos ejemplos son la ya mencionada logit, la función probit que concierne a este trabajo o la curva de Gompertz. Estas funciones cumplen un papel de activación, es decir, una vez que el predictor lineal rebase cierto umbral, crecen rápidamente y toman valores más cercanos a uno, \textit{activando} así la probabilidad de que $y$ sea un éxito.\footnote{En un contexto de redes neuronales, lo que se activa es la neurona y recientemente, se usa mucho la función $\textit{ReLu}(x):= \max\left\{0,x\right\}$.}
+El que la media conocida con la probabilidad de éxito en una distribución Bernoulli es de gran utilidad en un contexto de regresión. Primero, al modelar la media $\mu = p$, se está caracterizando por completo la distribución y la predicción de la variable $y$. Segundo, se restringen las posibles funciones liga a las funciones que mapeean de forma biyectiva $\mathbb{R}$, el dominio del predictor lineal $\eta$, al intervalo $(0,1)$, el dominio de la media. Dadas las propiedades buscadas, es usual usar como función liga a las inversas de funciones \textit{sigmoidales}. Las funciones sigmoidales, son funciones $s:\mathbb{R}\rightarrow (0,1)$ estrictamente monótonas y por ende, biyectivas. Algunos ejemplos son la ya mencionada logit, la función probit que concierne a este trabajo o la curva de Gompertz. Estas funciones cumplen un papel de activación, es decir, una vez que el predictor lineal rebase cierto umbral, crecen rápidamente y toman valores más cercanos a uno, \textit{activando} así la probabilidad de que $y$ sea éxito.\footnote{En un contexto de aprendizaje de máquina, se les conoce como funciones de activación a las inversas de la función liga $g^{-1}$ \autocite{bishop2006pattern}. Recientemente se utiliza mucho la función $\textit{ReLu}(x):= \max\left\{0,x\right\}$ la cual no es suave ni biyectiva \autocite{3blue1brown2017}.}
 
-En particular, en este trabajo se escoge como función liga a la función probit, la inversa de la función de acumulación normal estándar $\Phi(\cdot)$, i.e. $g(\mu) = g(p) = \text{probit}(p) = \Phi^{-1}(p)$, dándole nombre al modelo. Esta decisión, es consecuencia del trabajo de \citet{albert1993bayesian}; en el, los autores describen un algoritmo bajo el paradigma bayesiano para la estimación de los parámetros del modelo que se estudiará más a detalles en la Sección \ref{sec:VarLat} y \ref{sec:AlbertChib}. Dado que la notación puede ser confusa, en la Figura \ref{fig:DiagramaFuncLiga} se presenta una representación gráfica de la función liga para un modelo probit.\footnote{Para no caer en redundancia se tiene a partir de ahora: $s(x) = g^{-1}(x) = \Phi(x)$ la función de acumulación normal estándar. Asimismo, se deja de usar $\mu$ para referirse a la media y se utiliza únicamente $p$}
+En particular, en este trabajo se escoge como función liga a la función probit, la inversa de la función de acumulación normal estándar $\Phi(\cdot)$, i.e. $g(\mu) = g(p) = \text{probit}(p) = \Phi^{-1}(p)$, dándole nombre al modelo, en consecuencia al trabajo de \citet{albert1993bayesian}. Dado que la notación puede ser confusa, en la Figura \ref{fig:DiagramaFuncLiga} se presenta una representación gráfica de la función liga para un modelo probit.\footnote{Para no caer en redundancia de notación se tiene a partir de ahora: $s(x) = g^{-1}(x) = \Phi(x)$ la función de acumulación normal estándar. Asimismo, se deja de usar $\mu$ para referirse a la media y se utiliza únicamente $p$}
 
 % Diagrama de g
 \begin{figure}[h]
@@ -208,17 +203,17 @@ En particular, en este trabajo se escoge como función liga a la función probit
 \label{fig:DiagramaFuncLiga}
 \end{figure}
 
-Juntando todos los componentes, se está en posibilidades de detallar el modelo probit en su forma más rigurosa, rescatando la notación de un GLM con sus respectivas covariables $\xni$: 
+Juntando todos los componentes, se está en posibilidades de detallar el modelo probit en su forma más rigurosa, rescatando la notación de un GLM \eqref{ec:GLM} con sus respectivas covariables $\xni$: 
 \begin{align}
 y_i|\xni & \sim \Be(y_i|p_i) \qquad \forall i = 1,\ldots,n\label{ec:ModProbitA}\\
-\eta_i &= f(\xni) \label{ec:ModProbitB} \\
+\eta_i &= \eta(\xni) \label{ec:ModProbitB} \\
 p_i &= \Phi(\eta_i) = \Phi(f(\xni)) \label{ec:ModProbitC}
 \end{align}
 
 \subsubsection*{Equivalencia en las definiciones del modelo}
 El lector notará, sin embargo, que la especificación del modelo probit en las ecuaciones anteriores no corresponde a la definición mostrada al principio del Capítulo. Sin embargo, a continuación se prueba de forma muy sencilla la equivalencia entre ellas.\\
 
-\begin{theorem}
+\begin{theorem} \label{teo:Defs}
 Un modelo probit especificado en \eqref{ec:ModProbitA}, \eqref{ec:ModProbitB} y \eqref{ec:ModProbitC}, es equivalente a un modelo de variable latente como el presentado en \eqref{ec:DefZ-X} y \eqref{ec:DefY-Z}.
 \end{theorem}
 
@@ -226,264 +221,186 @@ Un modelo probit especificado en \eqref{ec:ModProbitA}, \eqref{ec:ModProbitB} y 
 \begin{align*}
 	\E[y_i\,|\,\xni] &= p_i  \\
 				&= P(y_i = 1\,|\,\xni)  \qquad \text{por \eqref{ec:ModProbitA}}\\
-				&= \Phi(f(\xni)) \qquad \text{por \eqref{ec:ModProbitC}}
+				&= \Phi(\eta(\xni)) \qquad \text{por \eqref{ec:ModProbitC}}
 \end{align*}
 Lo cual, es equivalente a introducir $n$ variables aleatorias $\tilde{z}_i \sim N(\tilde{z}_i|0,1)$ tales que:
 \begin{align*}
-	\Phi(f(\xni)) 	&= P(\tilde{z}_i \leq f(\xni)\,|\,\xni)\\
-			      	&= P(\tilde{z}_i > - f(\xni)\,|\,\xni) \quad \text{por simetría de la distribución normal}\\
-			      	&= P\left(\dfrac{\tilde{z}_i + f(\xni)}{1} > 0\,\bigg|\,\xni\right)\\
+	\Phi(f(\xni)) 	&= P(\tilde{z}_i \leq \eta(\xni)\,|\,\xni)
+				\text{por definición de la función de acumulación}\\
+			      	&= P(\tilde{z}_i > - \eta(\xni)\,|\,\xni) \quad \text{por simetría de la distribución normal}\\
+			      	&= P\left(\dfrac{\tilde{z}_i + \eta(\xni)}{1} > 0\,\bigg|\,\xni\right)\\
 			      	&= P(z_i > 0\,|\,\xni).
 \end{align*}
-Donde $z_i = \tilde{z_i} + f(\xni)$ es una transformación de $\tilde{z}_i$ tal que: 
-$$z_i|\xni \sim N(z_i|f(\xni),1),$$ 
-
+Donde $z_i = \tilde{z_i} + \eta(\xni)$ es una transformación de $\tilde{z}_i$ tal que: 
+$$z_i|\xni \sim N(z_i|\eta(\xni),1),$$ 
 lo cual es idéntico a la expresión \eqref{ec:DefZ-X}. Asimismo, al tener la igualdad $P(y_i = 1|\xni) = P(z_i > 0|\xni)$ y por ende su probabilidad complementaria $P(y_i = 0|\xni) = P(z_i \leq 0|\xni)$, se da una correspondencia uno a uno entre espacios de probabilidad y se puede definir $y_i$ en terminos de $z_i$ y viceversa, dando lugar a la definición \eqref{ec:DefY-Z}. 
 
-El argumento es similar si la demostración se comienza asumiendo la definición de un modelo de variable latente como en \eqref{ec:DefZ-X} y \eqref{ec:DefY-Z} y se construye hasta llegar a un GLM como en  \eqref{ec:ModProbitA} y \eqref{ec:ModProbitC}. Sin embargo, se tiene la peculiaridad de que la varianza debe de ser igual a uno para ser que la correspondencia definiciones sea exacta\footnote{Asumir comenzar con $z_i|\xni \sim N(z_i|f(\xni),\sigma^2)$ con $\sigma^2\neq 1$ deriva en que $p_i = \Phi(f(\xni)/\sigma)$ lo cual es diferente a lo que se tiene en \eqref{ec:ModProbitC}}. 
+El argumento es similar si la demostración se comienza asumiendo la definición de un modelo de variable latente como en \eqref{ec:DefZ-X} y \eqref{ec:DefY-Z} y se construye hasta llegar a un GLM como en  \eqref{ec:ModProbitA} y \eqref{ec:ModProbitC}. Sin embargo, se tiene la peculiaridad de que la varianza debe de ser igual a uno para ser que la correspondencia definiciones sea exacta\footnote{Comenzar con $z_i|\xni \sim N(z_i|f(\xni),\sigma^2)$ con $\sigma^2\neq 1$ deriva en que $p_i = \Phi(f(\xni)/\sigma)$ lo cual es diferente a lo que se tiene en \eqref{ec:ModProbitC}}
 \end{proof}
 
-La ecuación \eqref{ec:ModProbitB} realmente no influye en la prueba pues esta puede tener la forma funcional que se requiera para la aplicación especifica, ya sea lineal $\eta_i = \beta^t\xni$ como en \eqref{ec:GLM} o algo diferente como se opta en este trabajo $\eta_i = f(\xni)$.
+La ecuación \eqref{ec:ModProbitB} realmente no influye en la prueba pues esta puede tener la forma funcional que se requiera para la aplicación especifica, ya sea lineal $\eta_i = \beta_0 + \bm{\beta}^t\xni$ como en \eqref{ec:GLM} o algo diferente como se opta en este trabajo $\eta_i = \eta(\xni)$.
 
-\subsection{La variable latente $z$ y el predictor lineal $f$} \label{sec:VarLat}
-Para entender como se conectan las $n$ variables latente $z_i$ con sus respectivos predictores lineales $f(\xni)$, se necesita profundizar un poco más en el objetivo del modelo. En la Sección \ref{sec:AlbertChib} se detalla el detalle algorítmico, derivado del paradigma bayesiano, de las variables latentes $z$ y su conexión con los parámetros $\wsn$. 
+\subsection*{Liga entre la variable latente $z$ y $\eta$} \label{sec:VarLat}
+Para entender como se conectan las $n$ variables latentes $z_i$ con sus respectivos predictores lineales $\eta(\xni)$, se necesita profundizar un poco más en el objetivo del modelo. En la Sección \ref{sec:AlbertChib} se detalla el algoritmo, derivado del paradigma bayesiano, de las variables latentes $z_i$ y su conexión con los parámetros $\beta$. 
 
-Recapitulando, mediante la función liga $\Phi$ se une la media $p_i$, la probabilidad de éxito de la respuesta $y_i$ con los datos $\xni$. Esto se logra, a través de una variable latente $z_i$ con distribución normal cuya media $f(\xni)$, la función de predicción, es una transformación de las covariables $\xni$.
+Recapitulando, mediante la función liga $\Phi$ se une la media $p_i$, la probabilidad de éxito de la respuesta $y_i$ con los datos $\xni$. Esto se logra, a través de una variable latente $z_i$ con distribución normal cuya media $\eta(\xni)$, la función de predicción, es una transformación de las covariables $\xni$.
 \begin{align} \label{ec:RegMedia}
-	P(z_i > 0|\xni) = P(y_i = 1|\xni)= p_i(\xsn) &=\E[y_i|\xni] = g^{-1}(f(\xni)) = \Phi(f(\xni))
+	P(z_i > 0|\xni) = P(y_i = 1|\xni)= p_i(\xni) &=\E[y_i|\xni] = g^{-1}(\eta(\xni)) = \Phi(\eta(\xni))
 \end{align}
+Este enfoque funciona, además de por el componente algorítmico, por la siguiente idea altamente intuitiva. Si se quiere crear una regla de decisión que clasifique observaciones en categorías binarias con base en cierta información, parecería intuitivo condensar esta información de  forma que proporcione suficiente evidencia para inducir la clasificación. Es decir y traduciendo en términos matemáticos: la información $\xni$ se condensa en la función $\eta(\xni)$ la cual induce la clasificación de $y_i$ a través de la ecuación \eqref{ec:RegMedia}. Por ejemplo, si se tiene una $f(\xni)$ muy positiva para alguna observación $i$, implicaría que $P(z_i > 0|\xni)$ es cercano a uno (por el dominio de $\Phi$ y por lo tanto, es muy probable que $y_i$ sea un éxito ($y_i = 1$). El argumento es idéntico para la probabilidad complementaria.
 
-Este enfoque funciona, además de por el componente algorítmico, por la siguiente idea altamente intuitiva. Si se quiere crear una regla de decisión que clasifique observaciones en categorías binarias con base en cierta información, parecería intuitivo condensar esta información de  forma que proporcione suficiente evidencia para inducir la clasificación. Es decir y traduciendo en términos matemáticos: la información $\xni$ se condensa en la función $f(\xni)$ la cual induce la clasificación de $y_i$ a través de la ecuación \eqref{ec:RegMedia}. Por ejemplo, si se tiene una $f(\xni)$ muy positiva para alguna observación $i$, implicaría que $P(z_i > 0|\xni)$ es cercano a uno y por lo tanto, es muy probable que $y_i$ sea un éxito ($y_i = 1$). El argumento es idéntico para la probabilidad complementaria.
+Al final, como se menciona anteriormente, el modelo está resumiendo información al ir colapsando dimensiones. El siguiente paso en el modelo consiste en detallar la transformación que debe realizar el predictor lineal $\eta(\xni)$. Tradicionalmente como se mencionó en \eqref{ec:GLM}, esta transformación era lineal tanto en parámetros como en covariables, dando lugar a fronteras de decisión lineales. Sin embargo, el siguiente paso lógico es modificar estos modelos para que las fronteras puedan ser más flexibles, rompiendo la linealidad en las covariables para lograr encontrar patrones más complejos. 
 
-Al final, como se detalló en las ecuaciones \eqref{ec:Tranfj}, \eqref{ec:Tranf} y \eqref{ec:TranPhi} el modelo está resumiendo información al ir colapsando dimensiones. El siguiente paso en el modelo consiste en detallar la transformación que debe realizar el predictor lineal $f(\xni)$. Tradicionalmente como se mencionó en \eqref{ec:GLM}, esta transformación era lineal tanto en parámetros como en covariables, dando lugar a fronteras de decisión lineales. Sin embargo, el siguiente paso lógico es generalizar estos modelos para que las fronteras puedan ser tan flexibles como sea necesario, rompiendo la linealidad en las covariables para lograr encontrar patrones más complejos. En esta tarea se concentrará el resto del Capítulo.
+\section{La función de predicción $\eta$} \label{sec:FuncPred} 
+\subsection{Una breve introducción a los GAM}
+Como se detalla en la página 6 de \citet{james2013introduction}, conforme avanzaron los métodos y el poder computacional disponible se fueron desarrollando técnicas cada vez más poderosas que permitieron romper la linealidad en las covariables. En particular, \citeauthor{hastie1990generalized} se agrupan una clase de modelos a los que se les da el nombre de modelos aditivos generalizados (GAM). Estos modelos logran identificar relaciones no lineales utilizando, usualmente, métodos no paraméticos de suavizamiento en los datos  adoptando así, un enfoque de \textit{dejar que los datos hablen por si mismos}.\footnote{Página 1 de \citet{hastie1990generalized}}\\
 
-% Revisar esto
-% Es importante mencionar, que el \textit{corte} que se hace en $z = 0$ para la clasificación, es resultado de hacer una clasificación binaria. En modelos multinomiales también se debe tomar en cuenta los intervalos en $\mathbb{R}$ para los que la observación se clasificaría en alguna de las posibles clases y por ende, estimar los umbrales o usar una función diferente a las sigmoides. Este hecho, lleva a la realización de que $z$ y su media $f$ son \textit{ajenas más no independientes}. Esto quiere decir que la parametrización de $z$ como una normal $N(\mu,1)$ es equivalente a la parametrización $N(0,1)$. Este hecho se hará más claro cuando se hable del papel de $\beta_0$ en la función de proyección.
-
-\section{Función de predicción $f$} \label{sec:FuncPred} 
-Como se detalla en la página 6 de \citet{james2013introduction}, conforme avanzaron los métodos y el poder computacional disponible se fueron desarrollando técnicas cada vez más poderosas que permitieron romper la linealidad. En 1986, Hastie y Tibshirani introducen los Modelos Aditivos Generalizados (GAM) una clase de modelos que rompen la linealidad usando métodos no paraméticos \autocite{hastie1986generalized}. 
-
-Se hace notar que esta generalización es sutil pues el modelo aún conserva una parte lineal \textit{a lo largo}.\footnote{Con esta frase se hace alusión a que, en una tabla de datos de tamaño $n \times d$, siendo cada fila una observación y cada columna una variable, el \textit{largo} se piensa como la segunda dimensión de tamaño $d$. Por lo tanto, al usar esta expresión se busca considerar todas las variables. En este trabajo y en su implementación, se usa el subíndice $j$ para denotar esta idea.} Se ve en la ecuación (\ref{ec:fpred}) que el modelo aún es lineal en las $\beta_j$ y en las $f_j$. Donde se pierde la linealidad es \textit{hacia abajo},\footnote{De forma análoga, esta idea, hace alusión a las diferentes observaciones. Denotado por el subíndice $i$, el cual no se ha usado para simplificar la notación.} pues cada $f_j$ en realidad es la transformación no lineal de la covariables $x_j$. Además, las dimensiones $j$'s se asumen independientes entre si pues, se busca que corresponden a diferentes \textit{características} o variables con las que se planea modelar la variable de respuesta.
-
-En este modelo, el proyector $f$ de la ecuación (\ref{ec:fpred}), no hace otra cosa más que ir colapsando dimensiones, en particular: $\mathcal{X}^d \rightarrow \mathbb{R}$ que posteriormente se colapsa por medio de $\Phi$ en $[0,1]$. Es por esto que se le llama función de proyección, pues \textit{proyecta} el espacio $\mathcal{X}^d$ en $\mathbb{R}$. Sin embargo, la forma en la que lo haga, debe de ser lo más precisa posible pues el modelo recae en que este colapso detecte los patrones correctos en las covariables que llevan a la correcta identificación de $y$. Por lo tanto, $f$ como función de proyección es el corazón del modelo, por lo que su correcto entrenamiento es fundamental. La idea, recapitulando, es que $f$ separe el espacio de covariables para que sea positiva en las regiones donde se tengan éxitos y negativa donde se tengan fracasos; para ello, es fundamental entender los GAM.
-
-\subsection{Modelos aditivos generalizados (GAM)} \label{sec:GAM}
-Un GAM como se introduce en \citet{hastie1986generalized} remplaza la forma lineal $\sum_{1}^d\beta_jx_j = \beta^tx$ con una suma de funciones \textit{suaves} $\sum_j^d f_j(x_j)$. Estas funciones no tienen una forma analítica cerrada y son no especificadas, es decir, no tienen una forma funcional concreta y representable algebraicamente. Donde recae la fuerza de estos modelos, es que se estiman usando técnicas no paramétricas de suavizamiento\footnote{Las técnicas no paraméticas están fuera del alcance de este trabajo. Sin embargo, vale la pena una mención especial por su funcionalidad, practicidad y forma intuitiva, además del sinfín de aplicaciones que tienen. Una guía comprensiva de estas se encuentra en el libro \citet{wasserman2007all}.} como lo sería un suavizamiento LOESS\footnote{El suavizamiento LOESS, \textit{locally estimated scatterplot smoothing}}, es una técnica no paramtérica para el ajuste de ... \autocite{cleveland1988locally}. En estos modelos, se supone que por más grande que sea $\mathcal{X}^d$, la relación que existe entre cada una de las dimensiones $j$, se puede explicar de manera aditiva, es por ello que cada función $f_j$ tiene como argumento exclusivamente de $x_j$. Esta especificación fue revolucionaria pues no sólo regresa interpretabilidad al modelo, sino que simplifica la estimación usando técnicas prácticamente automáticas con el algoritmo de \textit{backfitting}. La idea fundamental de este algoritmo será de vital importancia para el ajuste de el modelo. Los principal ventaja de los GAM es que logran descubrir efectos no lineales en las covariables, justamente lo que se busca. La función $f$ de este trabajo, es una versión versión modificada de un GAM con tres cambios fundamentales. 
-
-La primera modificación es que se está ponderando cada $f_j$ por un parámetro $\beta_j$, esto, para suavizar aún más cada dimensión y captar el patrón general y no tanto los componentes individuales de cada $x_j$. Al entender que cada $f_j$ es una transformación no-lineal de $x_j$ (como lo sería una transformación logarítmica o una transformación Box-Cox) se le regresa cierta interpretabilidad al parámetro $\beta_j$ como el efecto que tiene la dimensión $i$ en particular para el modelo. Asimismo, se reincorpora un término independiente $\beta_0$ pues este ayuda a ajustar la escala en la estimación de los parámetros. La inclusión de este parámetro es fundamental para la correcta especificación del modelo pues ayuda a dar un \textit{sesgo o nivel} base contra el cual comparar la suma y escalar la $f$ para que sea compatible con el umbral de corte en $0$ haciendo equivalente la parametrización de $z$ con una distribución normal estándar. Por convención $f_0(\cdot) = 1$ por lo que se puede re-expresar la ecuación (\ref{ec:fpred}) como:
-$$
-f(\xsn) \approx \beta_0 +\sum_{i=1}^d \beta_i f_i(x_i) = \beta^t \mathbf{f}(\xsn),
-$$
-donde usando notación vectorial $\beta\in\mathbb{R}^{d+1}$ y 
-$\mathbf{f}(\xsn) \in\mathbb{R}^{d+1}$:
-\begin{align}\label{ec:fvector}
-\mathbf{f}(\xsn) &=  
-\left[
-	\begin{array}{c} 
-	f_0 \\
-	f_1(x_1) \\
-	f_2(x_2) \\
-	\vdots   \\
-	f_d(x_d)
-	\end{array}
-\right]
-	=
-\left[
-	\begin{array}{c} 
-	1 \\
- 	w_1^t\Psi_1(x_1,\P_1)\\
- 	w_2^t\Psi_2(x_2,\P_2)\\
-	\vdots   \\
- 	w_d^t\Psi_d(x_d,\P_d)\\
-	\end{array}
-\right]	
-\end{align} 
-La segunda modificación, se ve en la expresión anterior (\ref{ec:fvector}). Aunque es muy práctico manejar las $f_j$'s como indeterminadas y estimarlas con procedimientos de suavizamiento no paramétricos, también se puede optar por la vía en la que se especifica su forma funcional, en este caso $w_j^t\Psi_j(\cdot)$.
-No por ello, se le quita flexibilidad al procedimiento; esto se verá con todo detalle en la sección \ref{sec:fj}, donde se trata de adapar el procedimiento de \citet{mallik1998automatic}. Esta modificación, obedece a que para ciertas aplicaciones, sirve hacer el modelo paramétrico en donde cada $f_j$ se modela en su expansión de bases, vease Capitulo 9.1 y Ejemplo 5.2.2 de \citet{hastie2008elements}.
-
-La tercera modificación, es que en la practica, se tiene una aproximación en vez de una igualdad para $f$. El simple hecho de asumir que existe una $f$ que puede separar el espacio en regiones positivas y negativas es uno de los supuestos más fuertes del modelo, esto responde a que el \textit{error aleatorio}, sistemático de los datos, está siendo capturado por una aproximación a la $f$ real, dentro de cada una de las $f_j$'s. Bajo el paradigma frecuentista, se desarrolla toda una amplia teoría de convergencia y se explica a detalle el porqué de esta modificación usando técnicas de análisis más avanzadas \autocite{bergstrom1985estimation}, \autocite{stone1985additive}. 
-
-En la peculiaridad de que $d = 2$, se podrá visualizar $f(\xsn)$ en $\mathbb{R}^3$ como una serie de picos y valles donde será positiva en caso de ser éxito y negativa en caso contrario.
-
-\subsubsection*{Modelos en bases de funciones lineales}
-
-Finalmente, se aclara que este modelo podría ser confundido con un modelo en bases de funciones lineales\footnote{\textit{Linear basis function models} por falta de una mejor tradición.} como los presentados en Capitulo 3 de \citet{bishop2006pattern}:
-\begin{align} 
-	f(\xsn) = \beta_0 + \sum_{j = 1}^d\beta_j f_j(\xsn), \label{ec:ExpansionBases1}
-\end{align}
-
-claramente con una forma funcional simular. La diferencia radica en que cada $f_j$ es función de todas las covariables en lugar de sólo la que le corresponde en el índice. A estas funciones se les conocen como funciones base, sobre las que se hará una exposición más a detalle en la siguiente sección. La $f$ una vez más es lineales en $\beta$, no-lineales en $\xsn$, pero la diferencia radica en que $f_j$ es de naturaleza global. Algunos ejemplos son:
-
-\begin{itemize}[label = {}]
-	\item bases gaussianas,
-	 $$f_j(\xsn) = 
-	 \exp\left\{-\dfrac{(\xsn - \mu_j)^2}{2s^2}\right\}$$
-	\item funciones sigmoidales,
-	$$f_i(\xsn) = 
-	\sigma\left( \dfrac{\xsn - \mu_j}{s} \right).$$
-\end{itemize}
-
-Estos modelos son muy útiles en la estimación de mezclas de distribuciones y en la estimación de curvas. Sin embargo, estos son un grupo de modelos diferentes y su aplicación no es tanto inferencial como lo que se busca. En realidad, estos modelos son más una extensión al modelo que se construye en este trabajo.
-
-\section{Funciones $f_j$ - polinomios por partes} \label{sec:fj}
-Finalmente se trata la parte más profunda del modelo, las funciones $f_j$  que, como se mencionó anteriormente, son transformaciones no lineales de cada componente $x_j$. Lo que buscan es suavizar la nube de datos, para posteriormente sumarlas entre si y dar una medida $f$ que resuma toda la información en un número real. Como se menciona en la introducción de \citet{hardle2004semiparametric}, el suavizamiento de los datos es central en la estadística inferencial. La idea es extraer la señal entre el ruido y para ello, se intenta estimar y modelar la estructura subyacente. Este suavizamiento, se llevará a cabo usando una expansión en bases funcionales, particularmente en polinomios por partes. Toda la siguiente sección se concentra en darle formas funcionales a $\Psi$ y a explicar el papel de los pesos $w$. Se usa como referencia en la exposición, las primeras dos secciones de el Capitulo 5 de \citet{hastie2008elements}.
-
-\subsubsection{Expansión en bases funcionales}
-Saliendo por un momento del domino de la estadística, se definen las expansiones en bases de funciones. Sin entrar mucho en los detalles técnicos, dado un espacio funcional, se puede representar cualquiera de sus elementos, en este caso una funciones arbitrarias $h$, como la combinación lineal de los elementos de la base $\Psi$ (también funciones) y constantes $w$. En particular (y dados los objetivos del trabajo) se considera el espacio funcional que mapea $\mathbb{R}^d$ a $\mathbb{R}$, quedando entonces la expansión: 
-\begin{align} 
-	h(\xsn) = \sum_{l = 1}^{\N} w_l\Psi_l(\xsn) = w^t\Psi(\xsn) \label{ec:ExpansionBases2}
-\end{align}
-
-con el vector de funciones base $\Psi(\xsn)^t = (\Psi_1(\xsn),\ldots,\Psi_{\N}(\xsn))^t$, donde cada elemento $\Psi_l$ es también una función con el mismo mapeado que $h$, $w^t = (w_1,\ldots,w_{\N})^t$  un vector de coeficientes constantes y $\N$ un entero mayor o igual a la dimensión del espacio funcional que se maneja\footnote{Dependiendo de el espacio funcional, en ocasiones $\N = \infty$}.
-
-Regresando a las regresiones en el mundo de la estadística. Se busca representar la media condicional de la respuesta $y$ por una función que depende de los datos: $h(\xsn) = \E[y\,|\xsn]$. Se puede pensar, que esta $h$ también puede ser expresada como su expansión en bases funcionales.\footnote{Un supuesto fuerte pero necesario en ocasiones.} La idea, es que se remplace (o se aumente) la cantidad de covariables $\xsn$ con transformaciones de estas, capturadas en el vector $\Psi(\xsn)$. Por ejemplo:
-
-\begin{itemize}[label = {}]
-	\item $\Psi_l(\xsn) = x_j \quad \forall\,l = 1,\ldots,d$, donde se recupera un GLM tradicional.
-	\item $\Psi_l(\xsn) = \ln x_j$ ó $x_j^{1/2}$ donde se tienen transformaciones no lineales en cada una (o algunas) de las covariables.
-	\item $\Psi_l(\xsn) = ||\xsn||$ una transformación no lineal de todas las covariables.\footnote{Como se vio en la ecuación (\ref{ec:ExpansionBases1})} 
-	\item $\Psi_l(\xsn) = x_j^l \quad \forall l =0,\ldots,\N$ donde se tiene una expansión en bases polinómicas.
-	\item $\Psi_l(\xsn) = x_jx_k  \quad \forall l,\;\text{p.a. }j,k$ donde se incluyen términos de interacción. 
-\end{itemize}
-
-Esta representación engloba muchos de los modelos y transformaciones posibles en el mundo de las regresiones, uniendo temas de análisis funcional con estadística aplicada. Además de que en general han resultado ser de gran utilidad en la práctica. Se hace notar que el último ejemplo rompe con la aditividad inherente de las combinaciones lineales, demostrando que esta generalización no está restringida a ser completamente aditiva.
-
-Dependiendo del tipo de datos y el propósito del modelo, puede ser conveniente usar algún tipo  de funciones base sobre las otras. Sin embargo, sobre todo cuando se tiene poca o ninguna experiencia con los datos, se busca una representación más flexible (por no decirla ingenua) de éstos. El método más común es tomar una familia grande de funciones que logre representar una gran variedad de patrones. Una de estas familias, es la de los polinomios por partes usadas en este modelo. Una desventaja de estos métodos, sin embargo, es que al contar con una cantidad muy grande de funciones base y por ende parámetros, se requiere controlar la complejidad del modelo para evitar el \textit{sobre-ajuste}. Algunos de los métodos más comunes para lograrlo son los siguientes:
-
-\begin{itemize}[label={}]
-	\item Métodos de restricción: donde se selecciona un conjunto finito de funciones base y su tipo, limitando así las posibles expansiones. Los modelos aditivos como los usados en este trabajo, son un ejemplo perfecto de este tipo.  
-	\item Métodos de selección de variables: como lo son los modelos CART y MARS, donde se explora de forma iterativa las funciones base y se incluyen aquellas que contribuyan a la regresión de forma significativa.
-	\item Métodos de regularización: donde se busca controlar la magnitud los coeficientes, buscando que la mayoría de ellos sean cero, como los son los modelos \textit{Ridge} y  \textit{LASSO}.
-\end{itemize}
-
-\subsubsection{Consideraciones para la expansión en bases de este trabajo}
-Para simplificar un poco la exposición y reducir la notación, se supone por lo pronto que $d = 1$, por lo tanto $\xsn = x$ y se puede pensar únicamente en funciones que mapean reales a reales. Esto permite librar el subíndice $j$ para indicar componente del vector $\xsn$ y usarlo para otros fines.
-
-Para el modelo de este trabajo, se aplicaron las ideas de Denison, Mallick y Smith a los modelos GLM presentados con anterioridad. Los autores presentan un método revolucionario, automático y bayesiano, que permite estimar con un alto grado de precisión relaciones funcionales entre la variable de respuesta $y$ y sus covariable $x\in\mathbb{R}$. En el trabajo original, se buscaba ajustar una curva tal que $y = h(x)$. El modelo en su forma estadística se plantea para un conjunto de datos $\left\{(x_i,y_i) \right\}_{i = 1}^n$:
+\begin{definition} \label{def:GAM}
+Un GAM, tiene la forma $\forall i =1,\ldots,n$:
 \begin{align}
-	y_i = h(x_i) + e_i \quad i = 1,\ldots,n \label{ec:EstCurvas}
+	\E[y_i|\xni] = g^{-1}\left[f_0 + f_1(x_{i,1}) + \ldots + f_d(x_{i,d})\right],\label{ec:GAM}
 \end{align}
+con $g^{-1}$ la inversa de la función liga definida en \ref{sec:GLM} y el predictor lineal $\eta(\xni) = f_0 + f_1(x_{i,1}) + \ldots + f_d(x_{i,d})$. 
+\end{definition}
 
-donde las $e_i$ son variables aleatorios con media cero. Este método, combina  los procedimientos paramétricos y no paramétricos desarrollados con anterioridad para hacer más robusto el algoritmo de \citet{hastie1986generalized}. La idea, es ajustar un \textit{polinomio por partes} muy flexible. Estos polinomios, se componen de partes de menor orden entre \textit{nodos} adyacentes. Una de las muchas genialidad de su trabajo es que estos nodos, tradicionalmente fijos, se vuelven parámetros a estimar, usando un paradigma bayesiano. Y no sólo eso, sino que permiten \textit{aumentar o disminuir el número de nodos} desarrollando un algoritmo Gibbs sampler trans-dimensional. Esta generalización, logra estimaciones tan robustas, que logran aproximar funciones continuas \textit{casi en todas partes}, como lo son la función Doppler, funciones por bloques y funciones con picos pronunciados \autocite{mallik1998automatic}. 
+La idea fundamental de los GAM, es asumir que los efectos en las covariables aún se pueden modelar como una suma de funciones por componentes, es decir, cada covariable $x_j \quad \forall j =1,\ldots,d$ está siendo transformada de forma no lineal e independiente por una función asociada $f_j \quad \forall j$. De esta forma, se retiene algo de la interpretabilidad del modelo lineal. La funciones $f_j$ que ahora componen el predictor lineal $\eta$ se busca que sean tan flexibles como sea necesario, permitiendo que el estadista pueda hacer menos suposiciones rígidas sobre los datos. Estas funciones $f_j$ son suaves y no especificadas (\textit{no paramétricas}), es decir, no tienen una forma funcional concreta y representable algebraicamente. Sin embargo, es justamente ahí donde recae la fuerza de los GAM: al dejar a las funciones $f_j$ ser no especificadas, se permite que estas capturen los efectos necesarios en los datos para hacer el mejor ajuste posible, a este proceso, se le llama suavizamiento. 
 
-\subsection{\textit{Splines}} \label{sec:PolisYSplines}
-Antes de exponer estos polinomios tan flexibles, se busca entender que son los polinomios por partes simplificando (bastante) el trabajo de \citet{wahba1990splines}. Sea $x\in[a,b]\subseteq\mathbb{R}$, se busca separar $[a,b]$ en $J$ intervalos. Por lo tanto, se construye una partición correspondiente $\P = \left\{\t_1,  \t_2,\ldots,  \t_{J-1} \right\}$ tal que $a \leq  \t_1 < \ldots <  \t_{J-1} \leq b$. Estas $ \t$'s son llamadas \textit{nodos}. Se hace notar, que se puede incluir o no la frontera dependiendo de la especificación.\footnote{Dependiendo de si se busca hacer inferencia o no fuera del  los intervalos.} Con estos nodos seleccionados, se puede hacer una representación de $h$ en su expansión de bases como en la ecuación (\ref{ec:ExpansionBases2}), donde cada $\Psi_j$ será una función que depende, tanto de la partición como de la variable $x$. Por ejemplo, se puede pensar en un caso sencillo donde se tiene que $J = 3$ y a cada subintervalo les corresponde una función $\Psi_j  \quad j = 1,\ldots,3$. Simplificando aún más, se hacen que estas $\Psi_j$'s sean funciones constantes en cada intervalo. Por lo tanto, las funciones base son:
+Un suavizador, se puede definir de forma general, como una herramienta que resume la tendencia de la respuesta $y$ como función de las covariables $\xsn$ y produce estimado que es menos variable (ruidoso) que la respuesta en si. Como se mencionó con anterioridad, estos suavizadores son de naturaleza no paramétrica pues no se asume una dependencia rígida de $y$ en $\xsn$.\footnote{Las técnicas no paraméticas están fuera del alcance de este trabajo. Sin embargo, vale la pena una mención especial por su funcionalidad, practicalidad y forma intuitiva, además del sinfín de aplicaciones que tienen. Una guía comprensiva de estas se encuentra en el libro \citet{wasserman2007all}.} Como ejemplos prácticos de métodos no paramétricos, se encuentran los ajustes de medias móviles y el suavizamiento LOESS\footnote{El suavizamiento LOESS, \textit{locally estimated scatterplot smoothing}, es un tipo de regresión local que ajusta modelos más simples a subconjuntos de los datos para construir una función global que describa de forma no lineal la variabilidad intriseca que se presenta.} \autocite{cleveland1988locally}. 
+
+La estimación de las funciones $f_j$, se lleva a cabo por el algoritmo de ajuste hacia atrás (\textit{backfitting algorithm}), \citet{hastie1986generalized}. Este procedimiento, busca dar estimadores de cada $f_j$ de forma iterativa por componentes, utilizando como regresores los residuales parciales. Por ejemplo, sea $d = 2$ y $g^{-1}(w) = w$ la función identidad, quedando así el modelo:
+$$\E[y_i|\xni] = f_0 + f_1(x_1) + f_2(x_2).$$
+Se toman estimadores preliminares $\hat{f}_0$ y $\hat{f}_1$, para suaviza $f_2(x_2)$ sobre los residuales parciales: $\E[y_i|\xni] - (\hat{f}_0 + \hat{f}_1(x_1))$. Dado entonces $\hat{f}_2$ se puede mejorar el estimador de $f_1(x_1)$. Ese proceso se lleva a cabo de forma iterativa, hasta que el cambio en las funciones funciones $f_j$  sea menor que un umbral especificado.\footnote{La demostración de convergencia de un GAM se encuentra en \citet{stone1985additive}} Este algoritmo, se puede extender para $d$ y $g$ arbitrarias y es bastante flexible a modificaciones. Por construcción, las curvas resultantes de las funciones $f_j$ son suaves y lejos de ser lineales. Asimismo, sus formas, pueden ayudar a entender el fenómeno subyacente, en la página \pageref{}, en las figuras \pageref{} se encuentran visualizaciones de las formas finales de $f_j$...  
+
+\subsubsection*{Los GAM en el contexto de este trabajo}
+Sin dudar la elegancia y practicalidad de los métodos no paramétricos, para este trabajo, se opta modificar el enfoque original de los GAM y darles una forma rígida a las funciones $f_j$, regresando a los dominios de la estadística paramétrica. Esta decisión, pues se busca profundizar en los polinomios por partes estudiados en la Sección \ref{sec:fj} que componen a las funciones $f_j$. Aunque pareciera una desviación considerable del trabajo original de \citeauthor{hastie1990generalized}, en realidad en el Apéndice \ref{ap:Splines} se detalla como los polinomios por partes son el resultado de plantear la idea de suavizamiento como un problema de optimización. Asimismo, los GAM son tan flexibles en su definición (y concepto) que es usual restringir las funciones $f_j$ con formas funcionales concretas.\footnote{Capitulo 9.1 y Ejemplo 5.2.2 de \citet{hastie2008elements}}
+
+Bajo esta óptica, para este trabajo se retienen dos de las ideas fundamentales de los GAM: aditividad y las transformaciones por componentes de las covariables. Es decir, la definición de un GAM \eqref{ec:GAM} sustituye el predictor lineal tradicional de los GLM \eqref{ec:GLM}, $\eta(\xni) = \beta_0 + \bm{\beta}^t\xni$, con una suma de funciones $\sum_j^d f_j(x_j)$ más un intercepto constante $f_0$ que juega el papel de $\beta_0$, dando lugar a la ecuación \eqref{ec:etapred} definida a inicios de este Capítulo:
+\begin{align}
+\eta(\xni) &= f_0 + f_1(x_{i,1}) + f_2(x_{i,2}) + \ldots + f_d(x_{i,d}). \tag{\ref{ec:etapred}}
+\end{align}
+Se hace notar, que a diferencia de los modelos lineales donde se tiene a los parámetros $\beta$ incluidos en la expansión de $\eta$,  en los GAM los parámetros se incluyen dentro de cada una de las $f_j$ pues, los efectos de cada covariable son resumidos dentro de las mismas transformaciones. Aunque se pueden agregar parámetros que ponderen cada $f_j$, sobre-parametrizar puede llevar a la incorrecta especificación del modelo y caer en problemas de identificabilidad de los parámetros.
+
+Al entender que cada $f_j$ es una transformación no-lineal de $x_j$ (como lo sería una transformación logarítmica o una transformación Box-Cox) se le regresa cierta interpretabilidad al modelo. Es decir, cada $f_j(x_{i,j})$ es el efecto que tiene la covariable $j$, para una observación $i$, en la clasificación. Por lo tanto y heredado de la ecuación \eqref{ec:RegMedia} si $f_j$ es más positiva para esta observación $i$, se tiene mayor evidencia (en la covariable $j$) de que la respuesta binaria asociada $y_i$ sea uno. En la peculiaridad de que $d = 2$, se podrá visualizar, no solo las funciones $f_j$ de manera independiente, sino toda $\eta(\xni)$ en $\mathbb{R}^3$ como una serie de picos y valles donde será positiva en caso de que $y_i $ sea clasificada como uno y  negativa en caso de que sea cero. La imagen de la página ...
+
+La inclusión de un término independiente $f_0$ es importante en los GAM pues es uno de los resultados de la derivación mencionada en el Apéndice \ref{ap:Splines}. 
+
+
+Sin embargo, para este trabajo al termino $f_0$ se le da el mismo tratamiento que el de un parámetro independiente convencional, por lo tanto, se estima usando el mismo procedimiento que todos los demás parámetros. Este hecho se esclarecerá en las secciones subsecuentes. 
+
+\section{Funciones $f_j$} \label{sec:fj}
+Finalmente se trata la parte más profunda del modelo, las funciones $f_j$  que, como se mencionó anteriormente, son transformaciones no lineales de cada componente $x_j$. Lo que buscan es suavizar la nube de datos por componentes, para posteriormente sumarlas entre si y dar una media $\eta$ que resuma toda la información en un número real. Como se menciona en la introducción de \citet{hardle2004semiparametric}, el suavizamiento de los datos es central en la estadística inferencial. La idea es extraer la señal entre el ruido y para ello, se intenta estimar y modelar la estructura subyacente. Este suavizamiento, se llevará a cabo usando una expansión en bases funcionales, particularmente el tipo de polinomios por partes presentados en \citet{mallik1998automatic}. Toda la siguiente Sección se concentra en darle forma funcionales a las sub-funciones $\Psi$ para definir por completo $f_j$ y por ende $\eta$. 
+
+\subsection{Expansión en bases funcionales}
+Saliendo por un momento del domino de la estadística, se definen las expansiones en bases funcionales. Sin entrar mucho en los detalles técnicos, dado un espacio funcional\footnote{Espacio vectorial cuyos elementos son funciones.} se puede representar cualquiera de sus elementos, en este caso una función arbitraria $h$, como la combinación lineal de los elementos de la base $\Psi$  y constantes $\beta$. En particular (y dados los objetivos del trabajo) se considera el espacio funcional que mapea $\mathbb{R}^d$ a $\mathbb{R}$, quedando entonces la expansión: 
+\begin{align} 
+	h(\xsn) = \sum_{l = 1}^{\N} \beta_l\Psi_l(\xsn) = \beta{\beta}^t\Psi(\xsn). \label{ec:ExpansionBases}
+\end{align}
+Bajo esta definición, $\Psi(\xsn) = (\Psi_1(\xsn),\ldots,\Psi_{\N}(\xsn))^t$ es un vector cuyos elementos $\Psi_l(\xsn)$ son llamados funciones base y tienen el mismo mapeado que $h$. De la misma forma $\beta = (\beta_1,\ldots,\beta_{\N})^t$ es un vector de coeficientes constantes. Finamente, $\N\in\mathbb{N}$ es un entero mayor o igual a la dimensión del espacio funcional que se maneja.\footnote{Dependiendo de el espacio funcional y la complejidad de la función real por estimar $h$, en ocasiones se requiere que $\N = \infty$ para que se de la igualdad estricta \autocite{bergstrom1985estimation}.}
+
+En un contexto estadístico de regresión, se definen los modelos lineales de bases funcionales,\footnote{\textit{Linear basis function models}.} Capitulo 3 de \citet{bishop2006pattern}, como:
+\begin{align} 
+	h(\xsn) = \beta_0 + \sum_{l = 1}^{\N} \beta_l\Psi_l(\xsn) = \beta_0 + \bm{\beta}^t\Psi(\xsn), \label{ec:LBFM}
+\end{align}
+lo cual es idéntico a \eqref{ec:ExpansionBases} con la adición del término independiente $\beta_0$.\footnote{$\beta_0$ es fundamental para el correcto ajuste en el caso que $\xni = 0$ para alguna $i$.} Bajo este contexto, lo que se busca es representar una transformación $g$ de la media condicional de la respuesta $y$ por una función dependiente de los datos, es decir: $h(\xsn) = g(\E[y\,|\xsn]) = \eta(\xsn)$. Por lo tanto se puede pensar que esta función $h$, análoga a la función de predicción $\eta$, también puede ser expresada como su expansión en bases funcionales.\footnote{Un supuesto fuerte pero útil.} 
+
+La idea, es que se remplace (o se aumente) la cantidad de covariables $\xsn$ con transformaciones de estas, capturadas en el vector $\Psi(\xsn)$. Como ejemplos:
+\begin{itemize}[label = {}]
+	\item $\Psi_l(\xsn) = x_j \quad \forall\,l = 1,\ldots,\N = d$,  recupera un GLM tradicional.
+	\item $\Psi_l(\xsn) = \ln x_l$ ó $x^{1/2}$ para alguna $l = 1,\ldots,\N = d$, donde se tienen transformaciones no lineales en cada una (o algunas) de las covariables.
+	\item $\Psi_l(\xsn) = \exp\left\{-\dfrac{(x_l - \mu_l)^2}{2s^2}\right\} \quad l = 1,\ldots,d$ una expansión en bases gaussianas con $\mu_j$ el parámetro que gobierna la ubicación y $s$ la escala de las funciones bases.
+	\item $\Psi_l(\xsn) = x_j^aI( \t_b \leq x_j <  \t_c)$ para alguna $j$ y $\forall l =1,\ldots,\N$ con $a\in \mathbb{N}$ y $\tau_b$, $\tau_c$ nodos fijos. Dando lugar a  una expansión en bases polinómicas como la que se usa en este trabajo (Sección \ref{sec:PolisYSplines}).
+	\item $\Psi_l(\xsn) = x_jx_k  \quad \forall l = 1,\ldots,\N,$  para alguna $j,k$ donde se incluyen términos de interacción. 
+\end{itemize}
+
+Como se ve, esta representación engloba muchos de los modelos y transformaciones posibles en el mundo de las regresiones, uniendo temas de análisis funcional con estadística aplicada. Además de que en general han resultado ser de gran utilidad en la práctica. Se hace notar que el último ejemplo rompe con la aditividad inherente de los modelos que se han estudiado hasta ahora, mostrando que esta generalización no está restringida a ser completamente aditiva en covariables. Sin embargo $h$, por su construcción, siempre es lineal en los parámetros $\beta$ pero no lineal en las covariables, dependiendo de la forma de $Psi(\xsn)$.
+
+De igual forma, dependiendo del tipo de datos y el propósito del modelo, puede ser conveniente usar algún tipo de funciones base sobre otras. Sin embargo, sobre todo cuando se tiene poca o ninguna experiencia con los datos, se busca una representación más flexible (por no decirla ingenua) de éstos. El método más común es tomar una familia grande de funciones que logre representar una gran variedad de patrones. No obstante, una desventaja de estos métodoses que al contar con una cantidad muy grande de funciones base y por ende parámetros, se requiere controlar la complejidad del modelo para evitar el \textit{sobre-ajuste}. Algunos de los métodos más comunes para lograrlo son los siguientes \autocite{hastie2008elements}:
+\begin{itemize}[label={}]
+	\item Métodos de restricción: donde se selecciona un conjunto finito de funciones base y su tipo, limitando así las posibles expansiones. Los modelos aditivos como los usados en este trabajo, son un ejemplo de esto.  
+	\item Métodos de selección de variables: como lo son los modelos CART y MARS,\footnote{\textit{Classification \& regression tree} \autocite{breiman1984classification} y \textit{multivariate adaptive regression splines} \autocite{friedman1991multivariate} respectivamente.} donde se explora de forma iterativa las funciones base y se incluyen aquellas que contribuyan a la regresión de forma significativa.
+	\item Métodos de regularización: donde se busca controlar la magnitud los coeficientes, buscando que la mayoría de ellos sean cero, como los son los modelos \textit{Ridge} y  \textit{LASSO}.\footnote{\textit{Least absolute shrinkage and selection operator} \autocite{hoerl1970ridge, tibshirani1996regression}}
+\end{itemize}
+
+Se hace notar que en la Sección anterior, se modelaba $\eta$, sin embargo para los objetivos de este trabajo, lo que se busca expresar en su expansión de bases funcionales no es la función de predicción $\eta$, sino sus componentes aditivos $f_j$ los cuales depende únicamente de una variable real $x_j \quad \forall j$.\footnote{Más adelante se verá que la exposición es análoga pero se simplifica mucho el número de índices.} Por lo tanto, se trabaja por el momento únicamente con funciones que mapeen reales a reales. 
+
+\subsection{Polinomios por partes y \textit{splines}} \label{sec:PolisYSplines}
+Los polinomios por partes, por su flexibilidad, ha resultado ser de gran utilidad en diversas ramas de de las matemáticas. En particular, el mundo de la estadística surgen de forma natural como solución a varios problemas de modelado (Ver Apéndice \ref{ap:Splines}). Antes de dar la expresión final de las funciones $f_j$, se da una exposición constructiva de estos. Se usa como referencia las primeras dos secciones de el Capitulo 5 de \citet{hastie2008elements} y \citet{wahba1990splines}. 
+
+Sea $x\in[a,b]\subseteq\mathbb{R}$, se busca separar $[a,b]$ en $J$ intervalos. Por lo tanto, se construye una partición correspondiente $\P = \left\{\t_1,  \t_2,\ldots,  \t_{J-1} \right\}$ tal que $a \leq  \t_1 < \ldots <  \t_{J-1} \leq b$, las constantes $\t$ son llamadas \textit{nodos}.\footnote{En la definición, se puede incluir o no la frontera dependiendo de si se busca hacer inferencia fuera del intervalo acotado de los datos.} Con los nodos seleccionados, se puede hacer una representación de una función arbitraria $h$ en su expansión de bases como en la ecuación \eqref{ec:ExpansionBases}, donde cada $\Psi_j$ será una función que depende, tanto de la partición $\P$ como de la variable real $x$. 
+
+Un ejemplo sencillo: sea $J = 3$, separando el intervalo en tres pedazos, es decir la partición tiene dos nodos $\P = \left\{\t_1,  \t_2\right\}$. A cada subintervalo se le asocia una función $\Psi_j$,
 \begin{align*}
 	\Psi_1(x,\P) &= I( x <  \t_1) \\
 	\Psi_2(x,\P) &= I( \t_1 \leq x <  \t_2) \\
 	\Psi_3(x,\P) &= I( \t_2 \leq x ),
 \end{align*}
-
-con $I(\cdot)$ la función indicadora que vale $1$ si $x$ se encuentra en la región y $0$ en otro caso. Por lo tanto, la expansión es: 
+con $I(\cdot)$ la función indicadora que vale uno si $x$ se encuentra en la región y cero en otro caso. De donde se construye una función $h$: 
 \begin{align*}
-		h(x) &= \sum_{j = 1}^J w_j\Psi_j(x) \\
-			 &= w_1 I( x <  \t_1) + w_2 I( \t_1 \leq x <  \t_2) + w_3 I( \t_2 \leq x).
+		h(x) &= \sum_{l = 1}^J \beta_l\Psi_l(x) \\
+			 &= \beta_1 I( x <  \t_1) + \beta_2 I( \t_1 \leq x <  \t_2) + \beta_3 I( \t_2 \leq x).
 \end{align*}
+Esta función $h$ es una función escalonada, en el sentido de que cada región de $x$ tiene un nivel $\beta_j$.\footnote{Dado un conjunto de observaciones $\{(y_i,x_i)\}_{i = 1}^n$, si se buscara estimar los parámetros $\beta$ usando una función de perdida cuadrática, es fácil demostrar que cada $\hat{\beta}_j = \bar{y}_j$ es decir, para cada región, el mejor estimador constante, es el promedio de los puntos de esa región.}
 
-Resultando en una función \textit{escalonada}, en el sentido de que para cada región de $x$ se tiene un nivel $w_j$.\footnote{Sin entrar en el detalle, usando una función de perdida cuadrática, es fácil demostrar que cada $\hat{w}_j = \bar{x}_j$ es decir, para cada región, el mejor estimador constante, es el promedio de los puntos de esa región.} Esta aproximación, podría servir para datos que estén agrupados por niveles, sin embargo, rara vez será este el caso.
+Con este ejemplo, se ilustra a grandes rasgos como funcionan los polinomios por partes. Sin embargo, los polinomios por partes son mucho más flexibles pues a cada intervalo se puede ajustar un polinomio de grado arbitrario $(M-1)$.\footnote{Se usa esta convención pues para representar un polinomio de grado $M-1$ se necesitan $M$ términos.} Adicionalmente, se puede añadir restricciones de continuidad en los nodos, y no sólo continuidad entre los polinomios, sino continuidad en las derivadas. Esta es la flexibilidad de los polinomios por partes, que se les puede pedir cuanta \textit{suavidad} (o no) se requiera, entendido como la continuidad de la $(\tilde{K})$-ésima derivada. 
 
-Con este ejemplo sencillo, se ilustra a grandes rasgos como funcionan los polinomios por partes. Sin embargo, en cada intervalo se puede ajustar un polinomio de grado arbitrario, aumentando así, el número de funciones base. Adicionalmente, se pueden añadir restricciones de continuidad en los nodos, y no sólo continuidad entre los polinomios, sino continuidad en las derivadas, lo cual logra una estimación más robusta. Esta es la magia de los polinomios por partes, que se les puede pedir cuanta \textit{suavidad} (o no) se requiera, entendido como la continuidad de la (K)-ésima derivada. Tradicionalmente, se construyen polinomios cúbicos con segunda derivada continua en los nodos. Esto, pues resultan en curvas suaves al ojo humano, además de que logran aproximar una gran cantidad de funciones.
-
-\subsubsection{Orígenes y justificación de su uso}
-La palabra \textit{spline} usualmente se usa para designar a un grupo particular de polinomios por parte. Sin embargo, no hay consenso en la literatura de su definición exacta. Dependiendo de las particularidades se pueden denotar funciones diferentes. Para este trabajo se usa la definición de \citet{wasserman2007all} y \citet{hastie2008elements}.  Un \textit{spline de grado $M$} es un polinomio por partes de grado $M-1$ y continuidad hasta la $(M-2)$-derivada. Se hace notar, que existen muchos tipos de \textit{splines}, además de que pueden ser, puede ser más flexibles o más rápidos en su implementación computacional como los B-Splines. En \citet{deboor1978splines} y más recientemente \citet{wahba1990splines} se hacen tratados extensivos sobre ellos.
-
-Como breviario historico, los splines originales, los desarrolla  el matemático I. J. Schoenberg como la solución al problema de encontrar la función $h$ en el espacio de Sobolev $W_{M}$ de funciones con $M-1$ derivadas continuas y $M$-ésima derivada integrable al cuadrado que minimice:
-$$\int_a^b(h^{(M)}(x))^2\,dx,$$ 
-
-sujeta a que interpole los puntos $h(x_i) = h_i \quad i = 1,2,\ldots,n$ \autocite{schoenberg1964spline}. Posteriormente, la teoría sobre los splines se fue expandiendo y fueron adoptados por ramas de la matemática tan diversas como los gráficos por computadora y, como es el caso, la estadística computacional. Bajo este contexto, los splines también surgen de forma orgánica pues, la ecuación (\ref{ec:EstCurvas}) se puede plantear como encontrar la función $h$ que minimice:
-\begin{align}
-	\sum_{i=1}^n(y_i - h(x_i))^2 + \lambda\int_a^b (h^{(M)}(x))^2 \, dx, \label{ec:SplinesConRegularizacion}
-\end{align}
-
-para alguna $\lambda > 0$. Donde, la solución se demuestra que son \textit{splines cúbicos naturales} $(M = 4)$. Cabe mencionar, que esta formulación del problema engloba muchas de técnicas estadísticas interesantes además de conceptos de optimización. El lector reconocerá que el primer término claramente es la \textit{suma de residuales cuadrados (RSS)} y el segundo término del sumando es un caso particular de los métodos de regularización mencionados anteriormente. No es el enfoque del trabajo entrar en estos detalles pues, cambios menores en la formulación y diferentes elecciones de $\lambda$ llevan a modelos que cada uno merece una tesis por si mismo. Sin embargo, es importante mencionar que la regularización y modelos de este tipo, son algunos de los más usados y útiles en ML, pues logran captar patrones muy complejos al incluir muchos términos de orden superior e interacciones sin sobreajustar en los datos. Como ejemplo, se puede encontrar fronteras de clasificación circulares usando un modelo logístico normal en $\mathbb{R}^2$ al incluir todos los términos polinomiales y las interacciones hasta orden 6. Por lo pronto, lo esencial en la expresión (\ref{ec:SplinesConRegularizacion}) es que al tratar de minimizar el RSS se puede caer en problemas de sobre-ajuste en donde los parámetros no estén capturando efectos y patrones subyacentes, sino sólo se trata de seguir los datos. Para compensar la complejidad, se penaliza la función a minimizar con segundo termino que controla el número de parámetros y la suavidad deseada mediante $\lambda$. A este segundo término, se le conoce como \textit{penalización} y crece a medida que $h$ se vuelve más complicada.\footnote{Si el lector tiene una intuición de análisis, notará que integrar la función al cuadrado, corresponde con el producto interno de las funciones pertenecientes al espacio de Hilbert $\mathcal{L}_2([a,b])$.}
-
-Posterior a estas formulaciones, los splines vuelven a ser relevantes con el modelo aditivo de Hastie y Tibshirani. Ellos extienden la formulación de un espacio de covariables en una sola dimensión, a muchas. La formulación del problema es prácticamente la misma que  (\ref{ec:SplinesConRegularizacion}) pero ahora se busca estimar $d$ funciones $h$, dando lugar a tener más parámetros $\lambda$:
-\begin{align*}
-	y &= \sum_{j = 0}^d h_j(x_j) + \epsilon \\	
-	\text{RSS}(h_0, h_1, \ldots, h_d) &= \sum_{i = 1}^n[y_i - \sum_{j = 0}^d h_j(x_{ij})]^2 \, + \, \sum_{j = 1}^d\lambda_j 			\int h_j^{''}(t_j) \, dt_j
-\end{align*}
-con la convención de que $h_0$ es una constante. Ellos muestran que $h_j \quad j = 1,\ldots,d$ son splines cúbicos. Sin embargo, sin restricciones adicionales, el modelo no sería \textit{identificable}, es decir, la $h_0$ podría ser cualquier cosa. Para asegurar la unicidad de la solución se añade la condición de que las funciones estimadas, promedien cero sobre los datos:
-\begin{align}
-	\sum_{i = 1}^n h_j(x_{ij}) = 0 \quad \forall j \label{ec:RestriccionGAM}
-\end{align}
-
-Esto lleva a la conclusión natural de que $h_0$ sea la media de las variables de respuesta, es decir: $h_0 = \bar{y}$. Por lo que si se ve cada dimensión $j$, se tiene que su función correspondiente $h_j$ está centrada alrededor de la media $\bar{y}$. Esta idea es fundamental para el modelo de este trabajo. En el, se permite que $h_j$ sean \textit{arbitrarias} para toda $j$, por lo que sólo se necesita que tenga la magnitud necesaria para ajustar los datos. Es decir, dada $h_0$, la estimación y entrenamiento de los parámetros que definen por completo a $h_{j^*}$ (con $j^*$ alguna $j=1,\ldots,d$) deben ser tales para que esta ajuste los \textit{residuales parciales}:
-\begin{align}
-\hat{h}_{j^*} &= y - h_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d h_j \label{ec:ResParciales}
-\end{align}
-
-y se vaya captando en esta $h_{j^*}$ la información aún no captada por el modelo. Esta lógica, además de brillante, es la que le da fuerza a los GAM, pero sólo se puede entender de forma completa hasta que se estudie el algoritmo de \textit{backfitting} en la Sección \ref{sec:AlgoBackfitting}. 
-
-\subsubsection{Formalización matemática de \textit{splines}}
-Retomando la discusión de la página \pageref{sec:PolisYSplines}, se está buscando definir un polinomio de grado $M-1$ por partes en $J$ intervalos. Tomando una expansión de bases para cada intervalo, como en el primer ejemplo que se dio, el número de funciones base aumenta en $J$ por cada grado que se agregue, dando un total de $J\times  M$ bases funcionales, y en consecuencia, el mismo número de parámetros por estimar. Esto ocurre porque se necesita definir una base de tamaño $M$ para cada subintervalo $j = 1,\ldots,J$. Es decir: $\mathcal{B}_j = \left\{1,x,x^2,\ldots,x^{M-1}\right\}$, para $j = 1,\ldots,J$. Sin embargo, esto lleva a polinomios que se comportan de forma independiente en cada intervalo y no se conecten. Naturalmente, la primera condición en la que se piensa es imponer continuidad en los nodos, lo cual devuelve $J-1$ parámetros que corresponden a los $J-1$ nodos. De la misma forma, cada grado de continuidad nodal en las derivadas que se le pida al polinomio, lo restringe y por ende, devuelve el mismo número de funciones bases. Sea $K$ este número, es decir, se construye un polinomio por partes con continuidad hasta la $K$-ésima derivada, que tiene un total de:
+\subsubsection*{Número total de funciones bases $\N$}
+Formalizando la idea anterior, al tomar una expansión de bases para cada intervalo, el número de funciones base aumenta en $J$ por cada grado que se agregue, dando un total de $J\times  M$ bases funcionales. Esto ocurre porque se necesita definir una base de tamaño $M$ para cada subintervalo $j = 1,\ldots,J$, es decir, $\mathcal{B}_j = \left\{1,x,x^2,\ldots,x^{M-1}\right\}$. Esta definición, lleva a polinomios que se comportan de forma independiente en cada intervalo y no se conecten. Naturalmente, la primera condición en la que se piensa, es imponer continuidad en los nodos lo cual devuelve $J-1$ parámetros que corresponden a los $J-1$ nodos. De la misma forma, cada grado de continuidad en las derivadas que se le pida al polinomio, lo restringe y por ende, devuelve el mismo número de funciones bases, se denota por $\tilde{K}$ este número. Sin embargo, es más intuitivo pensar en un parámetro $K = \tilde{K} + 1$ como el número de restricciones que se imponen en los nodos. Es decir, $K = 0$ implica intervalos independientes, $K = 1$, implica que los polinomios se conectan, $K = 2$ implica continuidad en la primera derivada ($\tilde{K} = 1$) y así sucesivamente. Bajo esta definición los polinomios por partes tienen un total de:
 \begin{align}
 	\N(M,J,K) = M\times J - K(J-1) \label{ec:NEstrella}
 \end{align}
+bases funcionales y por ende, el mismo número de parámetros $\beta$ por estimar. Dada la construcción que se hace y las características de $\MJK$ se tienen las restricciones: $M > K \geq 0 $ y $J > 1$.
 
-bases funcionales. Por ende, este polinomio tiene el mismo número de parámetros por estimar $w$.\footnote{En ocasiones es más fácil pensar en $K$ como el número de restricciones que se imponen en los nodos. Así, $K = 0$ implica que los intervalos son independientes, $K = 1$, implica que los polinomios se conectan, $K = 2$ implica continuidad en la primera derivada y así sucesivamente. Naturalmente $K < M$} Es claro que $\N$ es la \textit{dimensión mínima} necesaria para construir polinomios por partes con estas características. Pues, el número de funciones $\N$ está, a su vez, en función de $M$ definiendo el grado, el número de intervalos $J$ (por ende el número de nodos) y el número de restricciones $K$.
+La palabra \textit{spline} usualmente se usa para designar a un grupo particular de polinomios por parte. Sin embargo, no hay consenso en la literatura de su definición exacta. Para este trabajo se usa la definición de \citet{wasserman2007all} y \citet{hastie2008elements}.  Un \textit{spline de grado $M$} es un polinomio por partes de grado $M-1$ y continuidad hasta la $(M-2)$-derivada ($K = M - 1$). Se hace notar, que existen muchos tipos de \textit{splines}, además de que pueden ser más flexibles o más rápidos en su implementación computacional como los B-Splines. En \citet{deboor1978splines} y más recientemente \citet{wahba1990splines} se hacen tratados extensivos sobre ellos y sus generalizaciones. Los \textit{splines} cúbicos se han popularizado en la literatura, pues resultan en curvas suaves al ojo humano, reteniendo suficiente flexibilidad para aproximar una gran cantidad de funciones.
 
-Por lo pronto, y para continuar con una exposición constructiva, se centra la discusión cuando $K = M - 1$, devolviendo la definición de spline: polinomios de grado $M-1$ con continuidad hasta la $(M-2)$-derivada. Por ende, $\N = M + J - 1$. Ahora, se recuerda que el objetivo es darle forma funcional a $\Psi$. Para lograr esto, habiendo incorporado el número de bases, se define la función auxiliar \textit{parte positiva}:
-$$  x_+ = \max\left\{0,x\right\}.$$
+\subsubsection*{Polinomios por parte flexibles} 
+Habiendo delimitado el número de funciones bases $\N$ y por ende sus componentes $\MJK$, finalmente se le puede dar forma funcional a las funciones base $\Psi$. Se define primero, la función auxiliar \textit{parte positiva}, sea $a \in \mathbb{R}$:
+$$  a_+ = \max\left\{0,a\right\}.$$
+Esta función, ayuda a que se pueda representar un polinomio por partes de una forma relativamente sencilla evitando separar la función en varias lineas. 
 
-Esta función, ayuda a se pueda representar la expansión en bases de una forma relativamente sencilla. A esta expansión, se le conoce como \textit{expansión en bases truncada}:
+\begin{definition} Expansión en bases truncada, \citet{mallik1998automatic}:
 \begin{align}
-	h(x) &= \sum_{i = 1}^{M + J - 1} w_i \Psi_i(x,\mathcal{P}) \nonumber \\ 
- 		 &=	\sum_{i = 1}^M w_i \; x^{i-1} + \sum_{j = 1}^{J-1}w_{M+i}\;(x - \t_i)_+^{M-1}.	\label{ec:SplineGeneral}
-\end{align}
-
-El primer sumando de (\ref{ec:SplineGeneral}) representa el \textit{polinomio base}\footnote{\textit{Baseline}, una vez más a falta de una mejor traducción} de grado $M-1$ %baseline,
-que afecta a todo el rango. El segundo sumando, está compuesto únicamente de funciones parte positivas que se van activando a medida que $x$ recorre el rango $[a,b]$ a la derecha y va pasando por los nodos. Estas funciones parte positiva, capturan el efecto de todos los intervalos anteriores que, al combinarlos con el primer sumando definen un polinomio de grado $M-1$ en todo el intervalo.\footnote{En realidad lo hace en todo $\mathbb{R}$} Esta derivación de las bases, surge cuando se integra un polinomio por partes constante $M-1$ veces. En cada iteración, las constantes se juntan y se integran por si solas, independientemente de los intervalos, lo cual deriva en este polinomio base. De forma explicita, se tiene que $\Psi(x,\P)$ es:
-\begin{align*}
-	&\Psi_1(x,\P) = 1 \\ 
-	&\Psi_2(x,\P) = x \\ 
-	& \vdots \\
-	&\Psi_M(x,\P) = x^{M-1}\\
-	& \quad \quad \quad \text{(el \textit{polinomio base})}\\				
-	&\Psi_{M + 1}(x,\P) = (x - \t_1)_+^{M-1} \\				
-	& \vdots \\
-	&\Psi_{M + J - 1}(x,\P) = (x - \t_{J - 1})_+^{M-1} \\
-	& \quad \quad \quad \text{(la base truncada)},		 
-\end{align*}
-
-las cuales forman un espacio lineal de funciones $(M + J - 1)$-dimensional. En la particularidad que $M = 4$, se les conoce como splines cúbicos y son los más usados cuando se buscan funciones suaves. En la práctica han resultado ser de gran utilidad pues el ojo humano no detecta la posición de los nodos.
-
-\subsection{Polinomios por parte flexibles}
-Independientemente de la elección de parametros en la construcción del polinomio, se tiene el problema de seleccionar la posición de los nodos. Existen procedimientos adaptativos, como los propuestos en \citet{friedman1991multivariate}. No obstante, y como ya se mencionó anteriormente, \citet{mallik1998automatic}, proponen un método bayesiano más atractivo, que aunque no se implemente en este trabajo, se implementa su expansión en bases aún más general. Esta es una ligera modificación a la ecuación (\ref{ec:SplineGeneral}) la cual la convierte, de un spline, a un polinomio por partes más general, con grado arbitrario de continuidad en las derivadas. Dejando atrás el supuesto que $K = M-1$ y devolviendole esa flexibilidad al modelo. Su expansión en bases resulta:
-\begin{align}
-	h(x) &= \sum_{l = 1}^{N^*} w_l \; \Psi_l(x,\P) = w^t\Psi(x,\P) \qquad \text{con  } N^* = J\times M - K(J-1) 
-\label{ec:ExpBase_NEstrella} \\ 
- 		 &=	\sum_{i = 1}^M w_{i,0} \; x^{i-1} + 
+	h(x) &= \sum_{l = 1}^{N^*} \beta_l \; \Psi_l(x,\P) = \bm{\beta}^t\Psi(x,\P)\label{ec:ExpBase_NEstrella} \\ 
+	\text{donde, } \, N^* &= J\times M - K(J-1) \nonumber \\[7pt]
+ 		 &=	\underbrace{
+	        \sum_{i = 0}^{M - 1} \beta_{i,0} \; x^{i}
+ 		    }_\text{polinomio base} + 
+			\underbrace{
 			\sum_{i = K}^{M-1} \;
-	 		\sum_{j = 1}^{J-1}w_{i,j}\;(x - \t_j)_+^{i}
+	 		\sum_{j = 1}^{J-1}\beta_{i,j}\;(x - \t_j)_+^{i}
+	 		}_\text{parte truncada}
 	 			\label{ec:PoliMallik}
 \end{align}
-la cual es la expansión de bases implementada en el modelo final.
+\end{definition}
+Esta expansión aunque pesada en notación, tiene muchas propiedades atractivas. Además, es prácticamente la expansión de bases implementada en el modelo final.
 
-Dado que se tiene una doble suma, es necesario incluir un segundo índice, al menos temporalmente, a los pesos. El primer índice, denotado por $i$ está asociado al grado de su función base; si $i = 2$ entonces, $w_{2,j}$ está asociado a una término de grado 1 cuando $j = 0$, pero a uno de grado $2$ si $j>0$.\footnote{Esta desgraciada disparidad en la notación surge para ser consistente con la anterior, y no se puede indexar directamente en el primer sumando.} El segundo índice $j = 1,\ldots, J-1$ denota el nodo al que está asociado el peso. Como convención, si $j = 0$, se hace referencia al polinomio base que siempre tiene efecto. En el segundo sumando de (\ref{ec:PoliMallik}) la primera suma comienza en $K$. Recordando, $K$ es el número de restricciones de continuidad que se imponen al polinomio en los nodos. Por ejemplo, $K = 0$ implicaría que cada polinomio es independiente; $K = 2$, se tiene continuidad en la función y en la primera derivada, etc. En el caso que $K = M - 1$ se regresa a la ecuación (\ref{ec:SplineGeneral}) y se recuperan los splines que, por construcción, son suaves. La suavidad, aunque útil, no siempre es necesaria. Existen muchas funciones con primera y segunda derivada que varían rápidamente e incluso funciones discontinuas que no se podrían estimar usando splines, todo depende de los datos. Esta construcción, con su doble suma, permite tener $M-K$ términos por nodo, codificando así las continuidades arbitrarias en las derivadas.\footnote{Esta codificación es sutil pues, al hacer los cálculos de continuidad, hay que considerar los límites izquierdos y derechos, los cuales existen siempre. Sin embargo, los términos $(x-\t)^K_+$ se desvanecen únicamente hasta la $K$-esima derivada. Para la $(K+1)$-derivada, el coeficiente correspondiente se suma a la función y rompe la continuidad pues no corresponde con el límite izquierdo} La ecuación (\ref{ec:ExpBase_NEstrella}) es una vez más la expansión en bases arbitrarias, igual a (\ref{ec:ExpansionBases2}) pero definiendo de forma completa a $\N$. Además, si finalmente en esta ecuación se deja que $h(x)$ sea igual a $f_j(x_j)$ para toda $j = 1,\ldots,d$, se regresa a la ecuación canónica del modelo (\ref{ec:fj}) presentada al principio de este trabajo. Este era el último componente que quedaba por definir, completando así la exposición matemática del modelo.
+Al primer sumando de \eqref{ec:PoliMallik} se le conoce como polinomio base (\textit{Baseline polynomial}), pues afecta a todo el intervalo de definición $[a,b]$. El segundo sumando, conocido como la parte truncada, controla la suavidad entre los nodos. Es decir, por cada nodo $j = 1,\ldots,J-1$ se tienen $M - K$ funciones parte positivas que se van activando a medida que $x$ recorre el su dominio $[a,b]$ hacia la derecha y va pasando por los nodos $\tau_j$. Estas funciones parte positiva, van capturando los efectos de los intervalos anteriores que, al combinarlos con el primer sumando definen un polinomio de grado $M - 1$ en todo el intervalo.\footnote{Esta expansión, surge de integrar un polinomio por partes, constante en cada subintervalo, $M-1$ veces, pues las constantes de integración se pueden agrupar en el polinomio base.} La principal utilidad de esta expansión, es que engloba todas las ideas antes mencionadas en tres parámetros: $\MJK$, al escogerlos, se pueden representar un gran número polinomios por partes. Por ejemplo, si $M = 3$, $J = 5$, $K = 0$ se tiene un polinomio por partes en 5 subintervalos (4 nodos) donde cada subintervalo es una parábola independiente de la anterior, es decir, las parábolas no son continuas entre si. Por el contrario, si $K = M - 1$ se devuelve a la definición de \textit{splines}.
 
-Para ayudar con la interpretación y lectura de la ecuación (\ref{ec:PoliMallik}), la Tabla \ref{tab:Biyeccion}, de la página \pageref{tab:Biyeccion}, hace un compendio de los polinomios por partes. Esto ayuda no sólo a esclarecer la notación, sino a formar una biyección entre $w_l$, $w_{i,j}$ y $\Psi_l$ que posteriormente ayudará a expresar todo de forma matricial en su implementación en código.
+Para la facilitar la interpretación de los parámetros y la expansión de \eqref{ec:PoliMallik}, las $\beta$ cuentan dos índices: $i$ y $j$. 
+El índice $i$ siempre está asociado al grado de su función base asociada, es decir, si $i = 2$ se está hablando de un término de grado $2$. En el segundo sumando (la parte truncada) el índice $i$ comienza en $K$ para codificar las restricciones de continuidad.\footnote{Esta codificación es sutil pues, al hacer la demostración de continuidad, hay que considerar los límites izquierdos y derechos. Los límites izquierdos siempre coinciden con la función en el nodo. Sin embargo, los términos $(x-\t)^K_+$ se desvanecen únicamente hasta la $(K)$-ésima derivada. Para la $(K+1)$-derivada, el coeficiente correspondiente se suma a la función y rompe la continuidad pues no corresponde el límite derecho.} El segundo índice $j = 1,\ldots, J-1$ describe el nodo al que está asociado el parámetro. Como convención, si $j = 0$, se hace referencia al primer sumando (el polinomio base) que siempre está activo sobre el intervalo. 
+
+La ecuación \eqref{ec:ExpBase_NEstrella} es una expansión en bases arbitrarias igual a \eqref{ec:ExpansionBases}. Se hace notar, que en \eqref{ec:ExpBase_NEstrella} se hace referencia a $\beta$ con un solo índice $l = 1,\ldots,\N$ mientras que en \eqref{ec:PoliMallik} con dos. Esta disparidad surge de la necesidad de una doble interpretación de la expresión; como una expansión de bases arbitrarias $\Psi_l$ y su correspondiente expansión en bases truncadas. Sin embargo, existe una biyección notacional entre los elementos $\beta_l$, $\beta_{i,j}$ y $\Psi_l$ presentada en la Tabla \ref{tab:Biyeccion} de la página \pageref{tab:Biyeccion}. Esta Tabla ayuda no sólo a esclarecer la notación, sino a expresar todo de forma matricial que posteriormente se implementará en el código. 
 
 \begin{table}[p] 
 \centering
 \renewcommand{\arraystretch}{1.3}
 $\begin{array}{l|c|lcc}
-w_l 				& w_{i,js} 	& \Psi_l(x,\P) 			& ~ & ~ \\[3pt] 
+\beta_l 			& \beta_{i,j} 	& \Psi_l(x,\P) 			& ~ & ~ \\[3pt] 
 \text{Subíndice } l &\text{Subíndices } i,j & \text{Función Base} & ~ & ~ \\ 
 \cline{1-3}
-1 					& 1,0 		& 1 					& \rdelim\}{4}{40pt}[$M$ elementos]		 	& ~ \\
-2 					& 2,0 		& x 					&											& ~ \\ 
+1 					& 0,0 		& 1 					& \rdelim\}{4}{40pt}[$M$ elementos]		 	& ~ \\
+2 					& 1,0 		& x 					&											& ~ \\ 
 \vdots 				& \vdots 	& \vdots		 		& 											& ~ \\ 
-M 					& M,0 		& x^{M-1} 				& 											& ~ \\ 
+M 					& M-1,0 	& x^{M-1} 				& 											& ~ \\ 
 \cdashline{1-3}
 M+1 				& K,1 		& (x-\t_1)^K_+ 			& \rdelim\}{4}{40pt}[$M-K$]		 			& \rdelim\}{13}{50pt}[$J-1$ veces] 	\\ 
 M+2					& K+1,1 	& (x-\t_1)^{K+1}_+ 		& 											& 									\\ 
 \vdots 				& \vdots	& \vdots 				& 											& 									\\ 
-M+(M-K)	 			& M-1,1 	& (x-\t_1)^{M-1}_+ 		& 											& 									\\ 
+M+(M-K)	 			& M-1,1 	& (x-\t_2)^{M-1}_+ 		& 											& 									\\ 
 \cdashline{1-3}
-M+(M-K)+1 			& K,2  		& (x-\t_1)^K_+ 	   		& \rdelim\}{4}{40pt}[$M-K$]					& 									\\ 
-M+(M-K)+2 			& K+1,2  	& (x-\t_1)^{K+1}_+		&  											& 									\\ 
+M+(M-K)+1 			& K,2  		& (x-\t_2)^K_+ 	   		& \rdelim\}{4}{40pt}[$M-K$]					& 									\\ 
+M+(M-K)+2 			& K+1,2  	& (x-\t_2)^{K+1}_+		&  											& 									\\ 
 \vdots 				& \vdots 	& \vdots 				&  											& 									\\ 
-M+2(M-K) 			& M-1,2  	& (x-\t_1)^{M-1}_+		& 											& 									\\ 
+M+2(M-K) 			& M-1,2  	& (x-\t_2)^{M-1}_+		& 											& 									\\ 
 \cdashline{1-3}
 \vdots 				& \vdots 	& \vdots 				& 											& 									\\ 
 \cdashline{1-3}
@@ -492,34 +409,118 @@ M+(J-2)(M-K)+2 		& K+1,J-1 	& (x-\t_{J-1})^{K+1}_+ 	& 											& 									\\
 \vdots 				& \vdots	& \vdots 				& 											& 									\\ 
 M+(J-1)(M-K) 		& M-1,J-1	& (x-\t_{J-1})^{K+1}_+	&  											&  
 \end{array}$
-\caption{Biyección entre $w_l$, $w_{i,j}$ y sus correspondientes funciones base $\Psi_l$.}
+\caption{Biyección entre $\beta_l$, $\beta_{i,j}$ y sus correspondientes funciones base $\Psi_l$.}
 \label{tab:Biyeccion}
 \medskip
   \begin{flushleft}
   \small
-Se termina con $N^* = M + (J-1)(M-K) = J\times M - K*(J-1)$ términos, ecuación (\ref{ec:NEstrella}). Por construcción, se es consistente con la definición (\ref{ec:SplineGeneral}) si $K = M - 1$.
+Se tienen $N^* = M + (J-1)(M-K) = J\times M - K(J-1)$ términos, ecuación (\ref{ec:NEstrella}). Por construcción, se es consistente con la definición de \textit{spline} si $K = M - 1$.
 	\end{flushleft}  
 \end{table}
 
-Antes de cerrar la sección, se centra la atención en los nodos $\t$. A estos, se les ha dado poca importancia hasta el momento. Como ya se mencionó antes, en \citet{mallik1998automatic} se desarrolla, además de la ecuación (\ref{ec:PoliMallik}) un paradigma bayesiano en el que los nodos, son tratados como parámetros y por ende sus posiciones cambian. La ventaja de que estos estén indeterminados, es que se pueden concentrar en los lugares donde la función varia más. Y al contrario, si la función es relativamente suave para alguna sección, se usan pocos nodos. Aunque hubiera sido bueno implementar este proceso, el algoritmo que \textit{mueve} los nodos va ligado directamente a un proceso de eliminación y nacimiento de estos, haciendo que la $J$ sea variable. En el trabajo original, esto no era un problema pues sólo se hacían estimaciones para una dimension, $d = 1$. En el contexto de este modelo probit, implementar el algoritmo trans-dimensional que los autores proponen, hubiera implicado que $\N$ estrella, no fuera constante para toda variable, $j = 1,\ldots,d$. Sino que se tendría $\N_j$, incorporado otra capa de complejidad innecesaria. Además, el algoritmo habría sido radicalmente diferente. En el Capítulo \ref{cap:BayesAlgoritmo} se detalla como la simplificación de no incorporar los nodos como parámetros ayuda bastante a la velocidad del algoritmo. Posteriormente en el Capítulo \ref{cap:EjYRes}, se ve que para fines prácticos, el modelo funciona de maravilla y finalmente en el Capítulo \ref{cap:Conclusiones} se discute que habría cambiado de haberse implementado. 
+\subsubsection*{Los nodos $\tau$: el trabajo de \citeauthor{mallik1998automatic}}
+Las ideas de \citet{mallik1998automatic}, van más allá de la ecuación \eqref{ec:PoliMallik}. En su trabajo, los autores presentan un método automático y bayesiano para estimar con un alto grado de precisión relaciones funcionales complejas. En el trabajo original, se buscaba ajustar una curva tal que $y = h(x)$. El modelo en su forma estadística se plantea para un conjunto de datos $\left\{(y_i,x_i) \right\}_{i = 1}^n$:
+\begin{align}
+	y_i = h(x_i) + e_i \quad i = 1,\ldots,n
+\end{align}
+donde las $e_i$ son variables aleatorias con media cero.  
 
-\subsection{Consideraciones matemáticas adicionales}
-A pesar de la utilidad de los splines (y los polinomios por parte), todos sufren de problemas más allá del rango de entrenamiento $[a,b]$. Pues, su naturaleza global hace que fuera de la región con nodos, los polinomios crezcan o decrezcan rápidamente. Por lo tanto, extrapolar con polinomios o splines es peligroso y podría llevar a estimaciones erróneas. Para corregir esto, en ocasiones, se puede imponer una restricción adicional para que el polinomio sea lineal en sus extremos. Se usa el adjetivo de \textit{natural} para designarlos. Esta modificación, libera $2(M-2)$ funciones bases, pues quita todas las bases de orden mayor a 1 en los dos nodos frontera. Su expansión en bases, también se deriva de la ecuación (\ref{ec:SplineGeneral}). Es razonable que esta modificación mejore la fuerza predictiva fuera de el dominio de entrenamiento. Sin embargo, en general, en un contexto de regresión, se recomienda no hacer inferencia fuera de el espacio de covariables $\mathcal{X}$, pues en realidad, no se tiene evidencia para tomar conclusiones en esta región.  Todo depende de los datos y el objetivo del modelo.
+Para lograrlo, usan el polinomio definido en \eqref{ec:PoliMallik} y desarrollan un método bayesiano para la estimación de los nodos $\tau$ que son tradicionalmente fijos. Además permiten aumentar o disminuir la cantidad de estos nodos desarrollando un algoritmo Gibbs sampler trans-dimensional, es decir, que cambia el número de parámetros en cada iteración. Esta generalización, logra estimaciones tan robustas que logran aproximar funciones continuas \textit{casi en todas partes} como lo son la función Doppler, funciones por bloques y funciones con picos pronunciados. Con lo anterior, se demuestra que la suavidad, aunque útil, no siempre es necesaria. Muchas funciones discontinuas no se podrían estimar del todo usando polinomios continuos como los \textit{splines}. Al final, todo depende de los datos y el propósito del modelo.
 
-Se han usando los parámetros $\MJK$ para hablar del número de funciones base $N^*$, ecuación (\ref{ec:NEstrella}), pero se recuerda que también, dictan el número de \textit{grados de libertad} del modelo. Es decir, el número de pesos o coeficientes $w$, los cuales son igual o más importantes que las bases, no sólo porque son parámetros a estimar, sino que son los que dictan el \textit{ajuste} a los datos a diferencia de $\Psi$ que únicamente los operan.
+La ventaja de que nodos sean parámetros por estimar, es que se estos pueden concentrar en los lugares donde la función varia más. Y al contrario, si la función es relativamente suave para alguna sección, se necesitan usan pocos nodos. Sin embargo y para propósitos de este trabajo, los nodos se toman determinados desde el principio. Su número $J-1$ es definido por el estadista y su localización se escoge en los cuantiles del rango de las covariables.\footnote{Es decir, si se tiene $J$ intervalos, se toman los nodos como los  cuantiles que acumulan probabilidad $1/J$ en el rango $[a,b]$.} En el Capítulo \ref{cap:BayesAlgoritmo} se detalla como la simplificación de no incorporar los nodos como parámetros ayuda bastante a la velocidad del algoritmo. Posteriormente en el Capítulo \ref{cap:EjYRes}, se ve que para fines prácticos, el modelo funciona muy bien y finalmente en el Capítulo \ref{cap:Conclusiones} se discute que habría cambiado de haberse implementado. 
 
-Al estar trabajando en espacios funcionales, la elección de base es relativamente arbitraria y se podría cambiar como lo hace una transformación de coordenadas en un espacio euclidiano. Cada base tiene sus beneficios y desventajas. Para esta exposición, se escoge la expansión en bases truncadas pues es explicada fácilmente y tiene una forma funcional relativamente sencilla además, la interpretación de los coeficientes $w$ es inmediata. Sin embargo, no es óptima computacionalmente cuando $J$ es grande. En la practica, usualmente se implementan B-Splines\footnote{Vease el Capítulo 5.5 de \citet{wasserman2007all} o el Apéndice del Capítulo 5 en \citet{hastie2008elements}.} que se derivan de lo vistos anteriormente. No obstante, para no complicar más la exposición (y el algoritmo en si) se implementó una versión optimizada de (\ref{ec:PoliMallik}) con base en la Tabla (\ref{tab:Biyeccion}) que funciona bastante rápido inclusive cuando $J$ es grande.
+\subsection{Consideraciones finales para el modelo}
+Bajo la óptica de la implementación del modelo, se hace énfasis en la linealidad de los parámetros. Al sustituir \eqref{ec:fj} en \eqref{ec:etapred} este hecho se hace más evidente:
+\begin{align}
+	\eta(\xni) &= f_0 + \sum_{j=1}^d f_j(x_{i,j}) \nonumber\\
+			   &= f_0 + \sum_{j=1}^d \bm{\beta^t}_j\Psi(\xni,\P_j) \nonumber\\[4pt]
+	&= f_0 + \sum_{j=1}^d  \left[\sum_{l = 1}^{\N} \beta_{j,l} \Psi_l(x_{i,j}, \mathcal{P}_j)\right]. \label{ec:ModLineal}
+\end{align}
+En donde cada sumando interior tiene una expansión de bases funcionales definida por la ecuación \eqref{ec:PoliMallik}.\footnote{No se hace la sustitución pues la notación resultaría demasiado pesada.} Asimismo, $f_0$ puede ser pensado como otro parámetro adicional, es decir: $f_0 = \beta_0$. Este hecho de linealidad en los parámetros de $\eta$, lleva a que \eqref{ec:ModLineal} pueda ser re-expresada simplemente como el producto punto de un largo vector de parámetros $\bm{\beta}$ y una matriz de diseño $\widetilde{\Psi}$ que incorpora la doble suma con sus correspondientes expansiones en bases y todas las observaciones $i = 1,\ldots,n$. Sin embargo, bajo las definiciones anteriores aún se tiene un problema de confusión en los parámetros. 
 
-En la practica, los parámetros $\MJK$ se calibran pues, como ya se mencionó anteriormente, hacer $J$ variable y automático es muy complejo. Asimismo, la elección de $M$ y $K$ requeriría cierta exploración previa de los datos. No obstante, existen algoritmos que realizan esta tarea que, para los fines de este trabajo no aportaría mucho. Además de que los resultados que se obtuvieron por el método de calibración son bastante buenos.
+Al ya tener un término independiente $f_0 = \beta_0$ en el modelo, para preservar la identificabilidad de los parámetros se deben realizar unas pequeñas modificaciones a \eqref{ec:PoliMallik}. Los parámetros confundidos pueden tener dos orígenes. Primero, si se permite que $K = 0$ el segundo sumando tendría términos independientes no deseados. Esto se arregla fácilmente imponiendo la restricción de continuidad en los polinomios, es decir, $K > 0$.\footnote{De manera preeliminar, se implementó una versión del algoritmo que permitía esta confusión. El ajuste no mejoraba cuando $K = 0$ y solamente causaba que las cadenas simuladas de los parámetros no convergieran debidamente. No obstante, en los polinomios por partes si se observaba la discontinuidad.} Segundo, se debe retirar el término independiente inherente en el polinomio base, es decir, comenzar el primer sumando en uno en vez de cero. Esta modificación retira una función base modificando $\N$.\footnote{\citeauthor{mallik1990automatic} resuelven este problema de identificabilidad al solamente usar una covariable para la estimación de las curvas, permitiendo retirar uno de los parámetros independientes sin penalización. Asimismo, su algoritmo automático trans-dimensional les permitía tener polinomios por partes discontinuos.} Juntando estas cambios \eqref{ec:PoliMallik} se transforma en:
+\begin{align}
+	h(x) &= \sum_{l = 1}^{\N} \beta_l \; \Psi_l(x,\P) \nonumber\\ 
+	\text{con } \, \N &= J\times M - K(J-1) - 1\nonumber \\
+	\text{donde: } \, & M > K > 0 \text{ y } J > 1 \nonumber \\[7pt]
+ 		 &=	\sum_{i = 1}^{M - 1} \beta_{i,0} \; x^{i} + 
+		\sum_{i = K}^{M-1} \;
+	 		\sum_{j = 1}^{J-1}\beta_{i,j}\;(x - \t_j)_+^{i}.
+	 			\label{ec:PoliFinal}
+\end{align}
+Lo cual, es finalmente la expansión que se implementa en el modelo. Solamente basta dejar que $h(x)$ sea igual a $f_j(x_j)$ para toda $j = 1,\ldots,d$ y se regresa a la ecuación canónica del modelo (\ref{ec:fj}).
 
-Si se le da rigor al modelo, en realidad, hay dos expansiones en bases. La primera la primera \textit{a lo largo} de la ecuación lineal (\ref{ec:fpred}) cuyos coeficientes son $\beta$ y las funciones base $\mathbf{f}$. Posteriormente, se tiene la expansión de la ecuación de polinomios por partes de (\ref{ec:fj}) cuyos coeficientes son $w_j$ y las funciones base $\Psi_j$ para toda $j$. Esto explica el salto conceptual y notacional que se da entre las representaciones de (\ref{ec:ExpansionBases1}) y (\ref{ec:ExpansionBases2}).
+Juntando todo lo anterior, el predictor lineal $\eta$ se puede re-expresar en su forma vectorial compacta:
+\begin{align}
+\bm{\eta}(\xmat) = \widetilde{\Psi}(\xmat)\bm{\beta}, \label{ec:EtaMat}
+\end{align} 
+donde $\xmat \in \mathbb{R}^{n\times d}$ es la matriz de covariables, $\bm{\beta}$ el vector de parámetros con un total de $\lambda = 1 + d\times\N$ elementos y $\widetilde{\Psi}(\xmat)\in\mathbb{R}^{n\times\lambda}$ la transformación no lineal definida con anterioridad. Vistos en sus correspondientes formas matriciales, se tienen las estructuras: 
+$$
+\bm{\eta}(\xmat) = 
+\left[ 
+	\begin{array}{c}
+	\eta(\mathbf{x}_1) \\ 
+	\eta(\mathbf{x}_2) \\ 
+	\vdots \\
+	\eta(\mathbf{x}_n)
+	\end{array}\right]
+\qquad
+\bm{\beta} = 
+\begin{array}{c@{}c}
+\left[ 	
+	\begin{array}{c}
+		\beta_0 		\\
+		\hdashline
+		\beta_1 		\\
+		\vdots  		\\
+		\beta_{\N} 		\\
+		\hdashline
+		\beta_{\N + 1}	\\
+		\vdots  		\\
+		\beta_{2\N} 	\\
+		\hdashline
+		\vdots  		\\
+		\beta_{d\times\N} 
+	\end{array}	
+\right]
+	\begin{array}{ll}
+		\text{término independiente} & ~ \\
+		\rdelim\}{3}{5pt}[$\bm{\beta}_1:\; \N$ términos]& \rdelim\}{8}{15pt}[$d$ veces]\\
+		&\\
+		&\\
+		\rdelim\}{3}{5pt}[$\bm{\beta}_2:\; \N$ términos] &\\ 
+		&\\
+		&\\
+		&\\
+		&\\
+	\end{array}
+\end{array} 
+$$
+\begin{align}
+\widetilde{\Psi}(\xmat) &= 
+\left[
+\begin{array}{c:c:c:c}
+1 & f_1(x_{1,1}) & \ldots & f_d(x_{1,d}) \\
+\vdots & \vdots & ~ & \vdots \\
+1 & f_1(x_{n,1}) & \ldots & f_d(x_{n,d}) 
+\end{array} 
+\right] \label{ec:PsiTilde}\\[5pt]
+&=
+\left[
+\begin{array}{c:ccc:c:ccc}
+1 & \Psi_1(x_{1,1},\P_1) & \ldots & \Psi_{\N}(x_{1,1},\P_1) & \ldots & \Psi_1(x_{1,d},\P_d) & \ldots & \Psi_{\N}(x_{1,d},\P_d)\\
+\vdots & \vdots & ~ & \vdots & ~ & \vdots & ~ & \vdots \\
+1 & \Psi_1(x_{n,1},\P_1) & \ldots & \Psi_{\N}(x_{n,1},\P_1) & \ldots & \Psi_1(x_{n,d},\P_d) & \ldots & \Psi_{\N}(x_{n,d},\P_d)
+\end{array}
+\right]\nonumber
+\end{align}
+Bajo esta definición, el modelo se simplifica. Se observa que en realidad cada $f_j$ es justamente una expansión de cada covariable $x_j$ en más términos que se le añaden al predictor lineal. Asimismo, aunque el modelo no sufra de problemas de identificabilidad en los parámetros, no se puede asegurar la no-colinealidad entre las columnas de $\\widetilde{Psi}$ por construcción, por lo que se podrían dar problemas en la estimación.\footnote{Bajo el paradigma frecuentista y esta forma funcional, los parámetros también se podrían estimar por un procedimiento de mínimos cuadrados, en donde serían evidentes los problemas en la matriz de correlaciones $\Psi^t\Psi$.}
 
-Al tener en mente que se tienen $d$ covariables, y por ende $d$ polinomios por partes, además de la estructura lineal de (\ref{ec:ExpBase_NEstrella}) se puede sustituir (\ref{ec:fj}) dentro de (\ref{ec:fpred}) dando la siguiente estructura con doble suma:
-\begin{align*}
-	f(\xsn) &\approx \sum_{j=0}^d \beta_j f_j(x_j) \\
-			&\approx \beta_0 + \sum_{j=1}^d \beta_j \left[\sum_{l=1}^{N^*} w_{j,l}\Psi_{j,l}(x_j, \P_j)\right].
-\end{align*}
+A pesar de la utilidad de estos polinomios por parte, todos sufren de problemas más allá del rango de definición $\mathcal{X}_j = [a_j,b_j] \quad \forall j = 1,\ldots,d$. Pues, su naturaleza global hace que fuera de la región con nodos los polinomios crezcan o decrezcan rápidamente. Por lo tanto, extrapolar con polinomios es peligroso y podría llevar a predicciones erróneas. Para corregir esto, en ocasiones, se puede imponer una restricción adicional para que el polinomio sea lineal en sus extremos. Se usa el adjetivo de \textit{natural} para designarlos. Esta modificación, libera $2\times(M-2)$ funciones bases, pues quita todas las bases de orden mayor a 1 en los dos nodos frontera. Es razonable que esta modificación mejore la fuerza predictiva fuera de el dominio de entrenamiento. Sin embargo, en un contexto de regresión (o clasificación) general, se recomienda no hacer inferencia fuera de el espacio de covariables $\mathcal{X}^d$, pues en realidad, no se tiene evidencia para tomar conclusiones en esta región.
 
-Lo cual, es perfectamente lineal. Se tienen $1 + d\times\N$ términos que se pueden acomodar en un solo vector. Sin embargo, se tiene un cruce de parámetros interesante: la multiplicación de $\beta_j\quad \forall j$ contra $w_{j,l} \quad \forall l$. Tradicionalmente, no se usan $\beta$ y se deja que se capture ese efecto dentro de las $f_j$ como en los GAM. Sin embargo, dado que el objetivo de este trabajo es la predicción, más que la estimación de funciones, se opta por dar una nueva capa de suavizamiento con $\beta$. No existe forma de garantizar ortogonalidad de $\beta$ contra las todas las $w$, por lo tanto, se le da prioridad a la correcta estimación de $w$ pues captura un mayor efecto además de que, por la construcción de los polinomios por partes, si está garantizada la ortogonalidad contra las funciones bases $\Psi$.
+%Se han usando los parámetros $\MJK$ para hablar del número de funciones base $N^*$, pero se recuerda que también, dictan el número de \textit{grados de libertad} del modelo. Es decir, el número de pesos o coeficientes $w$, los cuales son igual o más importantes que las bases, no sólo porque son parámetros a estimar, sino que son los que dictan el \textit{ajuste} a los datos a diferencia de $\Psi$ que únicamente los operan.
+
+Al estar trabajando en espacios funcionales, la elección de base es relativamente arbitraria y se podría cambiar como lo hace una transformación de coordenadas en un espacio euclidiano. Cada base tiene sus beneficios y desventajas. Para esta exposición, se escoge la expansión en bases truncadas pues es explicada fácilmente y tiene una forma funcional relativamente sencilla. Además, la interpretación de los coeficientes $\beta$ es inmediata. Sin embargo, no es buena computacionalmente hablando cuando $J$ es grande. En la practica, usualmente se implementan B-Splines\footnote{Vease el Capítulo 5.5 de \citet{wasserman2007all} o el Apéndice del Capítulo 5 en \citet{hastie2008elements}.} o bases ortogonales que se derivan de lo estudiados. No obstante, para no complicar más la exposición (y el algoritmo en si) se implementó una versión vectorizada de \eqref{ec:PoliFinal} con base en la Tabla \ref{tab:Biyeccion} y \eqref{ec:PsiTilde} que se ejecuta bastante rápido inclusive cuando $n$ y $J$ son grandes.
+
+En la practica, los parámetros $\MJK$ se calibran comparando diferentes alternativas de modelos\footnote{En el Capítulo \ref{cap:EjYRes} se discute la selección del modelo.} pues, como ya se mencionó anteriormente, hacer $J$ variable y automático es muy complejo. 
 \end{document}
-

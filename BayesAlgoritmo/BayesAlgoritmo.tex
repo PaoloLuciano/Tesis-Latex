@@ -1,71 +1,44 @@
 \documentclass[../Main/Main.tex]{subfiles}
 
 \begin{document}
-Pasar de un modelo tan estructurado a su implementación computacional no resulto fácil. Sin embargo, se logró desarrollar un algoritmo que estima todos los parámetros del modelo de una forma eficiente y que funciona en la práctica. En el fondo, el algoritmo recae en el método de Gibbs sampling propuesto en \citet{albert1993bayesian}, por lo que se hace una breve introducción a la escuela de inferencia bayesiana, y en el algortimo de backfitting descrito en \citet{hastie1986generalized}. Al algoritmo se le titula: \textit{bayesian piece wise polinomial model (bpwpm)}. Para facilitar la utilización del modelo en diversas bases de datos, así como  su validación y visualización, a la par del algoritmo se desarrolló un paquete de código abierto (con el mismo nombre) para el software estadístico \verb|R|, más detalles en le Apéndice \ref{ap:Paquete}.
+\epigraph{\textit{[...], it is more common in machine learning to view the model as core, and how this is implemented
+is secondary. From this perspective, understanding how to translate a mathematical model into a piece of
+computer code is central.}}{\citet{barber2010bayesian}}
 
-Al darle un tratamiento bayesiano a los parámetros, más que estimarlos, se busca regresar una muestra de tamaño arbitrario de sus correspondientes distribuciones posteriores. La idea, es que estas distribuciones posteriores, se haya capturado toda la información de los datos de entrenamiento. Se considera, que una buena forma de entender el algoritmo es \textit{visualizando} tanto los datos como los objetos que componen el modelo, por lo tanto se hace un paréntesis notacional. De las ecuaciones del modelo: (\ref{ec:Y-Z}) a (\ref{ec:fj}), se tienen dos grupos de parámetros por estimar, $\beta \in \mathbb{R}^{d+1}$ y $w_j \in \mathbb{R}^{\N} \quad \forall j = 1,\ldots,d$, donde:
-\begin{align}
-\beta &= 
-\left[ 
-	\begin{array}{c}
-	\beta_0 \\
-	\beta_1 \\ 
-	\vdots \\
-	\beta_d
-	\end{array}\right]
-\quad \text{y} \quad 
-w_1 = 
-\left[ 
-	\begin{array}{c}
-	w_{1,1}\\
-	\vdots\\
-	w_{1,\N}
-	\end{array}\right]
-\quad \ldots \quad 
-w_d = 
-\left[ 
-	\begin{array}{c}
-	w_{d,1}\\
-	\vdots\\
-	w_{d,\N}
-	\end{array}\right]
-\end{align}
-Se hace énfasis en que existen $d$ vectores $w_j$, cada uno de tamaño $\N$. Por lo tanto, se tienen un total de $1 + d + d\times\N$ parámetros. Se usa el símbolo $\wsn$ para designar todos los vectores $w_j$, correspondiente a una matriz: $\wsn\in\mathbb{R}^{d\times\N}$. Cuando se habla de datos: $\{(y_i,\xni)\}_{i = 1}^n$, estos se pueden  representar en una tabla (o matriz):
-$$\left[\begin{array}{c|ccc} 
-y_1 & x_{1,1} & \ldots & x_{1,d} \\ 
-\vdots & \vdots & ~ & \vdots \\ 
-y_n & x_{n,d} & \ldots & x_{n,d}
-\end{array}\right],$$
-donde el vector de observaciones binarias $\ysn = (y_1,\ldots,y_n)^t$ es la primer columna de la tabla, y la matriz de covariables $\mathbf{X}$ es el resto.
-
-Bajo esta representación, se da contexto cuando se habla de que la estimación debe reflejar los patrones \textit{hacia abajo} y \textit{hacia lo largo}. Hacia abajo, se está captando la información existente entre las observaciones;  cada $f_j$, mediante su parámetro $w_j$, representa una transformación no lineal de la variable (o dimensión) $j$. Hacia lo largo, la función de proyección $f$ suma cada $f_j$ a través de $\beta$, ponderando los efectos individuales de cada variable. Mantener el balance entre la estimación de $\beta$ a lo largo y $w_j$ hacia abajo, es fundamental para el algoritmo. Se concluye, que la estimación de ambos grupos de parámetros, se puede ver como una regresión separada para cada uno, y por ende, estos pueden ser estimados por el mismo algoritmo. Esto responde a la dualidad que se exploró en el capítulo pasado de que ambas expresiones son expansiones en bases funcionales. El puente que conecta, y controla el balance entre ambas, son los residuales parciales. Los siguientes capítulos, se concentran en explicar e implementar este curioso patrón. 
+Dado el modelo tan estructurado que se desarrolla, pasar de su forma teórica a su implementación computacional no resulta fácil. Sin embargo, con base en las ideas de \citet{albert1993bayesian}, se desarrolla un algoritmo que logra un buen grado de precisión de una forma relativamente eficiente. En el fondo, la implementación recae en el método de muestreo de Gibbs, por lo que se hace una breve introducción a la escuela de inferencia bayesiana. Al algoritmo se le titula: \textit{bayesian piece wise polinomial model (bpwpm)} para reflejar los componentes del modelo y puede ser revisado en la página \pageref{alg:bpwpm}. Para facilitar la utilización del modelo en diversas bases de datos, así como su validación y visualización, a la par del algoritmo se desarrolló un paquete de código abierto (con el mismo nombre) para el software estadístico \verb|R|, más detalles en le Apéndice \ref{ap:Paquete}.
 
 \section{Fundamentos de la estadística bayesiana}
-Dado el problema de describir fenómenos bajo incertidumbre, existen dos escuelas dominantes de la estadística: la frecuentista y la bayesiana. La primera, aunque increíblemente útil, está hasta cierto punto limitada y en ocasiones termina derivando en colecciones de algoritmos. La escuela bayesiana, por el contrario, nombrada así en honor a Thomas Bayes (1702 - 1761), enfatiza el componente \textit{probabilista} del proceso inferencial, dandole coherencia al proceso \autocite{mendoza2011estadistica}, \autocite{bernardo2001bayesian}. La estadistica bayesiana está  axiomatizada bajo la \textit{teoría de la decisión}. Esta teoría formaliza conceptos como la \textit{coherencia entre preferencias} y \textit{utilidad}, sobre los que desarrolla un marco metodológico para la toma de decisiones. 
+Dado el problema de describir fenómenos bajo incertidumbre, existen dos escuelas dominantes de la estadística: la frecuentista y la bayesiana. La primera, aunque útil, no está del todo axiomatizada y en ocasiones termina derivando en colecciones de algoritmos. La escuela bayesiana, por el contrario, nombrada así en honor a Thomas Bayes (1702 - 1761), enfatiza el componente \textit{probabilista} del proceso inferencial, desarrollando un paradigma completo para la inferencia y la toma de decisiones bajo incertidumbre. Asimismo, la estadistica bayesiana está axiomatizada bajo la \textit{teoría de la decisión}. Esta teoría formaliza conceptos como la coherencia entre preferencias y utilidad, sobre los que desarrolla un marco metodológico. \autocite{mendoza2011estadistica}, \autocite{bernardo2001bayesian}
 
-Esta metodología, además de proveer técnicas concretas para resolver problemas, también formaliza en una forma de pensar sobre la probabilidad como una \textit{medida racional para cuantificar la incertidumbre} condicionando sobre el conocimiento existente. Este paradigma es el que más corresponde con el sentido que usualmente se le da a la palabra. La inferencia sobre creencias (o parámetros), se realiza mediante una \textit{actualización} de estas en luz de nueva evidencia, modificando la medida de incertidumbre. El mecanismo que permite realizalo, es el aclamado teorema de Bayes. De manera informal se puede describir como: dado un evento $E$ bajo condiciones $C$, la probabilidad \textit{posterior} de ocurrencia del evento, será proporcional a la probabilidad \textit{previa} que se tiene sobre este, ponderado por la probabilidad de ocurrencia de las condiciones presentes. En otras palabras, el teorema de Bayes, \textit{actualiza} la probabilidad de ocurrencia de un evento,  ponderandolo por la información condicional que se tiene sobre el. En su forma matemática: 
+Esta metodología, además de proveer técnicas concretas para resolver problemas, también formaliza en una forma de pensar sobre la probabilidad como una \textit{medida racional para cuantificar la incertidumbre}. Este paradigma es el que más corresponde con el sentido que usualmente se le da a la palabra. La inferencia sobre creencias, se realiza mediante una \textit{actualización} de estas bajo la luz de nueva evidencia, modificando así la medida de incertidumbre. El teorema de Bayes es el mecanismo que permite realizar este proceso de actualización. De manera informal el teorema \eqref{ec:BayesInformal} explica que dado un evento $E$ bajo condiciones $C$, la probabilidad \textit{posterior} de ocurrencia del evento, será proporcional a la probabilidad \textit{previa} que se tiene sobre este, ponderado por la probabilidad de ocurrencia de las condiciones presentes. En menos palabras, el teorema de Bayes está  actualizando la probabilidad de ocurrencia de un evento ponderando esta probabilidad por la información que se tiene sobre el. 
+
+\begin{theorem} El teorema de Bayes (informal):
 \begin{align}
-P(E|C) \; \alpha \; P(C|E)P(E) \label{ec:BayesInformal}
+P(E|C) \propto P(C|E)P(E) \label{ec:BayesInformal}
 \end{align}
-El término central $P(C|E)$ es una medida descriptiva de las condiciones (usualmente datos) llamada \textit{verosimilitud}. En % REEEEFFFF
-Se hace notar que para poder hacer cualquier intento de descripción, se debe especificar el \textit{modelo probablistico} que se asume describe el estado por el que se dan las condiciones $C$. 
+\end{theorem}
+Donde, el término central $P(C|E)$ es una medida descriptiva de las condiciones (usualmente datos) llamada \textit{verosimilitud}, $P(E)$ es la probabilidad previa (\textit{a priori}) que se tiene del evento $E$ y $P(E|C)$ es la probabilidad posterior (actualizada).
 
-En un contexto matemático más formal, la cuantificación de la incertidumbre se da a través de medidas de probabilidad $\pi(\cdot)$, que describan el fenómeno observado. Estas medidas de probabilidad, usualmente son funciones que dependen de cantidades desconocidas llamados parámetros $\theta$. Aunque desconocidas, se tienen ciertas creencias u conocimiento previo, \textit{a priori}, sobre ellos, descritos por su correspondiente medida de probabilidad $\pi(\theta)$. Además, se tienen datos $\mathbf{X}$, interpretados como \textit{evidencia} (condiciones), a los cuales se les asigna un modelo de probabilidad dependiente de los parámetros, es decir, su verosimilitud: $\pi(\mathbf{X}|\theta)$. Usando la formula de Bayes, se puede actualizar el conocimiento que se tiene sobre los parámetros haciendo:
-\begin{align}
-	\pi(\theta|\mathbf{X}) \; \alpha \; \pi(\mathbf{X}|\theta)\pi(\theta) \label{ec:BayesProporcional}
+En un contexto de estadistica paramétrica más formal, los eventos $E$ se abstraen en una serie de parámetros $\theta$ que usualmente son desconocidos. Asimismo las condiciones $C$ quedan resumidas en datos observados $\mathbf{X}$ que son interpretados como \textit{evidencia}. 
+Bajo este paradigma antes de poder hacer cualquier intento de inferencia sobre $\theta$, se debe especificar el \textit{modelo probablistico} que se asume describe el fenómeno observado, pues es a través de este modelo que se da una medida concreta para cuantificar la incertidumbre. Primero, se tienen ciertas creencias, hipótesis u conocimiento previo, \textit{a priori}, sobre los parámetros $\theta$, los cuales se representan por una medida de probabilidad $\pi(\theta)$. Segundo, se tienen datos $\mathbf{X}$ a los que se asigna un modelo de probabilidad dependiente de los parámetros $\pi(\mathbf{X}|\theta)$, a la que se le conoce como \textit{verosimilitud} \autocite{bernardo2003bayesian}.
+\begin{theorem}
+El teorema de Bayes:
+\begin{align} 
+	\pi(\theta|\mathbf{X}) \propto \pi(\mathbf{X}|\theta)\,\pi(\theta)\label{ec:BayesProporcional}
 \end{align}
-La idea es que este proceso de actualización sea a la vez, un proceso de aprendizaje, en el cual los parámetros capturen la información contenida en los datos.
+\end{theorem}
+Habiendo especificado el modelo, el teorema de Bayes \eqref{ec:BayesProporcional} describe el proceso de actualización de conocimiento sobre los parámetros. La idea es que este proceso de actualización sea, de la misma forma, un \textit{proceso de aprendizaje}, en el cual los parámetros capturen la información contenida en los datos.
 
-El paradigma frecuentista, adopta un enfoque diferente para el  aprendizaje. Se asume que no hay incertidumbre en los parámetros dado los datos y, por lo tanto, estos son tomados como fijos. El mecanismo que permite su estimación, usualmente consiste en plantear una función objetivo y optimizarla. Por ejemplo, si se escoge la verosimilitud $\pi(\mathbf{X}|\theta)$, se busca dar un estimador que la maximice, pues equivaldría a encontrar los parámetros que hagan más \textit{posibles} los datos, bajo el modelo planteado. Si por el contrario, es escoge una función como la RSS de los modelos ANOVA (primer sumando de (\ref{ec:SplinesConRegularizacion})), se busca la $\theta$ que minimice estos errores, así, el modelo logra capturar toda la variabilidad que puede sobre los datos. 
+Bajo el paradigma frecuentista, se adopta un enfoque diferente para el  aprendizaje. Se asume que no hay incertidumbre inherente en los parámetros dado los datos por lo que simplemente son desconocidos y se deben de estimar. El mecanismo que permite su estimación, usualmente consiste en plantear una función objetivo y optimizarla. Por ejemplo, si se escoge la verosimilitud $\pi(\mathbf{X}|\theta)$, se busca dar un estimador que la maximice, pues equivaldría a encontrar los parámetros que hagan más \textit{posibles} los datos bajo el modelo planteado. Si por el contrario, es escoge una función como la suma de residuales cuadrados (RSS por sus siglas en inglés) de los modelos ANOVA, se busca la $\theta$ que minimice estos errores, así, el modelo logra capturar toda la variabilidad presentan los datos. 
 
-Independientemente del paradigma estadístico que se escoja, siempre es importante la validación del modelo y de sus supuestos. Además, tanto teoría bayesiana como frecuentista han resultado de infinita utilidad en la practica y el avance de la estadística y ciencia en general.
+Independientemente del paradigma estadístico que se escoja, siempre es importante la validación del modelo y de sus supuestos. No obstante, tanto teoría bayesiana como frecuentista han resultado de infinita utilidad en la práctica y el avance de la estadística y ciencia en general.
 
-Una de las dificultades que surgen en la estadística bayesiana, es que la obtención de resultados analíticos cerrados es difícil o muy tedioso una vez que los modelos se empiezan a complicar. Por ejemplo, en las ecuaciones anteriores, se ha usado el argumento de proporcionalidad $\alpha$. Esto pues, para que se de la igualdad, el lado derecho de la ecuación (\ref{ec:BayesProporcional}) se debe de dividir entre $\pi(\mathbf{X}) = \int \pi(X|\tilde{\theta})\pi(\tilde{\theta})\,d\tilde{\theta}$, el cual usualmente es difícil, sino imposible, de calcular. A este término se le conoce como \textit{constante de proporcionalidad} y su función es la de reescalar la expresión del lado derecho para que en realidad se tenga una distribución en el izquierdo. Usualmente, para evitar estas complicaciones, se escogen \textit{distribuciones conjugadas}, para que tanto la distribución a priori como la posterior pertenezcan a la misma familia. En el Apéndice \ref{ap:DistrosConjugadas} se detallan las distrubiciones conjugadas y se realiza más a fondo la derivación de los resultados de este trabajo. Sin embargo, con los avances en el poder computacional disponible y técnicas numéricas para resolver integrales \autocite{robert2004monte}, se han desarrollado muchos métodos para aplicar el proceso de aprendizaje, independientemente de que tan complejo sea el modelo o las distribuciones, iniciales y resultantes. Muchos de estos métodos recaen en la teoría de las \textit{cadenas de Markov}, como lo es, el Gibbs sampler presentado en la sección \ref{sec:GibbsSampler}. 
+Una de las dificultades que surgen en la estadística bayesiana, es que la obtención de resultados analíticos cerrados es difícil o muy tedioso una vez que los modelos se empiezan a complicar. Por ejemplo, en las ecuaciones anteriores, se ha usado el argumento de proporcionalidad $\propto$. Esto pues, para que se de la igualdad, el lado derecho de la ecuación (\ref{ec:BayesProporcional}) se debe de dividir entre $\pi(\mathbf{X}) = \int \pi(X|\tilde{\theta})\,\pi(\tilde{\theta})\,d\tilde{\theta}$, el cual usualmente es difícil, sino imposible, de calcular. A este término se le conoce como \textit{constante de proporcionalidad} y su función es la de reescalar la expresión del lado derecho para que en realidad se tenga una distribución en el izquierdo. Usualmente, para evitar estas complicaciones, se escogen \textit{distribuciones conjugadas}, para que tanto la distribución a priori como la posterior pertenezcan a la misma familia. En el Apéndice \ref{ap:DistrosConjugadas} se detallan las distribuciones conjugadas y se realiza más a fondo la derivación de los resultados de este trabajo. Sin embargo, con los avances en el poder computacional disponible y técnicas numéricas para resolver integrales \autocite{robert2004monte}, se han desarrollado muchos métodos para aplicar el proceso de aprendizaje independientemente de que tan complejo sea el modelo. Muchos de estos métodos recaen en la teoría de las \textit{cadenas de Markov}, como lo es, el muestreador Gibbs a presentarse en la sección \ref{sec:GibbsSampler}. 
 
 \subsubsection{Estimadores Bayesianos}
-Una vez realizado el proceso de actualización, el estadista se enfrenta con un problema. Se tiene una distribución posterior de probabilidad para los parámetros de interés, usualmente dada por una muestra y no por una distribución analítica. Sin embargo, por practicidad y utilidad, en ocasiones se busca dar un \textit{estimador puntual}. Por ejemplo, si se necesita dar un estimador $\hat \theta$ para usarlo en otros cálculos, o si $\pi(\theta|\mathbf{X})$ es multi-dimensional. Para superar este problema teórico, se ha adoptado por usar \textit{funciones de perdida} $L(\hat{\theta},\theta)$.\footnote{Formalmente se tiene un problema de decisión.} Estas, miden las \textit{consecuencias} que se dan, al tomar $\hat{\theta}$ como el verdadero valor del parámetro $\theta$, es decir, las funciones de perdida evalúan que tan bien se está representando el valor de $\theta$ con un estimador puntual. Por ello, vale la pena usar funciones que penalicen la distancia entre $\theta$ y $\hat{\theta}$. Sin entrar mucho en los detalles técnicos, se tiene que calcular: 
+Una vez realizado el proceso de actualización, se cuenta con una distribución posterior de probabilidad para los parámetros de interés.\footnote{Es común tener, no es la distribución analítica, sino una muestra de ella.} No obstante, por practicaldiad y utilidad, en ocasiones se busca dar un \textit{estimador puntual} de los parámetros. La teoría de la decisión dicta que para medir la deseabilidad de escoger cierto parámetro en particular, se debe definir una función de perdida o utilidad que optimice esta elección. Particularmente, las funciones de perdida logran medir las consecuencias incurridas, al tomar $\hat{\theta}$ como el valor puntual del parámetro. Lo hacen, penalizando la distancia entre el valor real $\theta$ y su estimador puntual $\hat{\theta}$. Por lo tanto y sin entrar mucho en los detalles técnicos, para dar un estimador puntual se resuelve el problema: 
 \begin{align}
-\hat{\theta} = \E[L(\hat{\theta},\theta)] = \int_\Theta L(\hat{\theta},\theta) \pi(\theta)\, d\theta
+\hat{\theta} = \min_{\theta \in{\Theta}}\E[L(\hat{\theta},\theta)]
 \end{align}
 con $\Theta$ el espacio de todas las posibles valores de $\theta$. Sin embargo, se demuestra que para funciones de perdida sencillas, pero intuitivas, se tiene que el estimador puntual posterior es alguna medida de centralidad de la distribución posterior. Por ejemplo:
 \begin{itemize}[label={}]
@@ -73,41 +46,34 @@ con $\Theta$ el espacio de todas las posibles valores de $\theta$. Sin embargo, 
 	\item Función de perdida valor absoluto: $L(\hat{\theta},\theta) = |\hat{\theta}-\theta|$, deriva en la mediana de la distribución posterior.
 	\item Función de pérdida 0-1:  $L(\hat{\theta},\theta) = I[\hat{\theta} \neq \theta]$, deriva en la moda de la distribución posterior. 
 \end{itemize}
+En la práctica, estas cantidades son fáciles de calcular cuando se tiene una muestra simulada de $\theta$ proveniente de la distribución posterior.\footnote{Excepto la moda muestra para los casos continuos.}. En el paquete, se implementa una forma sencilla de obtener estimadores puntuales con cualquiera de las dos primeras funciones de pérdida (cuadrática y valor absoluto). Para la aplicación de este modelo, sin embargo, dado el uso de familias conjugadas, las distribuciones posteriores resultantes tienen la característica que la media, la mediana y la moda coinciden facilitando la elección por parte del analista.
 
-En la práctica, estas cantidades son fáciles de calcular cuando se tiene una muestra simulada de $\theta$ proveniente de la distribución posterior. En el paquete, se implementa una forma sencilla de obtener estimadores puntuales con cualquiera de las 3 funciones de pérdida. Sin embargo, dada la dorma de las distribuciones resultantes, los resultados no varían mucho al escoger entre las funciones de perdida.
+\section{Herramientas de simulación} \label{sec:GibbsSampler}
+Una vez establecida el proceso de actualización, se estudian las técnicas para simular de la distribución posterior $\pi(\theta|\xmat)$. Desde principios de los años noventa, se han desarrollado algoritmos y paquetería estadística que permiten plantear modelo de una forma sencilla y obtener una muestra arbitrariamente grande de $\theta$. Sin embargo, la gran mayoría de estos algoritmos recaen en los \textit{métodos Monte Carlo de cadenas de Markov} (MCMC). Estos métodos, como su nombre lo indica, hacen alusión a principios de aleatoriedad, como se daría en un casino. Usando ideas intuitivas de probabilidad y números pseudoaleatorios, se pueden generar muestras prácticamente de cualquier distribución, incluso si su forma funcional es desconocida. La simulación, como tal es un tema que merece un estudio más profundo, no obstante, sus aplicaciones prácticas son muy intuitivas \autocite{robert2004monte}. Las técnicas de simulación, permiten que los estadísticos y experimentadores puedan hacer el menor número de supuestos posibles sobre los modelos, puesto que ya no se buscan resultados analíticos sino más bien, describir el fenómeno de la forma más precisa posible y dejar los cálculos a una computadora.
 
-\subsection{Distribuciones condicionales completas}
-Retomando el modelo que concierne a este trabajo, se tienen dos grupos de parámetros, $\beta$ y $\wsn$. Sin embargo, dados los supuestos del modelo, por el uso de la variable latente $z$, esta también se debe de incluir como parámetro pues es la liga entre la respuesta $y$ y los datos $\xmat$, vista de forma bayesiana, también se debe de simular. Por lo tanto, los parámetros del modelo son: $\theta = (\zsn, \beta, \wsn)$ con $\zsn = (z_1,\ldots,z_n)^t$. Esta sección, concierne en desglosar el proceso de aprendizaje sobre ellos; esta derivación es importante en si pues es la que induce el algoritmo. Usando la notación presentada al inicio de esta sección, los supuestos propuestos en las ecuaciones del modelo (\ref{ec:Y-Z}) a (\ref{ec:fj}) y sustituyendo en (\ref{ec:BayesProporcional}) se tiene:
-\begin{align} 
-	\pi(\zsn, \beta , \wsn | \ysn, \xmat) \quad 
-	& \alpha \quad \pi(\ysn | \xmat, \zsn, \beta, \wsn) 
-		\; \pi(\zsn, \beta, \wsn) \nonumber\\
-	& \alpha \quad \pi(\ysn |\zsn) \; \pi(\zsn|\xmat,\beta,\wsn) 				\; \pi(\beta,\wsn) \nonumber\\  
-	& \alpha \quad \pi(\ysn |\zsn) \; \pi(\zsn|\xmat,\beta,\wsn) 				\; \pi(\beta) \; \pi(\wsn) \nonumber\\ 
-	& \alpha \quad \prod_{i = 1}^n\Be[y_i | \Phi(z_i))] 
-	\; \phi[z_i | f(\xni), 1] \times  \pi(\beta) \; \pi(\wsn) \nonumber\\ 
-	& \alpha \quad \prod_{i = 1}^n\Be[y_i | \Phi(z_i))] 
-	\; \phi[z_i | \beta^t\fsn(\xni), 1] \times  \pi(\beta) \; \pi(\wsn) \label{ec:BayesMod}
-\end{align}
+\subsubsection*{Breve introducción a las cadenas de Markov}
+\begin{definition}
+Una cadena de Markov, es una secuencia de variables aleatorias: $X\iter{1},\,X\iter{2},\,\ldots$ que cumplen la \textit{propiedad Markoviana}:
+\begin{align*}
+&P(X\iter{t+1}|X\iter{t} = x\iter{t}\, ,X\iter{t-1} = x\iter{t-1}\,,\ldots,\,X\iter{2} = x\iter{2},\,X\iter{1} = x\iter{1}) \\
+&= P(X\iter{t+1}|X\iter{t} = x\iter{t}) \quad\forall t
+\end{align*}
+con $t$ interpretado como \textit{tiempo} y $x\iter{t}$ el estado en el que se encuentra la variable aleatoria $X\iter{k}$.
+\end{definition}
+Esta definición, implica que la siguiente variable de la cadena, $X\iter{t+1}$, únicamente depende de el estado actual $X\iter{t}$ y no de los anteriores. Usualmente esta propiead es expresada como: el futuro, condicionando al presente, es independiente del pasado. El ejemplo canónico que se presenta es la caminata aleatoria: $X\iter{t+1} = X\iter{t} + e\iter{t}$, con $e\iter{t}$ error aleatorio generado de forma independiente. De esta idea se desarrolla toda una rica teoría revisada en cursos de procesos estocásicos \autocite{ross2009introduction}. 
 
-donde $\phi(\cdot|\mu, \sigma^2)$ es la función de densidad de una variables aleatoria normal con media $\mu$ y varianza $\sigma^2$. Asimismo $\Be(\cdot|p)$ es función de densidad de una variable Bernoulli con probabilidad de éxito $p$. Esta factorización es válida dados los supuestos, donde se hace notar, la forma que conecta $z_i$ a las dos partes del modelo a través de la función de proyección $f(\xni) = \beta^t\fsn(\xni)$ que contiene tanto a $\beta$ como $\wsn$. Esta derivación es una forma extendida (aunque simplificada) de la verosimilitud para todas las observaciones $i = 1,\ldots,n$. Aunque aún no se han especificado las formas funcionales para las distribuciones a priori $\pi(\wsn)$ y $\pi(\beta)$, estas se pueden separar ya que se suponen independientes.  Esta propiedad, combinada con la forma funcional en expansiones de bases, lleva a que se piense en hacer una estimación \textit{por bloques}, es decir, se estima primero $\beta$ y posteriormente $\wsn$ en un bucle iterativo, esta es la idea de un Gibbs sampler. 
+Una de las ideas más relevantes para lo que concierne este trabajo, es la de \textit{matrices de transición}. Dada una cadena con $n$ posibles estados ($X\iter{t}$ únicamente puede tomar valores de un subconjunto de cardinalidad $n$) se puede construir una matriz cuadrada $P\in\mathbb{R}^{n\times n}$ donde cada entrada $0\leq p_{i,j}\leq1$ representa la probabilidad de transicionar del estado $i$ al estado $j$. Se demuestra, que si una cadena es \textit{ergodica},\footnote{Aperiódica, irreducible y  recurrente positiva. Para efectos dse simplicidad en la exposición, la ergodicidad es tratada como una propiedad en si misma. Las definiciones formales, puede ser consultadas en cualquier texto de procesos estocásticos.} entonces existe una \textit{distribución límite} que es igual a la \textit{distribución estacionaria}: $\exists \,\pi$ tal que $\pi P = \pi$. Sin entrar en los detalles técnicos, la ergodicidad es la propiedad que asegura que eventualmente se alcanza la convergencia de la cadena sin importar el estado inicial tras repetidas aplicaciones de la matriz de transición P.\footnote{Esta convergencia es una convergencia estocástica aplicable al paradigma bayesiano. El paradigma frecuentista, presenta resultados de convergencia que recaen en el análisis funcional \autocite{stone1985additive}} 
+%Ni de
+%Esto es, dado un vector de estados inicial $\mathbf{X}\iter{0}\in\mathbb{R}^n$ tal que $\mathbf{1}^t\bm{X}\iter{0} = 1$, se puede encontrar la distribución estacionaria dejando: 
+%\begin{align}
+%\pi = \lim_{t\rightarrow\infty} X\iter{t} \quad \text{si} \quad X\iter{t%+1} = P^tX\iter{t} \label{ec:DistLimite}
+%end{align}
+Esta idea se puede extender a casos más complejos donde se relajan o se cambian algunos de los supuestos. Incluso, se extiende a casos donde el número de estados es no finito, pero el concepto fundamental es el misma.  En el contexto de este trabajo, la idea es poder simular \textit{secuencialmente} cadenas de parámetros $\theta$ que eventualmente converjan a la distribución estacionaria. 
 
-\section{Herramietnas de simulación} \label{sec:GibbsSampler}
-Una vez establecida el proceso de actualización, el estadista se ve en la necesidad de tener que desarrollar técnicas para simular de la distribución posterior $\pi(\theta|\xmat)$ sin importar que complejo sea el modelo. Desde principios de los años noventa, se desarrollaron muchos algoritmos y paquetería estadística al aumentar el poder computacional.  La gran mayoría de los algoritmos recae en los \textit{métodos Monte Carlo de cadenas de Markov} (MCMC). Estos métodos, como su nombre lo indica, hacen alusión a principios de aleatoriedad, como se daría en un casino. Usando ideas intuitivas de probabilidad y números pseudoaleatorios, se pueden generar muestras prácticamente de cualquier distribución, incluso si su forma funcional es desconocida. La simulación, como tal es un tema que merece un estudio más profundo \autocite{robert2004monte}. Estas poderosas simulaciones, permitieron  que los estadistas y experimentadores pudieran hacer el menor número de supuestos posibles sobre los modelos, puesto que ya no se buscan resultados analíticos sino más bien, se buscaba reflejar la realidad y dejar que los cálculos los hiciera una computadora.
+\subsection{Muestreador de Gibbs}
+El el muestreador de Gibbs (\textit{Gibbs sampler}) es método, para simular variables aleatorias de una \textit{distribución conjunta} sin tener que calcularla directamente, \autocite{gelfand1990sampling}. Usualmente, el muestreo de Gibbs se usa dentro de un contexto bayesiano, aunque también funciona para otras aplicaciones. A primera vista, pareciera complejo, pero en realidad, se basa únicamente en las propiedades revisadas (relativamente sencillas) de las cadenas de Markov.
 
-\subsubsection{Breve introducción a cadenas de Markov}
-Al final, la gran mayoría de estos métodos recaen sobre las la teoría de \textit{cadenas de Markov}. Una cadena de Markov, es una secuencia de variables aleatorias: $X\iter{1},\,X\iter{2},\,\ldots$ que cumplen la \textit{propiedad Markoviana}:
-$$P(X\iter{t+1}|X\iter{t} = x\iter{t}\, ,X\iter{t-1} = x\iter{t-1}\,,\ldots,X\iter{2} = x\iter{2},\,X\iter{1} = x\iter{1}) = P(X\iter{t+1}|X\iter{t} = x\iter{t}) \quad\forall t,$$
-con $t$ interpretado como \textit{tiempo}. Por lo tanto, la siguiente variable de la cadena, $X\iter{t+1}$, únicamente depende de \textit{el estado} actual $X\iter{t}$ y no de los anteriores. Usualmente esta propiead es expresada como: el futuro, condicionando al presente, es independiente del pasado. El ejemplo canónico que se presenta es la \textit{caminata aleatoria}: $X\iter{t+1} = X\iter{t} + e\iter{t}$, con $e\iter{t}$ error aleatorio generado de forma independiente. De esta idea se desarrolla toda una rica teoría revisada en cursos de procesos estocásicos, de donde surgen muchas propiedades aplicables a las cadenas\autocite{ross2009introduction}. Una de las ideas más relevantes para lo que concierne este trabajo, es la de \textit{matrices de transición}. Dada una cadena con $n$ posibles estados, es decir, $X\iter{t}$ únicamente puede tomar valores de un subconjunto de cardinalidad $n$. Se puede construir una matriz cuadrada $P\in\mathbb{R}^{n\times n}$ donde cada entrada $0\leq p_{i,j}\leq1$ representa la probabilidad de transicionar del estado $i$ al estado $j$. Se demuestra, que si una cadena es \textit{ergodica}\footnote{Aperiódica, irreducible y  recurrente positiva. Para efectos de simplicidad en la exposición, la ergodicidad es tratada como una propiedad en si misma. Las definiciones formales, puede ser consultadas en cualquier texto de procesos estocásticos.}, entonces existe una \textit{distribución límite} que es igual a la \textit{distribución estacionaria}: $\exists \,\pi$ tal que $\pi P = \pi$. Sin entrar en los detalles técnicos, la ergodicidad es la propiedad que asegura que eventualmente se alcanza la convergencia de la cadena sin importar el estado inicial tras repetidas aplicaciones de la matriz de transición P.\footnote{Esta convergencia es una convergencia estocástica aplicable al paradigma bayesiano. El paradigma frecuentista, presenta resultados de convergencia que recaen en el análisis funcional \autocite{stone1985additive}} Esto es, dado un vector de estados inicial $X\iter{0}\in\mathbb{R}^n$ tal que $\mathbf{1}^tX\iter{0} = 1$, se puede encontrar la distribución estacionaria dejando: 
-\begin{align}
-\pi = \lim_{t\rightarrow\infty} X\iter{t} \quad \text{si} \quad X\iter{t+1} = P^tX\iter{t} \label{ec:DistLimite}
-\end{align}
-Esta idea se puede extender a casos más complejos donde se relajan o se cambian supuestos. Incluso, se extiende a casos donde el número de estados es no finito, pero la idea fundamental es la misma. 
-
-En el contexto de este trabajo la idea es poder simular \textit{secuencialmente} cadenas de parámetros $\theta$ que estén ligados unos con los otros, que dependan únicamente de el presente y,  sobre todo, que una vez simuladas un número arbitrario de estas, converjan a la distribución estacionaria. Precisamente lo que hace un Gibbs sampler.
-
-\subsubsection{Gibbs sampler}
-El Gibbs sampler como tal, es una técnica, para simular variables aleatorias de una \textit{distribución conjunta} sin tener que calcularla directamente, análogo a lo anteriór\autocite{gelfand1990sampling} y \autocite{casella1992explaining}. Usualmente, el muestreo de Gibbs se usa dentro de un contexto bayesiano, aunque también funciona para otras aplicaciones. A primera vista, parece misterioso, pero en realidad, se basa únicamente en las propiedades revisadas (relativamente sencillas) de las cadenas de Markov. Sin perdida de generalidad, se busca simular una muestra de parámetros $\theta = (\theta_1,\ldots,\theta_p)$ que provienen de la distribución conjunta $\pi(\theta|\cdot)$. Esta distribución usualmente no es conocida analíticamente, sin embargo el Gibbs sampler permite dar, no la distribución como tal, pero si una muestra arbitrariamente grande con la que se puede aproximar empíricamente $\hat{\pi}(\theta) \approx \pi(\theta)$. En la practica usualmente más que aproximar la distribución, se busca alguna función de los parámetros como la media o la varianza de la distribución.
+Sin perdida de generalidad, se busca simular una muestra de parámetros $\theta = (\theta_1,\ldots,\theta_\lambda)$ que provienen de la distribución conjunta $\pi(\theta)$. Esta distribución usualmente no es conocida analíticamente, sin embargo el muestreador de Gibbs permite simular una muestra arbitrariamente grande de la distribución con la que se puede aproximar empíricamente $\hat{\pi}(\theta) \approx \pi(\theta)$. En la práctica usualmente más que aproximar la distribución, se busca estudiar la muestra con medidas de centralidad y dispersión, gráficos, cuantiles, etcétera.
 
 Para llevar a cabo el muestreo, se intercambia el difícil cálculo de la distribución conjunta al cálculo de las distribuciones condicionales que usualmente son más fáciles de derivar. Las distribuciones condicionales están dadas por: 
 \begin{align}
@@ -116,7 +82,7 @@ Para llevar a cabo el muestreo, se intercambia el difícil cálculo de la distri
 	\vdots \nonumber\\
 	\theta_p &\sim \pi(\theta_p|\theta_1,\ldots,\theta_{p-1}) \nonumber
 \end{align}
-Se comienza con una muestra inicial arbitraria $\theta\iter{0} = (\theta_1\iter{0},\ldots,\theta_p\iter{0})^t$, donde el superíndice $\iter{k}$ corresponde a la iteración $k$. Se comienza a simular de las correspondientes distribuciones condicionales, las cuales quedan especificadas para los valores iniciales. En este caso, para $k = 1,2,3,\ldots$ se tiene:
+Se comienza con un valor inicial arbitrario $\theta\iter{0} = (\theta_1\iter{0},\ldots,\theta_p\iter{0})^t$, donde el superíndice $\iter{k}$ corresponde a la iteración $k$. Se comienza a simular de las correspondientes distribuciones condicionales, las cuales quedan especificadas para los valores iniciales. En este caso, para $k = 1,2,3,\ldots$ se tiene:
 \begin{align}
 	\theta_1\iter{k} &\sim \pi(\theta_1|\theta_2\iter{k-1},\ldots,\theta_p\iter{k-1}) \label{ec:GibbsSampler}\\
 	\theta_2\iter{k} &\sim \pi(\theta_2|\theta_1\iter{k},\theta_3\iter{k-1},\ldots,\theta_p\iter{k-1})\nonumber \\ 
@@ -124,193 +90,178 @@ Se comienza con una muestra inicial arbitraria $\theta\iter{0} = (\theta_1\iter{
 	\theta_p\iter{k} &\sim \pi(\theta_p|\theta_1\iter{k},\ldots,\theta_{p-1}\iter{k}) \nonumber
 \end{align}
 
-Este proceso se itera hasta tener una muestra de tamaño arbitrario, que haya alcanzado la región de probabilidad donde se encuentra la distribución estacionaria, en este caso la distribución posterior $\pi(\theta|\cdot)$.
+Este proceso se itera hasta tener una muestra de tamaño arbitrario, que haya alcanzado la región de probabilidad donde se encuentra la distribución estacionaria, en este caso la distribución posterior $\pi(\theta)$.
 
-La convergencia no es intuitiva, es decir, no es trivial derivar que al muestrear de las distribuciones condicionales, se llegue (eventualmente) a un la distribución conjunta. Sin embargo, la prueba formal, aunque compleja, recae en que se puede formar una matriz de transición con las distribuciones condicionales de $\theta_i$, análoga a las matrices de las cadenas de Markov. Al dejar que  $k\rightarrow\infty$, se llega a un resultado equivalente al de la ecuación (\ref{ec:DistLimite}), habiendo muestrado de la distribución posterior. Sin embargo, la ergodicidad, es un supuesto importante que se preserva y es necesario validad. Esto, pues se pueden dar casos donde la distribución posterior no exista.
+La convergencia no es intuitiva, es decir, no es trivial derivar que al muestrear de las distribuciones condicionales, se obtenga eventualmente  una muestra de la distribución conjunta  Sin embargo, la prueba formal recae en  las mismas ideas de las cadenas de Markov. Definido el problema, se puede formar una kernel de transición, generalización de las matrices de transición, derivado de las  distribuciones condicionales de $\theta_i$. A la larga ($k \rightarrow \infty$) y dadas las propiedades de ergodicidad, los valores de la cadena corresponden a valores muestreados de la distribución conjunta. En \citet{casella1992explaining} y \citet{tierney1994markov} se presentan versiones más rigurosas de el porqué las cadenas Markov de un muestreador de Gibbs convergen. 
 
-El tener una muestra de la distribución final $\left\{\theta\iter{k}\right\}_{k=k^*}^{\nsim}$, donde $\nsim$ es el número total de simulaciones arbitraria y $k^*$ es el punto a partir del cual se cree que se obtiene la convergencia a $\pi(\theta|\cdot)$, tiene muchos beneficios en la practica. Se le pueden calcular momentos a la muestra, medidas de desviación y hacer representaciones gráficas para su análisis y evaluación. En la Figura \ref{fig:GibbsSamplerSimulado}, se tienen dos imágenes que de una muestra Gibbs para una simulación donde: $\theta = \beta \in \mathbb{R}^3$. 
+En la práctica, una vez obtenida la cadena $\left\{\theta\iter{k}\right\}_{k=0}^{\nsim}$, donde $\nsim$ es el número total de elementos, es importante revisar si esta ya ha alcanzado la distribución posterior. Para ello, es usual revisar la media ergódica (media acumulada) de cada parámetro, de donde se esperaría ver que la variación hacia el final de la cadena es mínimo. Asimismo, se suele revisar la traza de la cadena en sí y los histogramas de ella. En la figura \ref{fig:GibbsSamplerSimulado} se tienen tres imágenes de las cadenas simuladas por el mustreador Gibbs implementado en este trabajo\footnote{Las imágenes fueron generadas fácilmente con la librería \textit{ggplot2}, incorporada a las funcionalidades del paquete \textit{bpwpm2} desarrollado para este trabajo.}, en particular, las cadenas del ejemplo... de la página ... . Para el modelo se escogen los parámetros $M = 2$, $J = 4$ y $K = 1$, implicando que se tienen rectas continuas en tres nodos, derivando en un total de $\lambda = 9$ parámetros por estimar ($\bm{\beta}\in\mathbb{R}^9$). 
 \begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Chap3/Ej6BetaChain}
-        \caption{Trazas}
-        \label{fig:GibbsChain}
+        \includegraphics[width=\textwidth]{Cap3/T1MedErg}
+        \caption{Media ergódica}
+        \label{img:MedErg}
     \end{subfigure}
 	\quad
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Chap3/Ej6BetaHist}
-        \caption{Histogramas}
-        \label{fig:GibbsHist}
+        \includegraphics[width=\textwidth]{Cap3/T1Chain}
+        \caption{Trazas de la cadena}
+        \label{img:GibbsChain}
     \end{subfigure}
-    \caption{Muestro Gibbs para el ejemplo 6 de la Sección \ref{sec:Test1Ej6}}\label{fig:GibbsSamplerSimulado}
+	\\
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{Cap3/T1Hist}
+        \caption{Histogramas}
+        \label{img:GibbsHist}
+    \end{subfigure}
+    \caption{Muestro Gibbs para el ejemplo 1 de la Sección ...}\label{fig:GibbsSamplerSimulado}
 \end{figure}
-Para esta figura, se toman y se grafican los últimos 500 valores de las cadenas. Se observan las \textit{trazas} que se forman al ir simulando los parámetros y se hace un histograma, dando una idea de las distribuciones subyacentes\footnote{Estas imágenes tienen como propósito ejemplificar el Gibbs sampler. Fueron obtenidas de una simulación del modelo que se analiza en Sección \ref{sec:AnalisisConv}, donde se hará una exploración a fondo de la convergencia de este ejemplo en particular y se verá por que el parámetro $\beta_2$ es prácticamente cero. Asimismo, estas imágenes fueron generadas con la librería \textit{ggplot2}, incorporada a las funcionalidades del paquete \textit{bpwpm} desarrollado para este trabajo.}.
+La imagen \ref{img:MedErg} presenta la media ergódica de todos los parámetros que se empiezan a estabilizar conforme avanzan el número de iteraciones del algoritmo. En \ref{img:GibbsChain}, se grafican las trazas de los primeros 3 parámetros ($\beta_0$, $\beta_1$ y $\beta_2$) y en \ref{img:GibbsHist} sus correspondientes histogramas.\footnote{Solamente se muestran los primeros tres parámetros para evitar tener gráficos muy saturados.} Se observa como los primeros valores de los parámetros aún no se estabilizan del todo y sus medias fluctúan, asimismo, se puede observar claramente, como los histogramas tienen formas similares a la de una distribución normal; este hecho se esclarecerá en la sección \ref{sec:AlbertChib}. 
 
-En la practica, muchos de los pormenores derivados del muestreo Gibbs, pueden ser mejorados. Dado que el valor inicial $\theta\iter{0}$ es dado por el estadista, en ocasiones el método tiene que explorar una región extensa de posibles valores para $\theta$, por lo que podría tardar en converger. Esto deriva en que las primeras observaciones deban ser descartadas pues no son realizaciones de la distribución final buscada. A este periodo se le conoce como \textit{burn-in}. En el ejemplo anterior, se utilizó $k^*$ para designar la iteración a partir de cual se toman los valores simulados. En la practica, usualmente se guarda toda la cadena, se explora, tanto por resúmenes numéricos como con representaciones gráficas y se decide (de forma subjetiva) el corte  $k^*$. Otro método ampliamente usado es el de adelgazamiento o \textit{thinning}. Por las mismas características de la estimación por Gibbs, sobre todo en casos multivariados, los valores de las cadenas tienen correlaciones altas. Si se quieren muestras independientes, la bibliografía recomienda tomar cada $(\kthin$)-ésimo valor de la cadena generada para reducir la dependencia entre los parámetros. Usualmente se usan valores pequeños para $\kthin$.  Estos sencillos pasos pasos para mejorar las cadenas, ya se encuentran implementados en el paquete \textit{bpwpm} para \verb|R| para el análisis rápido de las cadenas.
+\subsubsection*{Mejoras a las cadenas}
+Como se observó en las imágenes previas, el muestreador de Gibbs aunque útil, no es perfecto.\footnote{En el sentido que no genera una muestra v.a.i.i.d.} No obstante, las cadenas pueden ser mejoradas de dos formas sencillas. La primera se le conoce como periodo de \textit{burn-in} y consiste en eliminar los primeros $k^*$-esimos valores simulados de la cadena. Esto sucede, ya que el valor inicial $\theta\iter{0}$ es dado por el estadista, por lo que en ocasiones el algoritmo tiene que explorar una región extensa de posibles valores de $\theta$ para converger. Por lo tanto, si se busca una muestra de distribución posterior $\pi(\theta)$ los primeros valores pueden ser descartados. El corte $0<k^*<\nsim$ es decidido de forma subjetiva una vez que se explora la cadena entera, ya sea por resúmenes numéricos o por representaciones gráficas. El segundo método es conocido como adelgazamiento o \textit{thinning} y consiste en tomar cada $(\kthin)$-ésimo valor de la cadena para reducir (más no desaparecer) la dependencia entre los parámetros. Esto ocurre porque las cadenas de Markov, sobre las que depende el muestreador de Gibbs, son generadas de forma secuencial con base en el valor actual actual de la cadena (propiedad markoviana). Por lo tanto, los valores simulados están altamente correlacionados. Sin embargo, estos sencillos pasos para mejorar las cadenas logran mejorar las muestras y ya se encuentran implementados en el paquete \textit{bpwpm2} desarrollado para el rápido análisis de los modelos. 
 
-\subsection{Algoritmo de Albert y Chib} \label{sec:AlbertChib}
-El algoritmo particular del Gibbs sampler que se usa en este trabajo, es una versión modificada del presentado en \citet{albert1993bayesian}. Este método ofrece varias ventajas para el modelo propuesto, pues se desarrolló específicamente para regresiones probit usando la variables latente $z$. Además es un método muy eficiente pues usa distribuciones conjugadas, por lo que las distribuciones condicionales, se pueden calcular directamente y la parte estocástica depende únicamente de simular distribuciones conocidas. Esto lleva a que los periodos de burn-in sean relativamente pequeños y que el adelgazamiento no sea fundamentalmente necesario.
+\section{El modelo \textit{bpwpm}} 
+Habiendo estudiado el muestreador de Gibbs, resta únicamente definir el algoritmo final \textit{bpwpm} usado en el modelo.
 
-A su algoritmo, ellos lo llaman \textit{data augmentation for binary data} y son los pioneros en el uso de variables latentes para unir la respuesta $y$ con las covariables $\xsn$ como se revisa en la Sección \ref{sec:GLM}. En su exposición, ellos utilizan una función de proyección lineal $f(\xsn) = \beta^t\xsn$, diferente. Por lo mismo, (y por un breve momento) esta se utiliza para explicar la idea fundamental. Usando la misma notación, se introducen $n$ variables latentes $\zsn = (z_1,\ldots,z_n)^t$, con $z_i \sim N(\beta^t\xni,1)$, sobre las que se definien se redefinen las respuestas:
+\subsection*{Método de Albert y Chib} \label{sec:AlbertChib}
+En \citet{albert1993bayesian}, los autores desarrollan un método bayesiano para el análisis de respuestas binarias y policotómicas.\footnote{Una respuesta policotómica es una respuesta que perteneces a más de dos categorías, por ejemplo: partidos políticos. Usualmente se modelan con distribuciones multinomiales.} En el caso binario, su enfoque resultaba muy atractivo para los objetivos del trabajo pues uno de los resultados es la definición de una regresión probit bayesiana con el uso de variable latente $z$.\footnote{Asimismo, \citeauthor{albert1993bayesian} también proponen un modelo con función liga $t$-student dando lugar a un modelo \textit{tobit}.} 
+
+En resumen, su modelo titulado \textit{data augmentation for binary data}, propone una definición del modelo probit como la presentada en \eqref{ec:Y-Z} y \eqref{ec:Z-X}. Bajo esta definición, se calculan las distribuciones marginales de los parámetros. Asimismo, se propone usar distribuciones conjugadas normales para $\bm{\beta}$ derivando en que el algoritmo sea relativamente rápido pues la parte estocástica depende únicamente de simular distribuciones conocidas. Esto lleva a que los periodos de \textit{burn-in} sean relativamente pequeños y que el adelgazamiento no sea fundamentalmente necesario.
+
+Entrando en el detalle, el planteamiento es casi idéntico al presentado en la definición \ref{def:BPWPMPrelim}, es decir, se introducen $n$ variables latentes $\zsn = (z_1,\ldots,z_n)^t$ tales que:
 \begin{align}
-y_i = 
+y_i &= 
 	\begin{cases}
-		1, & \text{si }\, z_i > 0 \\											0, & \text{si }\, z_i \leq 0 .
-	\end{cases} \label{ec:DefY}
+		1 & \Longleftrightarrow \enspace z_i > 0 \\									0 & \Longleftrightarrow \enspace z_i \leq 0
+	\end{cases} \tag{\ref{ec:DefY-Z}} \\[2pt]
+z_i\,|\,\xni\, &\sim \text{N}(z_i\,|\,\eta(\xni),1)\quad \tag{\ref{ec:DefZ-X}}  \\
+	\eta(\xni) &= \bm{\beta}^t\xnpsi \label{ec:EtaFinal}
 \end{align}
-La simplificación del modelo, obliga a $\theta = (\zsn, \beta)$. Por lo tanto, la derivación bayesiana queda:
+Donde $\xnpsi$ es un renglón de la matriz de transformación \eqref{ec:PsiTilde} presentada en la página \pageref{ec:PsiTilde}.
+Sin embargo, ahora se busca estudiar el modelo desde el paradigma bayesiano. Dado que el modelo recae en la definición de las variables latentes $\zsn$, las cuales son desconocidas pero modeladas con una distribución normal, estas pasan a ser parte de los parámetros en el sentido de que deben ser simuladas también, pues son la liga entre todos los componentes del modelo. Siendo consistentes con la notación de \eqref{ec:BayesProporcional} se tienen entonces dos grupos de parámetros:  $\theta = (\zsn, \bm{\beta})$. Por lo tanto, la derivación de la densidad posterior resulta en:
 \begin{align}
-	\pi(\zsn, \beta| \ysn, \xmat) \quad 
-	& \alpha \quad \pi(\ysn | \xmat, \zsn, \beta) 
-		\; \pi(\zsn, \beta) \nonumber \\
-	& \alpha \quad \pi(\ysn | \zsn)\; \pi(\zsn|\beta,\xmat) 
-		\; \pi(\beta) \nonumber \\
-	& \alpha \quad \prod_{i = 1}^n[I(y_i = 1)I(z_i > 0) +
-		 I(y_i = 0)I(z_i \leq 0)] \times \phi(z_i|\beta^t\xni,1) 				\times \pi(\beta). \label{ec:BayesChibbPosterior}
+	\pi(\zsn, \bm{\beta}| \ysn, \xmat)
+		& \propto \pi(\ysn | \xmat, \zsn, \bm{\beta}) 
+		\; \pi(\zsn, \bm{\beta}) \quad\qquad\text{por \eqref{ec:BayesProporcional}}\nonumber \\
+	& \propto \pi(\ysn | \zsn)\; \pi(\zsn|\bm{\beta},\xmat) 
+		\; \pi(\beta) \qquad\text{por definición} \nonumber \\
+	& = \prod_{i = 1}^n[I(y_i = 1)I(z_i > 0) +
+		 I(y_i = 0)I(z_i \leq 0)] \nonumber \\
+		 &\qquad\qquad\qquad\qquad\times \phi(z_i|\eta{\xni)},1) 				\times \pi(\bm{\beta}). \label{ec:BayesChibbPosterior}
 \end{align}
+Donde $\pi(\ysn | \zsn)$ es la función de verosimilitud, $\phi(\cdot|\mu,\sigma^2)$ es la función de densidad de una variable aleatoria distribuida $N(\cdot|\mu,\sigma^2)$ y $\pi(\bm{\beta}$ la densidad \textit{a priori} de $\bm{\beta}$.
 
-Ahora, bajo los fundamentos del Gibbs Sampler, en lugar de querer encontrar la distribución posterior (\ref{ec:BayesChibbPosterior}), se busca encontrar las distribuciones condicionales. Para $\beta$:
+Bajo los fundamentos del muestreador de Gibbs, dado que encontrar (\ref{ec:BayesChibbPosterior}) es complejo, se busca derivar mejor las distribuciones condicionales. Para $\bm{\beta}$, la densidad marginal condicional esta dada por:
 \begin{align}
-	\pi(\beta|\zsn,\ysn,\xmat)
-	& = \dfrac{\pi(\zsn, \beta| \ysn, \xmat)}{\pi(\zsn)} \label{ec:DefProbaCond}\\[5pt]
-	& = \dfrac{\pi(\ysn | \zsn)\;\pi(\zsn|\beta,\xmat) 
-	\; \pi(\beta)}{\pi(\ysn, \xmat) \; \pi(\zsn)} \nonumber \\[10pt]
-	& = \cancelto{C}{\dfrac{\pi(\ysn | \zsn)}{\pi(\ysn, \xmat) \; \pi(\zsn)}} \times \pi(\zsn|\beta,\xmat) \; \pi(\beta) \label{ec:PasoDeLaMuerte} \\[5pt]
-	& = C \,\pi(\beta) \, \prod_{i = 1}^n\phi(z_i|\beta^t\xni,1), \label{ec:BayesChibbBetaCond}
+	\pi(\bm{\beta}|\zsn,\ysn,\xmat)
+	& = \dfrac{\pi(\zsn, \bm{\beta}| \ysn, \xmat)}{\pi(\zsn)} 
+	\label{ec:DefProbaCond}\\[5pt]
+	& = \dfrac{\pi(\ysn | \zsn)\;\pi(\zsn|\bm{\beta},\xmat) 
+	\; \pi(\bm{\beta})}{\pi(\ysn, \xmat) \; \pi(\zsn)} \nonumber \\[10pt]
+	& = \cancelto{C}{\dfrac{\pi(\ysn | \zsn)}{\pi(\ysn, \xmat) \; \pi(\zsn)}} \times \pi(\zsn|\bm{\beta},\xmat) \; \pi(\bm{\beta}) \label{ec:PasoDeLaMuerte} \\[5pt]
+	& = C \,\pi(\bm{\beta}) \, \prod_{i = 1}^n\phi(z_i|\eta(\xni),1), \label{ec:BayesChibbBetaCond}
 \end{align}
-la densidad condicional es la misma que se derivaría si se tuviera una regresión lineal bayesiana con $z$ de regresor, es decir: $z_i = \beta^t\xni + e_i$ con $e_i \sim N(0,1)$. Esta es la utlidad de la variable latente, que convierte una regresión probit a una regresión lineal tradicional. Asimismo, para estos modelos, dependiendo de la distribucion \textit{a priori} $\pi(\beta)$ se pueden conseguir resultados cerrados. Se hace notar que la ecuación (\ref{ec:DefProbaCond}) se toma de la definición de probabilidad condicional, y el paso de (\ref{ec:PasoDeLaMuerte}) a (\ref{ec:BayesChibbBetaCond}) se puede hacer ya que, al definir $y$ como en la ecuación (\ref{ec:DefY}), sus representaciones son análogas y el cociente se desvanece, dejando únicamente la constante $C$ que sale del término $\pi(\ysn, \xmat)$. Ahora, únicamente falta definir $\pi(\beta)$. Es común en la práctica usar distribuciones \textit{no informativas} sobre los parámetros, cuando no se tiene experiencia sobre ellos. Sin embargo, para el modelo lineal bayesiano, existe una familia de distribuciones conjugadas, que son razonables para la aplicacion que se buscan \autocite{banerjee2008gory}. En particular, al dejar la varianza fija y eligiendo de distribución $\pi(\beta)$:
+Esta expresión es la misma que se derivaría si se tuviera una regresión lineal bayesiana con $z$ de regresor, es decir, el modelo $z_i = \bm{\beta}^t\xni + e_i$ con $e_i \sim N(0,1)$ y $z_i$ conocidas. De lo anterior, se observa la utlidad de la variable latente: convierte una regresión probit a una regresión lineal. Asimismo, para estos modelos, dependiendo de la distribucion \textit{a priori} $\pi(\bm{\beta})$ se pueden conseguir resultados cerrados. Se hace notar que la ecuación (\ref{ec:DefProbaCond}) se toma de la definición de probabilidad condicional, y el paso de (\ref{ec:PasoDeLaMuerte}) a (\ref{ec:BayesChibbBetaCond}) se puede hacer ya que, al definir $y$ como en la ecuación (\ref{ec:DefY}), sus representaciones son análogas y el cociente se desvanece, dejando únicamente la constante $C$ que sale del término $\pi(\ysn, \xmat)$.
+
+Únicamente falta definir $\pi(\bm{\beta})$. En la práctica es común usar distribuciones \textit{no informativas} sobre los parámetros, cuando no se tiene experiencia sobre ellos. Sin embargo, para el modelo lineal bayesiano, existe una familia de distribuciones conjugadas, que son razonables para la aplicación que se busca. En particular, se elige la distribución $\pi(\bm{\beta})$ como:
 \begin{align}
-	\beta \sim N_{d+1}(\beta|\mu_{\beta}, \Sigma_{\beta}) \label{ec:BetaAPriori}
+	\bm{\beta} \sim N_{\lambda}(\bm{\beta}\,|\,\mu_{\bm{\beta}}, \Sigma_{\bm{\beta}}) \label{ec:BetaAPriori}
 \end{align}
-donde $\mu_{\beta}\in \mathbb{R}^{d+1}$ es el hiperparámetro de media  y $\Sigma_{\beta} \in \mathbb{R}^{(d+1) \times (d+1)}$ la matriz de covarianza,  entonces, se tiene la distribución conjugada:
+donde $\mu_{\bm{\beta}}\in \mathbb{R}^{\lambda}$ es el hiper-parámetro de media y $\Sigma_{\bm{\beta}} \in \mathbb{R}^{\lambda \times \lambda}$ la matriz de covarianza. Sustituyendo \eqref{ec:BetaAPriori} en \eqref{ec:BayesChibbBetaCond} y usando resultados estándar de modelos lineales \autocite{banerjee2008gory}, se deriva que la densidad marginal conjugada para los parámetros es:
 \begin{align}
-	\beta|\ysn,\zsn,\xmat &\sim N_{d+1}(\beta|\mu_\beta^*, \Sigma_\beta^*), \label{ec:SimBeta}
+	\bm{\beta}\,|\,\ysn,\zsn,\xmat &\sim N_{\lambda}(\bm{\beta}\,|\,\mu_{\bm{\beta}}^*, \Sigma_{\bm{\beta}}^*), \label{ec:SimBeta}
 \end{align}	
 donde,
 \begin{align*}
-	\mu_\beta^* &= \Sigma_\beta^* \times (\Sigma_\beta^{-1}\mu_\beta + 	\xmat^t\zsn )\nonumber \\
-	 \Sigma_\beta^* &= (\Sigma_\beta^{-1} + \xmat^t\xmat)^{-1}.\nonumber
+	\mu_{\bm{\beta}}^* &= \Sigma_{\bm{\beta}}^* \times (\Sigma_{\bm{\beta}}^{-1}\mu_{\bm{\beta}} + \widetilde{\Psi}(\xmat)^t\zsn )\nonumber \\[2pt]
+	 \Sigma_{\bm{\beta}}^* &= \left[\Sigma_{\bm{\beta}}^{-1} + \widetilde{\Psi}(\xmat)^t\widetilde{\Psi}(\xmat)\right]^{-1}.\nonumber
 \end{align*}	 
+Esta distribución es conjugada pues preserva la estructura normal de los parámetros, es decir, tanto la distribución inicial como la distribución posterior de $\bm{\beta}$ son normales. Asimismo, esta distribución es fácil de simular usando cualquier software estadístico, calculando previamente la media y covarianza y dando un valor (o iteración) para $\zsn$.\footnote{Se hace notar, que este estimador, es relativamente similar al estimador que se usa en una regresión \textit{Ridge}, \autocite{tibshirani1996regression}.} Con base en \citet{banerjee2008gory}, en el Apéndice \ref{ap:DistrosConjugadas} se hace un resumen de las distribuciones conjugadas y se completan algunos de los pasos de esta derivación. 
 
-Esta distribución es conjugada pues preserva la estructura normal de $\beta$. Asimismo, es fácil de simular usando cualquier software estadístico, calculando previamente todos los parámetros y dando un valor (o iteración) para $\zsn$.\footnote{Se hace notar, que este estimador, es relativamente parecido al estimador que se da en una regresión cordillera.} En el Apéndice \ref{ap:DistrosConjugadas} se hace un resumen de las distribuciones conjugadas y se completan algunos de los pasos tediosos de la derivación. 
-
-Ahora, condicionar sobre $\zsn$, es más sencillo, pues la derivación es similar, comenzando con la expresión (\ref{ec:BayesChibbPosterior}) y reordenando términos:
+Ahora, condicionar sobre $\zsn$ es más sencillo y la derivación resulta similar. Comenzando con la expresión (\ref{ec:BayesChibbPosterior}) y re-ordenando términos se tiene:
 \begin{align}
-	\pi(\zsn|\beta,\ysn,\xmat)
-	& = \dfrac{\pi(\zsn, \beta| \ysn, \xmat)}{\pi(\beta)} \nonumber \\[5pt]
-	& = \dfrac{\pi(\ysn | \zsn)\;\pi(\zsn|\beta,\xmat) \; \pi(\beta)}			{\pi(\ysn, \xmat) \; \pi(\beta)} \nonumber \\[10pt]
-	& = \cancelto{C}{\dfrac{1}{\pi(\ysn, \xmat)}}\pi(\ysn | \zsn) \times \pi(\zsn|\beta,\xmat) \nonumber \\[5pt]
-	& = C \, \prod_{i = 1}^n[I(y_i = 1)I(z_i > 0) + I(y_i = 0)I(z_i \leq 0)] \times \phi(z_i|\beta^t\xni,1). \label{ec:BayesChibbZCond}
+	\pi(\zsn\,|\,\bm{\beta},\ysn,\xmat)
+	& = \dfrac{\pi(\zsn, \bm{\beta}\,|\,\ysn, \xmat)}{\pi(\bm{\beta})} \nonumber \\[5pt]
+	& = \dfrac{\pi(\ysn\,|\,\zsn)\;\pi(\zsn\,|\,\bm{\beta},\xmat) \; \pi(\bm{\beta})}			{\pi(\ysn, \xmat) \; \pi(\bm{\beta})} \nonumber \\[10pt]
+	& = \cancelto{C}{\dfrac{1}{\pi(\ysn, \xmat)}}\pi(\ysn\,|\,\zsn) \times \pi(\zsn\,|\,\beta,\xmat) \nonumber \\[5pt]
+	& = C \, \prod_{i = 1}^n[I(y_i = 1)I(z_i > 0) + I(y_i = 0)I(z_i \leq 0)] \nonumber\\
+	&\qquad\qquad\qquad\qquad\qquad\qquad\qquad\times\phi(z_i\,|\,\eta(\xni),1). \label{ec:BayesChibbZCond}
 \end{align}
-De donde es claro ver que las $z_i$ son independientes y tienen distribuciones normales truncadas en $0$:
+De donde se observa que cada $z_i$ es independiente con con distribución normal truncada en $0$, es decir $\forall i=1,\ldots,n$:
 \begin{align}
-	z_i|y_i = 1,\beta &\sim N(z_i|\beta^t\xni,1) \text{ truncada a la izquierda}, \label{ec:SimZ}\\
-	z_i|y_i = 0,\beta &\sim N(z_i|\beta^t\xni,1) \text{ truncada a la derecha}, \nonumber
+	z_i|y_i,\bm{\beta} &\sim N(z_i|\beta^t\xni,1)_{I(z_i>0)I(y_i = 1)} \quad \text{truncamiento a la izquierda} \label{ec:SimZ}\\
+	z_i|y_i,\bm{\beta} &\sim N(z_i|\beta^t\xni,1)_{I(z_i\leq0)I(y_i = 0)} \quad \text{truncamiento a la derecha}. \nonumber
 \end{align}
-las cuales también son fáciles de simular usando los algoritmos de \citet{devroye1986non}.
+Estas distribuciones también son fáciles de simular usando los algoritmos de \citet{devroye1986non}.
 
-Finalmente, una vez que se tienen las distribuciones condicionales (\ref{ec:SimZ}) y (\ref{ec:SimBeta}), la simulación de esto dos primeros grupos de parámetros se realiza con un muestreo de Gibbs dado por las ecuaciones (\ref{ec:GibbsSampler}) de la página \pageref{ec:GibbsSampler}. En la Tabla \ref{alg:SimZBeta}, se puede revisar el pseudocódigo que se uso para la implementación.\\
+\subsection{Implementación algorítmica final} \label{sec:ModFinal}
+Una vez conectados todos componentes del modelo, este se puede presentar en su versión final y más completa (aunque definitivamente más pesada en notación).\footnote{Se recuerda que existe un compendio de notación al inicio de este trabajo.}
 
-\begin{table}[h]
-\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\begin{verbatim} 
-    SampleoGibbs(y, X, N_sim, beta(0), mu_beta, sigma_beta):
-        sigma_beta <- ((sigma_beta)^-1 + X'X)^-1
-        PARA k = 1 HASTA N_sim:
-            z(k) <- SimNormTrunc(y, X, beta(k-1))
-            mu_beta(k) <- sigma_beta*((sigma_beta)^-1*mu_beta
-            							+ X'*z(k))
-            beta(k) <- NormMulti(mu_beta(k), sigma_beta(k)) 
-        REGRESAR beta
-\end{verbatim}
-\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\caption{Algoritmo de Albert y Chib para modelos probit}
-\label{alg:SimZBeta}
-\end{table}
-
-El valor de $\zsn\iter{0}$ en realidad no se tiene que dar pues se simula dependiendo de $y$ y $\beta\iter{0}$. Este valor inicial $\beta\iter{0}$ es arbitario, pero se sugiere que sea dado por el estimador de máxima verosimilitud o el de mínimos cuadrados para las respuestas binarias $\beta\iter{0} = (\xmat^t\xmat)^{-1}\xmat^ty$. Sin embargo, en la práctica el algoritmo, por default, los inicializa en ceros y tardan poco tiempo en converger a la distribución límite.
-
-Como comentario, el trabajo de \citet{albert1993bayesian}, incluye muchos más métodos Gibbs sampler para diferentes modelos. Entre ellos, multinomiales o modelos tobit, los cuales usan como función liga $g$ a la función de acumulación \textit{t-student} en vez de la distribución normal.   
-
-\section{Algoritmo \textit{bpwpm}}
-Finalmente, se esta en posición para hablar de la estimación de los parámetros $\wsn$ en el corazón del modelo. Dado que este modelo se construyó desde cero, no se encontró un algoritmo ya establecido. Sin embargo, usando las intuitivas ideas de los modelos GAM, se implemento un método para simular $\wsn$ que funciona muy bien en la practica. Una vez establecido eso, se juntan todos los pedazos y se arma el algoritmo final. 
-
-\subsection{Algoritmo de \textit{backfitting} para ajuste de modelos GAM} \label{sec:AlgoBackfitting}
-El \textit{algoritmo de backfitting} fue desarollado para hacer la estimación (frecuentista) de las funciones $f_j$ que componen los modelos GAM revisados en la sección \ref{sec:GAM} \autocite{hastie1986generalized}. Como se mencionó, la idea central recae en que, cada dimensión $j = 1,\ldots,d$, más un término independiente $f_0$, capture de forma aditiva, toda la información posible del regresor, en este caso $z\in\mathbb{R}$, a través de transformaciones no lineales $f_j$, es decir:  
+\begin{definition} \label{def:BPWPMFinal}
+El modelo probit bayesiano no lineal (final),\footnote{Aumentando sobre la definición \ref{def:BPWPMPrelim}} $\forall i = 1,\ldots,n$: 
 \begin{align}
-	z = f_0 + f_1(x_1) + \ldots + f_d(x_d) + e, \label{ec:GAM}
+y_i &= 
+	\begin{cases}
+		1 & \Longleftrightarrow \enspace z_i > 0 \\
+		0 & \Longleftrightarrow \enspace z_i \leq 0
+	\end{cases} \tag{\ref{ec:DefY-Z}} \\[2pt]
+z_i \,|\, \xni\, &\sim \text{N}(z_i\,|\,\eta(\xni),1) 
+	\tag{\ref{ec:DefZ-X}} \\[2pt]
+\eta(\xni) &= f_0 + f_1(x_{i,1}) + f_2(x_{i,2}) + \ldots + f_d(x_{i,d})
+	\tag{\ref{ec:etapred}} \\[4pt]
+f_j(x_{i,j}) &= \sum_{l = 1}^{\N} \beta_{j,l} \Psi_l(x_{i,j}, \mathcal{P}_j) 
+	\qquad\qquad
+	\forall j = 1,\ldots,d \tag{\ref{ec:fj}} \\[3pt]
+&=	\sum_{\hat{\imath} = 1}^{M - 1} \beta_{j,\hat{\imath},0} \; 
+		x_{i,j}^{\hat{\imath}} + 
+	\sum_{\hat{\imath} = K}^{M-1} \; 	
+	\sum_{\hat{\jmath} = 1}^{J-1}\beta_{j,\hat{\imath},\hat{\jmath}}
+		\;(x_{i,j} - \t_{\hat{\jmath}})_{+}^{\hat{\imath}}. \label{ec:ExpPWPCompleta}\\[2pt]
+	\text{con las restricciones: } \, & M > K > 0 \text{ y } J > 1 \nonumber \\[2pt]
+	\bm{\beta} &\sim N_{\lambda}(\bm{\beta}\,|\,\mu_{\bm{\beta}}, \Sigma_{\bm{\beta}}) \qquad(\lambda = 1 + d\times\N) \tag{\ref{ec:BetaAPriori}} 
 \end{align}
-con $\epsilon$ el tradicional error aleatorio. Estas $f_j$ son muy flexibles y se demuestra (bajo ciertos supuestos) que son splines cúbicos. En la práctica, usualmente se dejan indeterminados y son estimadas mediante procedimientos no paramétricos. Usar estas funciones en vez de un proyector lineal está justificado si $\E(z|\xsn)$ no es lineal, lo cual se da muchas veces cuando se usan datos reales. Sin embargo, la estimación de $f_j$ es diferente a la estimación tradicional de parámetros $\beta$ pues se enfatiza, que son \textit{arbitrarias} en su escala. Por ejemplo, sea $d = 1$ y $z_i = 1$ para alguna $i$. Se podría tener $z_i = \hat{f}_0 + \hat{f}_1(x_{i,1})$  con las estimaciones $\hat{f}_0 = 3$ y $\hat{f}_1(x_{i,1}) = -2$ ó $\hat{f}_0 = -1$ y $\hat{f}_1(x_{i,1}) = 2$, sin importar el valor de $x_{i,1}$ y los dos serían modelos que (al menos para esta observación $i$) ajustarían perfectamente. Para controlar estas posibles fluctuaciones, el modelo trata de capturar la información de forma secuencial a través de los \textit{residuales parciales}. Es decir, una vez dadas, todas las $f_j$ menos una, se evalúa que tanto le falta al modelo por capturar y posteriormente, se hace un suavizamiento de estos usando una función genérica $S_j(\cdot|x_j)$ que depende de los datos. Más formalmente, los residuales parciales, reformulando la ecuación (\ref{ec:ResParciales}) con la notación de esta sección son, $\forall j^*=1,\ldots,d$,
+La ecuación \eqref{ec:ExpPWPCompleta} no es más que la expansión \ref{ec:PoliFinal} presentada en la página \pageref{ec:PoliFinal} sobre toda $x_{i,j}$. Asimismo, el modelo se puede presentar en su forma vectorial:
 \begin{align}
-	\hat{r}_{j^*} &= z - f_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d f_j(x_j) = z - f_0 -  \ldots - f_{j^*-1}(x_{j^*-1}) - f_{j^*+1}(x_{j^*+1}) - \ldots - f_d(x_d).  \label{ec:ResParciales2}
+y_i &= 
+	\begin{cases}
+		1 & \Longleftrightarrow \enspace z_i > 0 \\
+		0 & \Longleftrightarrow \enspace z_i \leq 0
+	\end{cases} \tag{\ref{ec:DefY-Z}} \\[2pt]
+z_i \,|\, \xni\, &\sim \text{N}(z_i\,|\,\eta(\xni),1) 
+	\tag{\ref{ec:DefZ-X}} \\[2pt]
+		\bm{\beta} &\sim N_{\lambda}(\bm{\beta}\,|\,\mu_{\bm{\beta}}, \Sigma_{\bm{\beta}}) \qquad(\lambda = 1 + d\times\N) \tag{\ref{ec:BetaAPriori}} \\[2pt]
+\bm{\eta}(\xmat) &= \widetilde{\Psi}(\xmat)\bm{\beta} \tag{\ref{ec:EtaMat}}
 \end{align}
-Posteriormente, se da un estimado de $f_{j^*}$,
-\begin{align}
-	\hat{f}_{j^*}(x_{j^*}) = S(\hat{r}_{j^*}|x_{j^*}) = S[z - f_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d f_j(x_j)|x_{j^*}].
-\end{align}
-Por lo tanto, $\hat{f}_{j^*}(x_{j^*})$ es un suavizamiento, de esa dimensión. De forma iterativa, una vez dada la estimación para la  dimensión $j^*$, se puede mejorar, a su vez, la estimación de $f_{j^*\pm 1}$, dando paso a un algoritmo secuencial hasta que no haya mucha variación en las $f_j$. Un paso importante que se debe hacer es \textit{identificar} el modelo, esto es, centrar los residuales en $0$ tomando el término independiente, como el promedio de las respuestas, es decir: $f_0 = \bar{z}$, de tal forma que todas las $f_j$ queden alrededor de cero. 
+\end{definition}
+De estas expresiones y juntandolo con el muestreador de Gibbs \eqref{ec:GibbsSampler} definido por las distribuciones marginales de $\bm{\beta}$ y $\zsn$,  \eqref{ec:SimBeta} y \eqref{ec:SimZ} respectivamente, se presenta el algoritmo final en la tabla \ref{alg:bpwpm}. El valor inicial $\zsn\iter{0}$ en realidad no se tiene que proporcionar pues se simula dependiendo de $\ysn$ y $\beta\iter{0}$. Este valor inicial $\beta\iter{0}$ es arbitrario, pero se sugiere en \citet{albert1993bayesian} que sea dado por el estimador de máxima verosimilitud o el de mínimos cuadrados para las respuestas binarias $\beta\iter{0} = (\xmat^t\xmat)^{-1}\xmat^ty$. Sin embargo en la práctica, el algoritmo inizializa los parámetros en ceros por default. En la primera iteración, se esparcen por el espacio y van convergiendo a la distribución límite en relativamente poco tiempo.
 
-El algoritmo de backfitting en pseudocódigo y usando una función de suavizamiento arbitraria, se presenta en la Tabla \ref{alg:Backfitting}:
+\begin{algorithm}[p]
+\setstretch{1.2}
+ \KwData{$\ysn$, $\xmat$, $M$, $J$, $K$, $\nsim$, $\bm{\beta}\iter{k}$, $\mu_{\bm{\beta}}$ y $\Sigma_{\bm{\beta}}$}
+ \KwResult{Objeto que contiene las cadenas simuladas de $\bm{\beta}$}
+ 
+ $\N \leftarrow J\times M - K(J-1) - 1$ \\
+ $\lambda \leftarrow 1 + d\times N$ \\
+ $\P \leftarrow$ cálculo de la partición con base en cuantiles de probabilidad $1/J$ para toda covariable sobre $\mathcal{X}^d$ \\
+ $\widetilde{\Psi} \leftarrow $ expansión de polinomios por partes, con base en $\xmat$, $\mathcal{P}$, $\MJK$\\
+ $\Sigma_{\bm{\beta}}^* = \left[\Sigma_{\bm{\beta}}^{-1} + \widetilde{\Psi}^t\widetilde{\Psi}\right]^{-1}	$ \\
+ Inicializar un vector de tamaño $\lambda$ que contendrá las las cadenas $\tilde{\bm{\beta}} \leftarrow \bm{\beta}\iter{0}$\\
+ \For{$k = 1,\ldots,\nsim$}{
+	$\bm{\eta}\iter{k}\leftarrow \widetilde{\Psi}\bm{\beta}\iter{k}$\\
+	Simular $\zsn\iter{k}$ dado $\ysn$ y $\bm{\eta}\iter{k}$  con distribuciones normales truncadas\\
+	$\mu_{\bm{\beta}}^{*(k)} = \Sigma_{\bm{\beta}}^* \times (\Sigma_{\bm{\beta}}^{-1}\mu_{\bm{\beta}} + \widetilde{\Psi}^t\zsn\iter{k})$\\
+	Simular $\bm{\beta}\iter{k}$ de una distribución normal con media $\mu_{\bm{\beta}}^{*(k)}$ y matriz de varianza $\Sigma_{\bm{\beta}}^*$\\ 
+	$\tilde{\bm{\beta}} \leftarrow \tilde{\bm{\beta}} + \bm{\beta}\iter{k}$ 
+ }
+ \caption{\textit{Bayesian piece-wise polynomial model} (bpwpm)}
+ \label{alg:bpwpm}
+\end{algorithm}
 
-\begin{table}[h]
-\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\begin{verbatim}
-    AlgoritmoBackfitting(z, X, f_init):
-        f(0) <- Promedio(z)
-        f(j) <- f_init(j) para toda j = 1,...,d
-        MIENTRAS convergencia:
-            PARA j = 1,...,d,1,...,d,...:
-                f(j) <- Suavizar(z - f(0) - suma[f(k), 
-                			para toda k != j], x(j)) 
-\end{verbatim}
-\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\caption{Algoritmo de backfitting para modelos GAM}
-\label{alg:Backfitting}
-\end{table}
+El código que se desarrolló es de dominio publico y está disponible en \url{https://github.com/PaoloLuciano/BPWPM2}. Asimismo, se desarrolló mucha funcionalidad adicional para visualizar e imprimir información de los posibles modelos. En el Apéndice \ref{ap:Paquete} se hace un compendio de las funciones y una breve descripción de su uso. 
 
-\subsubsection{Aplicando los métodos GAM al modelo}
-Este principio de suavizamiento iterativo de los residuales parciales, es justamente lo que se buscaba para poder finalizar el algoritmo.  Recordando la función de projección (\ref{ec:fproy}) del modelo, una vez estimada $z$, se tiene una representación análoga a un GAM,
-\begin{align*}
-	\hat{z} = \beta_0 + \beta_1f_1(x_1) + \ldots + \beta_df_d(x_d) + e = \beta^t\fsn(\xsn) + e,
-\end{align*}
-con la adición de las $\beta_j$. De donde se pueden obtener, usando la misma idea los residuales parciales, $\forall j^*=1,\ldots,d$,
-\begin{align}
-r_{j^*} = 1/\beta_{j^*}[\hat{z} - \beta_0 - \sum_{\substack{j=1\\ j \neq j^*}}^d \beta_j f_j(x_j)].
-\label{ec:ResParciales3}
-\end{align}
-Estos residuales, calculándose para toda observación $i = 1,\ldots,n$, son vectores. El paso fundamental, para poder hacer la estimación de $\wsn$ recae sobre el suavizamiento. En la sección anterior, se denotó por la función arbitraria $S_j(\cdot|x_j)$ sin embargo, para este modelo se tiene una representación funcional concreta para $S_j$, los polinomios por partes flexibles dados por la ecuación (\ref{ec:ExpBase_NEstrella}) y (\ref{ec:PoliMallik}) de donde se hace la igualdad,
-\begin{equation}
-	r_{j^*} = \sum_{l = 1}^{N^*} w_{j^*,l} \; \Psi_l(x_{j^*},\P_{j^*}) = w_{j^*}^t\Psi(x_{j^*},\P_{j^*}). \label{ec:RegResiduales}
-\end{equation}
-Lo cual, no es más que un modelo de regresión lineal \textit{hacia abajo},\footnote{y no \textit{a lo largo}, como sería para $\beta$.} usando a $w_{j^*}$ como coeficientes y a las transformaciones $\Psi(x_{j^*},\P_{j^*})$ como covariables. Este hecho, se debe a la \textit{dualidad} en expansiones en bases funcionales, de las que tanto se habló en el capítulo pasado. Existe una correspondencia uno a uno, entre $\beta$ y $w_j$, así como entre $\fsn$ y $\Psi$. Por lo tanto, usando las técnicas que se discutieron en la Sección \ref{sec:GibbsSampler}, las $w_j$ pueden ser estimadas exactamente de misma forma que $\beta$.
-
-Aunque intricado y notacionalmente pesado, el modelo en si, está compuesto únicamente por una serie de regresiones lineales: una regresión para $\beta$ y $d$ regresiones para $w_j (\quad j = 1,\ldots,d)$, donde se está ligando la respuesta binaria a través de la $z$. Con esta simplificación, se espera que la Figura \ref{fig:DiagramaMod} de la página \pageref{fig:DiagramaMod}, haya adquirido una nueva luz. En el siguiente capítulo, se busca esclarecer con ejemplos toda esta maraña de notación y se probará su efectividad.
-
-\subsection{Implementacion final}
-Una vez conectados todos componentes del modelo, este se puede presentar en su versión final y más completa, aunque definitivamente, menos clara. Se recuerda que existe un compendio notacional al inicio de este trabajo. Juntando las expresiones (\ref{ec:Y-Z}) a (\ref{ec:fj}), (\ref{ec:ExpBase_NEstrella}), (\ref{ec:PoliMallik}), (\ref{ec:BetaAPriori}) y agregando las distribuciones a priori para $w_j$: $\pi(w_j)$; se tiene el modelo \textit{bpwpm}:
-
-\begin{align}
-	y\,|\,z\, &\sim \text{Be}(y\,|\Phi(z)), \nonumber\\ 
-	z\,|\,x\, &\sim \text{N}(z\,|f(\xsn),1),\nonumber \\
-	f(\xsn) &\approx \sum_{j=0}^d \beta_j f_j(x_j) 
-			= \beta^t\fsn(\xsn),  \nonumber\\[4pt]	
-	f_j(x_j)&\approx \sum_{l = 1}^{\N} w_{j,l} \Psi_{j,l}(x_j, \mathcal{P}_j) 
-			=  w_j^t\Psi(x_j,\P_j), \quad \forall j= 0,1,\ldots,d,	\nonumber\\[4pt]
- 		 	&=	\sum_{i = 1}^M w_{j,i,0} \; x_j^{i-1} + 
-			\sum_{i = K}^{M-1} \;
-	 		\sum_{k = 1}^{J-1}w_{j,i,k}\;(x_j - \t_{j,k})_+^{i} 
-			\nonumber \\[4pt]
-	\intertext{donde,}
-	 		\beta &\sim N_{d+1}(\beta|\mu_{\beta}, \Sigma_{\beta}),	\nonumber \\
-	w_j  &\sim N_{\N}(w_j|\mu_{w_j},\Sigma_{w_j}) \quad\quad \forall j= 0,1,\ldots,d. \label{ec:ModBPWPM}	
-\end{align}
-
-A diferencia de su exposición en el Capítulo \ref{cap:Modelo}, el algoritmo final, debe de construir de abajo hacia arriba, pues se necesita tener una estimación puntual de los parámetros para poder calcular las funciones intermedias y que todo quede definido de forma numérica.
-
-Como paso final del algoritmo, se deben definir las particiones $\P_j \quad \forall j= 1,\ldots,d$. Estas particiones, quedan determinadas al estimar las posiciones los $J-1$ nodos $\tau_j$. De forma intuitiva, se necesitarán más nodos donde se tengan más datos pues son las regiones donde se podrían dar un mayor número de saltos. Por lo tanto, el algoritmo calcula automáticamente las posiciones usando los cuantiles correspondientes para cada dimensión.\footnote{Se calculan los cuartiles con saltos de probabilidad $1/J$, donde $J$ es el número de intervalos.} 
-
-Dado que el modelo tiene muchos componentes y pasos intermedios, la Figura \ref{fig:DiagramaAlgoritmo}, hace un resumen gráfico del algoritmo. Una vez más, el supeíndice $\iter{k}$ denota la iteración. $\Psi_{\N}(\xmat, \P)$ denota la expansión en bases truncadas para los datos $\xmat$ y la partición $\P$ (de todas las dimensiones)\footnote{El objeto $\Psi$ en realidad es un arreglo 3-dimensional pues cada $x_{i,j}$ tiene una expansión de tamaño $\N$. Su implementación, se basa en el diagrama \ref{tab:Biyeccion} de la página \pageref{tab:Biyeccion}.} dependiendo del los tres parámetros $\MJK$ (resumidos en $\N$). Finalmente, $F\in\mathbb{R}^{n\times d}$ denota las matriz de transformaciones no lineales, es decir: $F = [f_1(x_1),\ldots,f_d(x_d)]$ donde cada $f_j(x_j)$ es un vector para todas las observaciones. El ciclo de adentro, se da pues al ir calculando y actualizando cada dimensión $j$, cambia la transformación $f_j$ y se deben de actualizar los residuales parciales. Este proceso se repite $d$ veces y una vez calculados todos los vectores $w_j$, se regresa al bucle principal donde se simula$z$ y $\beta$ una vez más. 
-
+Ya que el modelo tiene muchos componentes y pasos intermedios, la figura \ref{fig:DiagramaAlgoritmo} hace un resumen gráfico del algoritmo. El superíndice $\iter{k}$ denota el número de la iteración. $\widetilde{\Psi}$ denota la expansión en bases truncadas para los datos $\xmat$,  definida por los parámetros fijos $\MJK$ y la partición $\P$ que contiene los nodos $\tau$.\footnote{La implementación computacional de $\widetilde{\Psi}$, se basa en el diagrama \ref{tab:Biyeccion} de la página \pageref{tab:Biyeccion} y la expresión \eqref{ec:PsiTilde}. La subrutina que realiza la expansión tiene el nombre de \texttt{calculate\_Psi} en el paquete y está vectorizada para que su ejecución sea veloz.} Dado que los datos y los nodos son fijos, la expansión en bases de polinomios truncados únicamente se tiene que calcular una vez y es constante. Posteriormente, se calcula $\bm{\eta}\iter{0}(\xmat) = \widetilde{\Psi}(\xmat)\bm{\beta}\iter{0}$ con lo que queda definida la simulación de $\zsn\iter{0}$ como variables aleatorias normales truncadas. Finalmente, se aumenta el contador contador en uno, se calcula $\mu_{\bm{\beta}}^{*(k)}$ y se simulan los parámetros $\bm{\beta}$ que tienen distribución normal condicionada en $\zsn$. Todas las iteraciones de los parámetros se guardan en un objeto que regresa la rutina. 
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
@@ -318,76 +269,33 @@ Dado que el modelo tiene muchos componentes y pasos intermedios, la Figura \ref{
 \begin{scope}[
 		every node/.style = {fill = white, shape = rectangle }]
 		
-	\node (t) at (-4,2) {$\t$};
-	\node (Phi) at (-2,2) {$\Psi_\N(\xmat,\P)$};
-
-	\node (F) at (0,2) {$F\iter{k}$};
-	\node (z) at (1.902,0.618) {$z\iter{k}$};	
-	\node (beta) at (1.175,-1.618) {$\beta\iter{k}$};
-	\node (r) at (-1.175,-1.618) {$r_j\iter{k}$};
-	\node (w) at (-1.902,0.618) {$w_j\iter{k}$};
+	\node (t) at (-6,2) {$\P$};
+	\node (Phi) at (-3,2) {$\widetilde{\Psi}(\xmat, M, J, K, \P)$};
+	\node (eta) at (0,2) {$\bm{\eta}\iter{k}$};
+	\node (z) at (3,2) {$\zsn\iter{k}$};	
+	\node (mu) at (3,-1) {$\mu_{\bm{\beta}}^{*(k)}$};	
+	\node (beta) at (0,-1) {$\bm{\beta}\iter{k}$};
 \end{scope}
-
-	\node at (-1.8,3.3) {Dados valores iniciales para $\pi(\beta)$ y $\pi(\wsn)$, se itera $k = 1,2,3,\ldots$};
+	\node at (-1.8,3.5) {Dado un valor inicial $\bm{\beta}\iter{0}$ y los parámetros $\MJK$,};
+	\node at (0.6,2.9) {se itera $k = 0,1,\ldots,\nsim$:};
 
 % Flechitas
 \begin{scope}[
 		every node/.style={fill = white, circle},
-	    every edge/.style={draw = black, ->}]
-	
+	    every edge/.style={draw = black, ->}]	
 	\path (t) edge  node [above] {cte.} (Phi);
-	\path (Phi) edge (F);
-	\path (F) edge [bend left](z);
-	\path (z) edge [bend left](beta);
-	\path (beta) edge [bend left](r);
-	\path (w) edge [dashed, bend left](F);
-
+	\path (Phi) edge (eta);
+	\path (eta) edge [bend left](z);
+	\path (z) edge [bend left](mu);
+	\path (mu) edge [bend left] node [below] 
+	{$k \leftarrow k+1$}(beta);
+	\path (beta) edge [bend left](eta);
 \end{scope}
-
-	\path (r) edge[dashed, bend left, ->] (w) node at (-4.8, -.7)
-		{donde $\dashrightarrow$ se repite $d$ veces}(w);			
-	\path (F) edge[bend left, dashed, ->] (r);
 
 \end{tikzpicture}
 \caption{Esquema del algoritmo}
 \label{fig:DiagramaAlgoritmo}
 \end{figure}
-
-Dado que los datos y los nodos son fijos, la expansión en bases de polinomios truncados únicamente se tiene que calcular una vez y es constante. Si se usara el enfoque de \citet{mallik1998automatic}, esta parte aislada del diagrama, debería de ser incluida en el ciclo.
-
-\begin{table}[p]
-\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\begin{verbatim}
-bpwpm(y, X, M, J, K, N_sim, beta(0), mu_beta(0), sigma_beta(0), 
-	  w(0), mu_w(0), sigma_w(0)):    
-    tau <- Cuantiles(X, 1/J)
-    Phi <- CalculaPhi(X, M, J, K, tau)
-    F(0) <- CalculaF(Phi, w(0))
-        
-    PARA k = 1 HASTA Nsim:
-        z(k) <- SimNormTrunc(y, F, beta(k-1))
-            
-        sigma_beta(k) <- ((sigma_beta(0))^-1 + F(k-1)'F(k-1))^-1
-        mu_beta(k) <- sigma_beta(k)*((sigma_beta(k))^-1*mu_beta(k-1) 
-                     + F'*z(k))
-        beta(k) <- NormMulti(mu_beta(k), sigma_beta(k)) 
-            
-        PARA j = 1 HASTA d
-            r(j) <- ResidualesParciales(z, beta, F(k))
-                
-            sigma_w(j,k) <- (sigma_w(j,k-1)^-1 + Phi'Phi)^-1
-            mu_w(j,k) <- sigma_w(j,k)*((sigma_w(j,k))^-1*mu_w(j,k-1) 
-                   + Phi'r(j))
-            w(j,k) <- NormMulti(mu_w(j,k), sigma_w(j,k)) 
-            
-            F <- ActualizarDimensionjDeMatrizF(Phi, w(j,k))    
-            
-    REGRESAR beta, w
-\end{verbatim} 
-\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\caption{Algoritmo \textit{bayesian piecewise polinomial model}}
-\label{alg:bpwpm}
-\end{table}
-
-En forma de pseudocódigo el algoritmo final se encuentra en la Tabla \ref{alg:bpwpm} de la página \pageref{alg:bpwpm}. Sin embargo, inclusive en esta forma, el modelo sigue sufriendo de una notación pesada debido a la gran cantidad de índices y variables,\footnote{Como dato curioso, si se expusieran todas las ecuaciones para cada dato real $x_{i,j}$ y la expansión en bases completa, en vez de su representación vectorial, se tendrían que usar 5 índices.} sin embargo, la implementación del algoritmo final, se separó en una serie de funciones relativamente sencillas y vectorizadas que hacen de el manejo de los objetos una tarea más sencilla. El código que se desarrolló es de dominio publico disponible en \url{https://github.com/PaoloLuciano/BPWPM}, si se quiere hacer una exploración más profunda. Asimismo, se desarrolló mucha funcionalidad adicional para visualizar e imprimir información útil de los posibles modelos que se puedan hacer. En el Apéndice \ref{ap:Paquete}, se hace un compendio de las funciones y una breve descripción de lo que hacen. La documentación completa se encuentra también en el paquete.
 \end{document}
+
+
