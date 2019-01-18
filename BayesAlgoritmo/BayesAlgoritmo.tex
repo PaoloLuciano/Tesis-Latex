@@ -73,7 +73,7 @@ Esta idea se puede extender a casos más complejos donde se relajan o se cambian
 \subsection{Muestreador de Gibbs}
 El el muestreador de Gibbs (\textit{Gibbs sampler}) es método, para simular variables aleatorias de una \textit{distribución conjunta} sin tener que calcularla directamente, \autocite{gelfand1990sampling}. Usualmente, el muestreo de Gibbs se usa dentro de un contexto bayesiano, aunque también funciona para otras aplicaciones. A primera vista, pareciera complejo, pero en realidad, se basa únicamente en las propiedades revisadas (relativamente sencillas) de las cadenas de Markov.
 
-Sin perdida de generalidad, se busca simular una muestra de parámetros $\theta = (\theta_1,\ldots,\theta_\lambda)$ que provienen de la distribución conjunta $\pi(\theta)$. Esta distribución usualmente no es conocida analíticamente, sin embargo el muestreador de Gibbs permite simular una muestra arbitrariamente grande de la distribución con la que se puede aproximar empíricamente $\hat{\pi}(\theta) \approx \pi(\theta)$. En la práctica usualmente más que aproximar la distribución, se busca estudiar la muestra con medidas de centralidad y dispersión, gráficos, cuantiles, etcétera.
+Sin perdida de generalidad, se busca simular una muestra de los parámetros $\theta = (\theta_1,\ldots,\theta_\lambda)$ que provienen de la distribución conjunta $\pi(\theta)$. Esta distribución usualmente no es conocida analíticamente, sin embargo el muestreador de Gibbs permite simular una muestra arbitrariamente grande de la distribución con la que se puede aproximar empíricamente $\hat{\pi}(\theta) \approx \pi(\theta)$. En la práctica usualmente más que aproximar la distribución, se busca estudiar la muestra con medidas de centralidad y dispersión, gráficos, cuantiles, etcétera.
 
 Para llevar a cabo el muestreo, se intercambia el difícil cálculo de la distribución conjunta al cálculo de las distribuciones condicionales que usualmente son más fáciles de derivar. Las distribuciones condicionales están dadas por: 
 \begin{align}
@@ -128,13 +128,13 @@ Habiendo estudiado el muestreador de Gibbs, resta únicamente definir el algorit
 \subsection*{Método de Albert y Chib} \label{sec:AlbertChib}
 En \citet{albert1993bayesian}, los autores desarrollan un método bayesiano para el análisis de respuestas binarias y policotómicas.\footnote{Una respuesta policotómica es una respuesta que perteneces a más de dos categorías, por ejemplo: partidos políticos. Usualmente se modelan con distribuciones multinomiales.} En el caso binario, su enfoque resultaba muy atractivo para los objetivos del trabajo pues uno de los resultados es la definición de una regresión probit bayesiana con el uso de variable latente $z$.\footnote{Asimismo, \citeauthor{albert1993bayesian} también proponen un modelo con función liga $t$-student dando lugar a un modelo \textit{tobit}.} 
 
-En resumen, su modelo titulado \textit{data augmentation for binary data}, propone una definición del modelo probit como la presentada en \eqref{ec:Y-Z} y \eqref{ec:Z-X}. Bajo esta definición, se calculan las distribuciones marginales de los parámetros. Asimismo, se propone usar distribuciones conjugadas normales para $\bm{\beta}$ derivando en que el algoritmo sea relativamente rápido pues la parte estocástica depende únicamente de simular distribuciones conocidas. Esto lleva a que los periodos de \textit{burn-in} sean relativamente pequeños y que el adelgazamiento no sea fundamentalmente necesario.
+En resumen, su modelo titulado \textit{data augmentation for binary data}, propone una definición del modelo probit como la presentada en \eqref{ec:DefY-Z} y \eqref{ec:DefZ-X}. Bajo esta definición, se calculan las distribuciones marginales de los parámetros. Asimismo, se propone usar distribuciones conjugadas normales para $\bm{\beta}$ derivando en que el algoritmo sea relativamente rápido pues la parte estocástica depende únicamente de simular distribuciones conocidas. Esto lleva a que los periodos de \textit{burn-in} sean relativamente pequeños y que el adelgazamiento no sea fundamentalmente necesario.
 
 Entrando en el detalle, el planteamiento es casi idéntico al presentado en la definición \ref{def:BPWPMPrelim}, es decir, se introducen $n$ variables latentes $\zsn = (z_1,\ldots,z_n)^t$ tales que:
 \begin{align}
 y_i &= 
 	\begin{cases}
-		1 & \Longleftrightarrow \enspace z_i > 0 \\									0 & \Longleftrightarrow \enspace z_i \leq 0
+		1 & \iff \enspace z_i > 0 \\									0 & \iff \enspace z_i \leq 0
 	\end{cases} \tag{\ref{ec:DefY-Z}} \\[2pt]
 z_i\,|\,\xni\, &\sim \text{N}(z_i\,|\,\eta(\xni),1)\quad \tag{\ref{ec:DefZ-X}}  \\
 	\eta(\xni) &= \bm{\beta}^t\xnpsi \label{ec:EtaFinal}
@@ -218,7 +218,7 @@ f_j(x_{i,j}) &= \sum_{l = 1}^{\N} \beta_{j,l} \Psi_l(x_{i,j}, \mathcal{P}_j)
 		x_{i,j}^{\hat{\imath}} + 
 	\sum_{\hat{\imath} = K}^{M-1} \; 	
 	\sum_{\hat{\jmath} = 1}^{J-1}\beta_{j,\hat{\imath},\hat{\jmath}}
-		\;(x_{i,j} - \t_{\hat{\jmath}})_{+}^{\hat{\imath}}. \label{ec:ExpPWPCompleta}\\[2pt]
+		\;(x_{i,j} - \t_{j,\hat{\jmath}})_{+}^{\hat{\imath}}. \label{ec:ExpPWPCompleta}\\[2pt]
 	\text{con las restricciones: } \, & M > K > 0 \text{ y } J > 1 \nonumber \\[2pt]
 	\bm{\beta} &\sim N_{\lambda}(\bm{\beta}\,|\,\mu_{\bm{\beta}}, \Sigma_{\bm{\beta}}) \qquad(\lambda = 1 + d\times\N) \tag{\ref{ec:BetaAPriori}} 
 \end{align}

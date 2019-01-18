@@ -18,6 +18,7 @@
 \decimalpoint % Malditos an1ormales que usan comas
 \usepackage[title]{appendix}
 \usepackage[ruled,linesnumbered, spanish,onelanguage]{algorithm2e} % Para el pseudo-código
+\usepackage[group-separator={,}, group-minimum-digits = 3]{siunitx} %Separar números con comas 
 
 % Math
 \usepackage{amsmath} % Simbolos y cosas bonitas
@@ -25,7 +26,8 @@
 \usepackage{amsthm}
 \usepackage[makeroom]{cancel} % Strikeout diagonal
 \usepackage{bbm} % Función indicadora
-\usepackage{bm}%Letras griegas en negritas - \bm
+\usepackage{bm} % Letras griegas en negritas - \bm
+\usepackage{stackengine} % Una 
 
 % Tablas e Imagenes
 \usepackage[pdftex]{graphicx} 
@@ -94,6 +96,7 @@
 \newcommand{\wsn}{\mathbf{w}}
 \newcommand{\fsn}{\mathbf{f}}
 \newcommand{\psn}{\mathbf{p}}
+\newcommand{\betabf}{\bm{\beta}}
 
 % Parámetros y cosas muy usadas
 \renewcommand{\t}{\tau}
@@ -124,11 +127,11 @@ N_2 \left(
 
 % Matriz confusión
 \newcommand{\matconf}[9]{
-\begin{array}{c|c|c|l}
-~ 		& \hat{y} = 0 	& \hat{y} = 1	& ~ 	\\[4pt] \hline
-y = 0 	& #1 & #2 & #3 	\\[4pt] \cdashline{1-4}
-y = 1   & #4 & #5 & #6 	\\[4pt] \hline
-~ 		& #7 & #8 & #9
+\begin{array}{l|c|c|l}
+~ 		& \hat{y} = 0 	& \hat{y} = 1	& ~ 	\\ \hline\hline
+y = 0 	& #1 & #2 & #3 	\\ \hline
+y = 1   & #4 & #5 & #6 	\\ \hline
+~ 		& #7 & #8 & #9 
 \end{array}}
 
 % Tabla de parámetros del modelo
@@ -136,9 +139,9 @@ y = 1   & #4 & #5 & #6 	\\[4pt] \hline
 \begin{array}{ll|l}
 %\multicolumn{3}{c}{\text{Ejemplo: }#1} \\
 \multicolumn{2}{c}{\text{Parámetros}} & \text{Parámetro Sim.} \\
-\hline
+\hline\hline
 M = #1 & \N = #4	& \nsim  = #7 \\
-J = #2 & d = #5    & k^* 	 = #8 \\
+J = #2 & \lambda = #5    & k^* 	 = #8 \\
 K = #3 & n = #6	& \kthin = #9
 \end{array}}
 
@@ -146,10 +149,10 @@ K = #3 & n = #6	& \kthin = #9
 \newcommand{\resultados}[3]{
 \begin{array}{l|l}
 \multicolumn{2}{l}{\text{Info. predicción}} \\
-\hline
+\hline\hline
 \text{Est. Puntual} & #1 \\
 \text{Precisión} & #2\% \\
-\text{log-loss} & #3 \\
+\text{\textit{log-loss}} & #3 \\
 \end{array}}
 
 % Definiendo el enviroment Teorema y Definición con su respectiva numeración 

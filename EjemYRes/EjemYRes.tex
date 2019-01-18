@@ -1,787 +1,570 @@
 \documentclass[../Main/Main.tex]{subfiles}
-
 \begin{document}
-El modelo presentado en este trabajo, teóricamente pesado y con una implementación tediosa que recae en técnicas de simulación, resultó ser realmente efectivo en la práctica. A lo largo de este capítulo, se hará una exploración intuitiva y visual de sus capacidades. Todas las gráficas presentadas, se generaron con el mismo paquete que realiza la estimación, pues los mismos objetos que las funciones de \verb|R| arrojan, pueden ser utilizadas para hacer gráficas que reflejan la intuición subyacente del modelo. 
+El modelo general presentado en este trabajo, aunque pesado en notación, resultó ser muy efectivo al llevarlo a la práctica. A lo largo de este capítulo, se hará una exploración intuitiva y visual de sus capacidades. Se remarca que todas las gráficas presentadas, se generaron con el mismo paquete \verb|bpwpm| que realiza la estimación de los parámetros $\bm{\beta}$. Pues, los mismos objetos que las funciones arrojan, pueden ser utilizadas para hacer gráficas que evalúan el modelo y reflejan la intuición subyacente. 
 
-En particular, se simularon cinco bases de datos en dos dimensiones, es decir, se tienen dos covariables $\xmat\in\mathbb{R}^2$,  con diferentes patrones para la respuesta $y$ tanto lineales como no lineales. Esto, con el objetivo de poder \textit{visualizar} la clasificación y los diferentes tipos de fronteras no lineales. Asimismo, al usar bases simuladas en $\mathbb{R}^2$, se puede visualizar la función $f(\xsn)$ en tres dimensiones. Posteriormente, se aplica el modelo a una base de datos reales de cáncer, donde, al aumentar la dimensionalidad, estos no se pueden visualizar. Sin embargo, se dan una serie de resúmenes numéricos y medidas que evalúan la precisión del modelo, abriendo la discusión a limitaciones de este. 
+Para mostrar los resultados y las capacidades del modelo se presentan seis ejemplos. Los primeros cinco,  corresponden a bases de datos simuladas en dos dimensiones, es decir, se tienen dos covariables $\xmat\in\mathbb{R}^2$,  con diferentes patrones para la respuesta $y$ tanto lineales como no lineales. El objetivo, es poder visualizar lo flexibles que son las fronteras de clasificación: la parte no lineal del modelo. Asimismo, al trabajar con bases de datos donde $\mathcal{X}^2\subseteq\mathbb{R}^2$, se puede visualizar la función $\eta(\xsn)$ en tres dimensiones. El último ejemplo, corresponde a una base de datos reales de cáncer con múltiples variables.  Al aumentar la dimensionalidad, el modelo ya no es visualmente intuitivo pero sigue obteniendo excelentes resultados.
 
-\section{Evalución del modelo}
-Dos buenas medidas de evaluar la efectividad (y precisión) de un modelo de clasificación binaria, son las \textit{matrices de confusión} y la función \textit{log-loss} (ll).
+A todos los modelos presentados a lo largo de este capítulo se les realizó un análisis de convergencia mirando las medias ergódicas de las cadenas. Sin embargo, únicamente se estudia a detalle para el ejemplo \ref{sec:T2} de forma que no se saturara más la presentación.
 
-Sea $\ysn = (y_1,\ldots,y_n)^t$ el vector de respuestas verdaderas; $\hat{\psn} = (\hat{p_1},\ldots,\hat{p_n})^t$ el vector de probabilidades ajustadas, donde $\hat{p}_i = \hat{P}_{\text{modelo}}(y_1 = 1|\xsn_i)$ es la probabilidad estimada por el modelo de que la observación $y_i$ sea igual a 1, definiendo el vector de respuestas ajustadas $\hat{\ysn} = (\hat{y}_1,\ldots,\hat{y}_n)^t$, donde, $\hat{y_i} = 1 \iff \hat{p}_i > .5$. La función \textit{log-loss} $ll:\left\{0,1\right\}^n\times[0,1]^n\rightarrow \mathbb{R}^+$ es,
-\begin{align}
-	ll(\ysn,\hat{\psn}) = -\sum_{i = 1}^n[ y_i \ln(\hat{p_i}) + (1-y_i)\ln(1-\hat{p_i})]. \label{ec:LogLoss}
-\end{align}
+\section{Evaluación del modelo}
+No obstante, antes de poder presentar los ejemplos, se definen las dos métricas que se usarán para probar la efectividad (y precisión) de los modelos. Ya que se trabaja con modelos de clasificación binaria, una forma intuitiva de medir su efectividad es a través de un simple conteo de \textit{errores y aciertos}. Este conteo, se presenta en una \textit{matriz de confusión} que desglosa la clasificación en sus respectivas categorías binarias. Asimismo, se presenta la función \textit{log-loss} ($ll$) que no solo pondera la clasificación sino la \textit{precisión} de esta, medida a través de la probabilidad $p_i$ que se le asigna a cada observación $i$.
 
-La ventaja de usar la función $ll$, es que da una métrica que, no sólo para mide que tan buena es la clasificación binaria, sino, que toma en cuenta la precisión de la predicción. Esto se debe a la función es convexa y se penaliza cuando las probabilidades ajustadas están muy lejos de la real. Asimismo, si la predicción fue incorrecta pero la probabilidad fue cercana a $0.5$ no se penaliza tanto. Idealmente $ll = 0$ si se da una clasificación perfecta y conforme crezca, el modelo es peor. En la práctica y bajo un enfoque frecuentista, la función LL es la que usualmente se utiliza para entrenar y comparar modelos de clasificación como redes neuronales.
+Las matrices de confusión (tabla \ref{tab:MatrizConfusion}), son un método descriptivo con base en las tablas de contingencia que calcula la frecuencia de los aciertos y errores separando por grupos. Donde $\hat{y}$ es la variable predicha de la respuesta $y$ y $\#$ el símbolo que denota \textit{número de}. Asimismo, se define la precisión del modelo como:
+$$ \text{precisión} = \dfrac{\text{Número de clasificacioens correctas}}{\text{Número total de observaciones}}$$
 
-El segundo método, la matriz de confusión, no es más que un método descriptivo, con base en \textit{tablas de contingencia} que calcula las frecuencias para aciertos y errores, separando en grupos. Esto es:
 \begin{table}[H]
 \centering
 $\begin{array}{c|c|c|l}
 ~ & \hat{y} = 0 & \hat{y} = 1 & ~ \\[4pt]
 \hline
-y = 0 & \# 0\text{'s } \checkmark  & \;\# 0\text{'s clasificados como }1 & \#\text{ de observaciones cero} \\[4pt]
+y = 0 & \#0\text{'s } \checkmark & \;\# 0\text{'s clasificados como }1 & \#\text{ de observaciones 0} \\[4pt]
 \cdashline{1-4}
-y = 1 & \;\# 1\text{'s clasificados como }0 & \# 1\text{'s } \checkmark & \#\text{ de observaciones uno} \\[4pt]
+y = 1 & \;\# 1\text{'s clasificados como }0 & \# 1\text{'s } \checkmark & \#\text{ de observaciones 1} \\[4pt]
 \hline
-~ & \# \text{ de estimados cero} & \# \text{ de estimados uno} &  \text{Total de obs. = } n
+~ & \# \text{ de 0's estimados} & \# \text{ de 1's estimados } &  \text{Total de obs. = } n
 \end{array}$
 \caption{Matriz de confusión}
 \label{tab:MatrizConfusion}
 \end{table}
 
-De donde se puede ver la exactitud en las predicciones del modelo. Estos dos métodos, serán los usados para evaluar cada ejemplo. 
+Sin embargo, la matriz de confusión resulta deficiente para comprar modelos completamente diferentes que resultan en la misma clasificación, por ello, se define una métrica más formal. Sea $\ysn = (y_1,\ldots,y_n)^t$ el vector de respuestas observadas y $\hat{\psn} = (\hat{p_1},\ldots,\hat{p_n})^t$ el vector de probabilidades ajustadas, donde $\hat{p}_i = \hat{P}_{\text{modelo}}(y_i = 1|\xsn_i)$ es la probabilidad estimada por el modelo de que la observación $y_i$ sea igual a uno. Asimismo, se puede definir un vector de respuestas ajustadas $\hat{\ysn} = (\hat{y}_1,\ldots,\hat{y}_n)^t$, haciendo la predicción en el corte $\hat{y_i} = 1 \iff \hat{p}_i > 0.5\,$.\footnote{Este corte, es resultado de la simetría en cero de la función de acumulación normal estándar $\Phi$, derivado de la ecuación \eqref{ec:RegMedia}.}
+\begin{definition}
+La función \textit{log-loss} $ll:\left\{0,1\right\}^n\times[0,1]^n\rightarrow \mathbb{R}^+$:
+\begin{align}
+	ll(\ysn,\hat{\psn}) = -\sum_{i = 1}^n[ y_i \ln(\hat{p_i}) + (1-y_i)\ln(1-\hat{p_i})]. \label{ec:LogLoss}
+\end{align}
+\end{definition}
+La ventaja de usar la función $ll$, es que resulta en una métrica que, no sólo mide que tan buena es la clasificación binaria, sino, que toma en cuenta la precisión de la predicción. Esto se debe a que la función es convexa y se penaliza cuando las probabilidades ajustadas están muy lejos de la real. Asimismo, si la predicción fue incorrecta pero la probabilidad fue cercana a $0.5$ no se penaliza tanto. Idealmente $ll = 0$ si se da una clasificación perfecta y conforme crezca, el modelo es peor. En la práctica y bajo un enfoque frecuentista, la función $ll$ puede ser vista como una función de costos y más recientemente se ha utilizado para para entrenar y comparar modelos de clasificación como lo son las redes neuronales \autocite{nielsen2015neural}.
 
-\section{Análisis a fondo de una modelo sencillo} \label{sec:Test1}
-El primer ejemplo que se analizará, es un ejemplo muy sencillo, que busca ejemplificar cada componente del modelo. Se simularon un total de $n = 350$ observaciones separadas en dos grupos, cada uno con tamaños $n_{0} = 200$ y  $n_{1} = 150$ respectivamente ($n = n_0 + n_1$). Los puntos se muestrearon de distribuciones normales bivariadas, esto es:
+\section{Ejemplo 1 - las capacidades del modelo \texttt{bpwpm} } \label{sec:T1}
+El primer ejemplo que se analizará, busca ejemplificar los componentes del modelo general y sus capacidades. Para ello, se simularon un total de $n = 350$ observaciones separadas en dos grupos, cada uno con tamaños $n_{0} = 200$ y  $n_{1} = 150$ respectivamente ($n = n_0 + n_1$). Los datos se muestrearon de las distribuciones normales bivariadas:
 \begin{align*}
-\text{Grupo 0: } \;
-&\xsn_i \sim \normbivar{2}{2}{0.25}{0.35}{1}{0} \quad
-& &i = 1,\ldots,200 \\[6pt]
-\text{Grupo 1: } \;
-&\xsn_i \sim \normbivar{4}{4}{1}{.24}{.64}{1} \quad
-& &i = 201,\ldots,350
+\underset{i = 1,\ldots,200}{\text{Grupo 0: }} \quad 
+&\xsn_i \sim \normbivar{2}{2}{0.25}{0.35}{1}{0} \\[6pt]
+\underset{i = 201,\ldots,350}{\text{Grupo 1: }} \quad 
+&\xsn_i \sim \normbivar{4}{4}{1}{-0.24}{0.64}{1} 
 \end{align*}
-Las medias $\mu$ se toman diferentes para dar una clara separación y las covarianzas corresponden a las correlaciones $\rho_0 = 0.7$ y $\rho_1 = .3$ respectivamente. Codificando el grupo 0 con $y = 0$ de color rojo y el grupo 1 con $y = 1$ de color azul. Se tienen los datos presentados en la Figura \ref{fig:Test1Plot}.\footnote{Vale la pena mencionar, que todas las gráficas y presentadas en este Capítulo, fueron generadas usando las capacidades de la librería \textit{ggplot2}, donde se incorporó su funcionalidad al paquete \textit{bpwpm} para poder generar estos gráficos de una forma fácil y rápida para este tipo de modelos.}
+Las medias $\mu_j \; j = \left\{0,1\right\}$ se toman relativamente alejadas y las covarianzas corresponden a las correlaciones $\rho_0 = 0.7$ y $\rho_1 = 0.3$ respectivamente. Estos parámetros de simulación se escogen a través de un proceso empírico resultando en una estructura simple donde los grupos están claramente separados y hay poco traslape. Asimismo, el espacio de covariables queda definido en: $\mathcal{X}^2 \approx [0.3,7.5]\times[-0.5,5.9]$. Se codifica el grupo 0, $y = 0$, de color rojo y el grupo 1, $y = 1$, de color azul.\footnote{Se recomienda visualizar la versión digital de este trabajo donde se aprecian con más claridad los colores. Disponible en \url{...}} La base de datos final se presenta en la figura \ref{fig:Test1Plot}.
 \begin{figure}[h]
   \centering
-      \includegraphics[width = .9\textwidth]{Tests/Test1/GroupPlot}
-  \caption{Ejemplo 1, Poco traslape entre grupos}
+      \includegraphics[width = .8\textwidth]{Tests/Test1/GroupPlot}
+  \caption{Ejemplo 1}
  \label{fig:Test1Plot}
 \end{figure}
-Los parámetros se escogieron con un proceso de \textit{prueba y error} para dar estructura pero a la vez separación en el espacio de covariables $\mathcal{X}^2 \approx [0.3,7.5]\times[-0.5,5.9]$. Esto, para que se tuviera una pequeña región donde las distribuciones se traslaparan y exista cierto grado de confusión. El objetivo del modelo, es poder hacer una separación de estas dos regiones sin sobreajustar, identificando a grandes rasgos dónde se encuentran los puntos rojos y dónde se encuentran los puntos azules.
 
-\subsubsection*{Modelo probit frecuentista para comparar}
-En un modelo tradicional, la función de proyección lineal, rígida, y por ende la frontera de clasificación es lineal. Para comparar, se corrió el siguiente modelo probit frecuentista en \verb|R|, usando la función \verb|glm(..., family = binomial(link = 'probit'))|:
-\begin{align}
-	p_i & = P(y_i = 1) =\E[y|\xni] = \Phi(f(\xni))  \quad \Rightarrow  			\nonumber \\
-	\Phi^{-1}(p_i) &= \beta_0 + \beta_1x_{i,1} + \beta_2x_{i,2} 
-	\qquad 	\forall i =1,\ldots,n \label{ec:Test1ModGLM}
-\end{align}
-De donde se obtuvieron los resultados presentados en la tabla \ref{tab:Test0}
-
-\begin{table}[h]
-\begin{align*}
-\begin{array}{c|c}
-\text{Parámetro} &\text{Valor Estimado} \\
-\hdashline
-\hat{\beta_0} & -17.29 \\
-\hat{\beta_1} & 4.43 \\
-\hat{\beta_2} & 1.08 \\
-\hline
-\text{Métricas} & \text{Valor} \\
-\hdashline
-ll & 0.0399
-\end{array}
-\qquad\qquad\qquad
-\matconf{198}{2}{200}{2}{148}{150}{200}{150}{350}
-\end{align*}
-\caption{Resultados para modelo probit}
-\label{tab:Test0}
-\end{table}
-
-Dada la simplicidad de los datos, el modelo lineal probit, presentado en la ecuación (\ref{ec:Test1ModGLM}) resulta ser una excelente forma de hacer la clasificación. Como se ve en la Figura: \ref{fig:Test0ModGLM}, los datos son fácilmente separables por una linea recta que cruza exactamente donde se empiezan a traslapar. Únicamente, existen 4 datos que quedan mal clasificados, pero que, dadas sus coordenadas, parecerían pertenecer a los grupos opuestos y se consideran como datos atípicos. El modelo presenta una precisión de $98.85\%$, todos los parámetros fueron significativos\footnote{Usando las pruebas $t$ clásicas de modelos lineales frecuentistas.} y se tiene un valor de la función \textit{log-loss} muy bajo. Por lo tanto, se puede concluir que este modelo probit tradicional, es un muy buen modelo para este conjunto de datos. 
-\begin{figure}[h]
-  \centering
-      \includegraphics[width = .5\textwidth]{Tests/Test1/GLM_Line}
-  \caption{Separación de los grupos por medio de un modelo probit lineal frecuentista}
- \label{fig:Test0ModGLM}
-\end{figure}
-
-\subsubsection*{Ejemplo 1: el modelo bpwpm} \label{sec:Test1Ej1}
-Ahora, esta base de datos se prueba contra el modelo \textit{bpwpm} de este trabajo. Se esperaría que, al menos, se comportara como el probit anterior, pues, dada su estructura tan flexible, el modelo podría colapsar en uno lineal, replicando el probit tradicional anterior. 
-
-Como un primer ejemplo sencillo de comprender, se corre un modelo donde los polinomios por partes son rectas disjuntas en cada segmento con un solo nodo. Se realizan mil simulaciones del muestreo Gibbs, de donde se descartan las primeras 500 observaciones y posteriormente se toma cada segunda observación. Estas especificaciones se resumen en la siguiente tabla que se presentará antes de cada modelo. 
+\subsubsection*{Tres realizaciones del modelo}
+El objetivo principal de esta simple base de datos es ejemplificar el tipo de fronteras alcanzables, mostrando una clara separación entre los dos grupos sin sobre-ajustar. Para ello, se corren tres realizaciones del modelo. Para la primera, se escoge una frontera lineal con un solo nodo. La segunda realización, consta de parábolas continuas más no suaves sobre cuatro nodos. Finalmente la tercera realización consta de splines cúbicos\footnote{Polinomios por partes cúbicos suaves hasta la segunda derivada} en 3 nodos. En la tabla \ref{tab:Ejemplo1Modelos} se resume lo anterior.\footnote{Se recuerda que $M-1$ corresponde al grado de los polinomios, $J-1$ es el número de nodos, $K$ el parámetro que controla la suavidad, $\N$ el número de funciones base (por expansión de cada covariable) y $\lambda$ el número total de parámetros.}
 \begin{table}[H]
-$$\paramsmod{2}{2}{0}{4}{2}{350}{1000}{500}{2}$$
-\caption{Ejemplo 1, rectas disjuntas, un solo nodo}
-\label{ej:1}
-\end{table}
-
-Dado que este es un modelo extremadamente sencillo y que se tiene un número pequeño de bases para los polinomios por partes, $\N = 4$, se presenta por única ocasión, la expansión completa para poderla comparar contra el modelo anterior (\ref{ec:Test1ModGLM}). Esto es,\footnote{Para $w_{l,j}$, se usa la convención de subíndices $l = \for{1}{\N}$ de la biyección de la Tabla \ref{tab:Biyeccion} y $j = \for{1},{d}$ para indicar la dimensión}
-
-\begin{align}
-	p_i &= P(y_i = 1) =\E[y|\xni] = \Phi(f(\xni))  \quad \Rightarrow  			\nonumber \\
-	\Phi^{-1}(p_i) = \;&\beta_0 + \beta_1f_1(x_{i,1}) + \beta_2f_2(x_{i,2}) 
-	\qquad 	\forall i = \for{1,n}\label{ec:Test1Ej1} \\
-	&= \beta_0 \nonumber \\
-	&+ \beta_1[w_{1,1} + w_{2,1}x_{i,1} + w_{3,1} + w_{4,1}(x_{i,1} - \t_{1,1})_+] \label{ec:Test1Ej1F1}\\
-	& +\beta_2[w_{1,2} + w_{2,2}x_{i,2} + w_{3,2} + w_{4,2}(x_{i,2} - \t_{1,2})_+]. \label{ec:Test1Ej1F2}
-\end{align}
-
-Contrastando la ecuación (\ref{ec:Test1ModGLM}) del modelo probit  contra (\ref{ec:Test1Ej1}) del modelo \textit{bpwpm}, se puede ver la introducción del componente no lineal a través de las funciones $f_j$ desglosadas en (\ref{ec:Test1Ej1F1}) y (\ref{ec:Test1Ej1F2}). El modelo , tiene un total de $1 + d + d\N = 11$ parámetros, recordando que los nodos son fijos. Las expansiones truncadas de polinomios son relativamente sencillas y se ve claramente que se les da estructura de recta, permitiendo discontinuidades entre ellas pues $(\cdot)_+$ es una función por partes que se activa si $x_{i,j}$ es mayor que el nodo $\tau{\cdot,j}$. Aunque esta expansión es aparatosa, el modelo logra hacer excelentes predicciones en cuanto a las regiones. Cabe mencionar que, dado este es un ejemplo introductorio con un número relativamente bajo de observaciones, la estimación de los parámetros, se realizó \textit{dentro de la muestra} (\textit{in-sample}) esto quiere decir, que el modelo se entrena con las mismas observaciones contra las que se busca predecir.\footnote{El efecto que esto podría tener es que se sobre-ajuste o se hagan predicciones demasiado acertadas, sin embargo, es normal hacerlo para este tipo de modelos dado $n$. Además, por lo pronto el objetivo final es dar predicciones a través de las regiones formadas y no tanto para observaciones nuevas. De cualquier forma, se podría hacer separando, antes del análisis, la base de datos en dos, una para entrenar el modelo y otra para probarlo.} 
-
-Previo al análisis de convergencia de las cadenas, se hace una exploración preliminar para explicar todos los detalles del modelo. Usando la función de perdida cuadrática, se obtienen los resultados presentados en la Tabla \ref{tab:Test1Ej1Res}.
-
-\begin{table}[h]
-\begin{align*}
-\resultados{\text{Media posterior}}{98.85}{0.03702}
-\quad\quad
-\begin{array}{c|c}
-\multicolumn{2}{c}{\hat{\beta}} \\
+\centering
+\begin{tabular}{l|lll}
 \hline
-\hat{\beta_0} & -0.79 \\
-\hat{\beta_1} & 3.35 \\
-\hat{\beta_2} & 0.65 \\
-\end{array}
-\quad\quad
-\end{align*} 
-
-\begin{align*}
-\begin{array}{c|c}
-\multicolumn{2}{c}{\hat{\wsn}} \\
-\hline
--0.52 	& -1.48 \\
-0.39	& -0.38 \\
-0.09	& 0.66 \\
-1.05	& 1.32
-\end{array}
-\quad\quad
-\matconf{198}{2}{200}{2}{148}{150}{200}{150}{350}
-\end{align*}
-\caption{Ejemplo 1, resultados}
-\label{tab:Test1Ej1Res}
+Parámetro & Realización 1 & Realización 2 & Realización 3 \\ \hline\hline
+$M$       & 2        & 3        & 4        \\ \hline
+$J$       & 2        & 5        & 3        \\ \hline
+$K$       & 1        & 1        & 3        \\ \hline\hline
+$\N$      & 2        & 10       & 5        \\ \hline
+$\lambda$ & 5        & 21       & 11       \\ \hline
+\end{tabular}
+\caption{Ejemplo 1 - tres realizaciones del modelo}
+\label{tab:Ejemplo1Modelos}
 \end{table}
+Para las tres realizaciones se simularon $\nsim = \num{15000}$ valores de $\betabf$ y se opta por no usar periodo de \textit{burn-in} ni suavizamiento para las cadenas, es decir: $k^* = 0$ y $\kthin = 0$. Esto para hacer a los modelos más comparables entre si y dar un vistazo rápido al modelo. La única modificación que se realiza entre las tres realizaciones es que, para la tercera, se estandarizan\footnote{Se resta la media y se divide entre la desviación estándar muestral de cada covariable.} los datos $\xmat$. Al usar polinomios de orden mayor, en este caso polinomios de tercer grado, el algoritmo puede caer en problemas numéricos pues $\hat{\eta}$ puede crecer muy rápido fuera de $\mathcal{X}^d$; se expande sobre este tema en el capitulo \ref{cap:Conclusiones}. 
 
-Numéricamente, el modelo se ve bien; la matriz de confusión es idéntica a la del probit anterior y, por ende, la precisión. Sin embargo, se tiene un valor de la función \textit{log-loss} un poco más bajo, indicando que se tiene un mejor modelo una vez consideradas las probabilidades ajustadas $\hat{\psn}$. Sin embargo, a diferencia del modelo anterior, los parámetros estimados $\hat{\beta}$ y $\hat{\wsn}$ no se pueden interpretar de la misma manera. En modelos de ML, debido a la complejidad, es mejor tratar a los parámetros como partes funcionales del modelo, que como números con significado. Sin embargo en especial el vector $\hat{\beta}$ puede considerarse como los \textit{pesos} que se le dan a cada transformación no lineal, y su magnitud corresponde a que tanta fuerza tiene esa dimensión en el modelo. De este ejemplo se ve claramente que la primer dimensión, es con la que mejor se están explicando los datos.\footnote{Dado que se tiene una muestra arbitrariamente grande de los parámetros y se conoce su distribución, se podría probar la significancia de los parámetros.}
+En las figuras \ref{fig:T1M1}, \ref{fig:T1M2} y \ref{fig:T1M3} se presentan imágenes que ejemplifican las tres realizaciones del modelo respectivamente. En las imágenes \ref{fig:T1M1Frontera}, \ref{fig:T1M2Frontera} y \ref{fig:T1M3Frontera} se visualizan las diferentes tipos de fronteras que el modelo logra estimar. Con estas fronteras, se nota claramente como es determinante la elección de $\MJK$ en sus formas. El modelo logra estimar tanto fronteras relativamente rígidas como en \ref{fig:T1M1Frontera} como fronteras más suaves en las imágenes subsecuentes. Asimismo, para cada realización, se tiene la representación en 3D de cada función $\hat{\eta}$ que preserva la suavidad (o no) de sus componentes. Asimismo, rescatando las ideas de los GAM, se puede colapsar cada expansión de polinomios por partes en sus correspondientes $\hat{f}_j$ y visualizarla como la transformación no lineal de cada covariables. Por ejemplo, en la imagen \ref{fig:T1M1F1} se observa que $\hat{f}_1(x_1)$ está compuesta por rectas que se conectan en el nodo, mientras que \ref{fig:T1M3F2} presenta $\hat{f}_2(x_2)$, un polinomio cúbico suave hasta la segunda derivada.  
 
-La Figura \ref{fig:Test1Ej1}, es clave para entender el modelo, en ella se presentan las dos regiones (de colores) que el modelo detecta para hacer las predicciones.
-
-\begin{figure}[h]
+% Realización 1
+\begin{figure}[p]
 	\centering
 	\begin{subfigure}[b]{0.45\textwidth}
-    	\includegraphics[width =\textwidth]{Tests/Test1/Ej1Frontera}
-		\caption{Regiones de predicción para modelo con $M = 2$, $J = 2$ y $K = 0$}
-	\label{fig:Test1Ej1}
+    	\includegraphics[width =\textwidth]{Tests/Test1/T1M1Frontera}
+		\caption{Frontera de predicción}
+		\label{fig:T1M1Frontera}
 	\end{subfigure}
 	\hfill    
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Tests/Test1/Ej13D}
-        \caption{Representación en 3D de $\hat{f}$}
-        \label{fig:Test1Ej13D}
+        \includegraphics[width=\textwidth]{Tests/Test1/T1M13D}
+        \caption{Representación 3D de $\hat{\eta}$}
+        \label{fig:T1M13D}
     \end{subfigure}
-    \caption{Ejemplo 1 con M = 2, J = 2, K = 0, modelo lineal discontinuo}
-\end{figure}
-
-A diferencia de los modelos lineales donde la frontera de predicción binaria es, por ende, lineal, el modelo presentado en este trabajo permite tener fronteras tan complejas como se quiera (aunque no siempre necesarias). Para este ejemplo en particular, la frontera refleja que se está usando un solo nodo y polinomios lineales discontinuos, es por ello que se da la rugosidad. Encontrar la frontera como tal, resulta una tarea mucho más complicada, pues correspondería a resolver la ecuación  $\hat{f}(\xsn) \equiv 0$; en los GLM, esta frontera es perfectamente lineal y el despeje se puede hacer. Sin embargo, cuando se tienen modelos no lineales, se puede hacer una proyección de ella pues, recordando, lo que interesa es discernir cuando la función $\hat{f}$ sea positiva o negativa. Gracias al hecho que $d = 2$ para este ejemplo, se puede visualizar $\hat{f}(\xsn)$ en la Figura \ref{fig:Test1Ej13D}. En esta gráfica, se marca con un plano el \textit{corte} cuando $\hat{f}(\xsn)$ se vuele positiva. Además. se detectan los \textit{pliegues} de discontinuidades derivados del nodo y de la especificación en los parámetros $\MJK$. Se hace notar, que esta representación, no es más que la suma ponderada (por $\hat{\beta})$ de las transformaciones no lineales $f_j \quad j=1,2$, por lo cual vale la pena visualizarlas en la Figura \ref{fig:Test1Ej1Fs}. 
-\begin{figure}[h]
+    \\[3pt]
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Tests/Test1/Ej1F1}
-        \caption{$\hat{f}_1(x_1)$}
-    \end{subfigure}
-	\hfill
-	    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{Tests/Test1/Ej1F2}
+    	\includegraphics[width =\textwidth]{Tests/Test1/T1M1F1}
+		\caption{$\hat{f}_1(x_1)$}
+		\label{fig:T1M1F1}
+	\end{subfigure}
+	\hfill    
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{Tests/Test1/T1M1F2}
         \caption{$\hat{f}_2(x_2)$}
+        \label{fig:T1M1F2}
     \end{subfigure}
-    \caption{Transformaciones no lineales para cada dimensión}\label{fig:Test1Ej1Fs}
+    \caption{Realización 1 - fronteras lineales con un nodo (M = 2, J = 2 y K = 1)}
+    \label{fig:T1M1}
 \end{figure}
-Aunque la escala vertical de $f_j$ es arbitraria, pues en realidad  están ajustando a los residuales parciales, las funciones están cumpliendo su propósito de detectar y capturar el patrón que deriva en la separación de los grupos. Para valores izquierdos de ambas variables, se tiene el grupo rojo, para valores mayores, se tiene el grupo azul. Ese efecto, es capturado en el salto que dan las rectas en el nodo, mediante una mayor pendiente en las rectas del lado derecho (mayoritariamente azules), pues, al ser más positivas conforme se avanza en el rango de $x$, estas tendrán más peso en la función de proyección $\hat{f}$, volviéndola más positiva y por ende, más probable que esa región contenga observaciones del grupo azul.
 
-Con estas gráficas, se espera dar claridad a todos los componentes del modelo. Este ejemplo trivial, donde $d = 2$, tiene la ventaja que todo es visualizable gráficamente. Se hace énfasis en que muchas de las variables presentadas o métodos, son puramente estructurales y que cumplen una función meramente técnica en el algoritmo, como lo son las variables auxiliares $\zsn$. Al final, y como se presentó en el la Figura \ref{fig:DiagramaMod}, el modelo tiene cierta coherencia y simplicidad fácilmente representable por regiones de dos colores. Posteriormente, se verá la flexibilidad de estas regiones, ahí donde recae la fuerza del modelo.
-
-Aunque las funciones $f_j$ sean relativamente sencillas presentadas en una dimensión como en la Figura \ref{fig:Test1Ej1Fs}, una vez colapsadas en la función de proyección $f$, se pueden tener efectos inesperados o relativamente extraños. Esto se debe a que la interacción entre los nodos en más de una dimensión puede ser complicada de visualizar y al juntar todo, se dan efectos como los pliegues de la figura \ref{fig:Test1Ej13D}. Para solucionar esto, usualmente se pide cierta suavidad en los polinomios por partes haciéndolos splines para que $f$ sea también suave. Sin embargo, dependiendo de la aplicación los parámetros $\MJK$ se van calibrando hasta que el modelo sea aceptable y las cadenas hayan convergido. 
-
-\subsection{Diferentes tipos de fronteras - análisis de sensibilidad } \label{sec:AnlisisSensibilidad}
-Toda la flexibilidad del modelo, depende de los parámetros $\MJK$ que recaen en las manos del estadista. Estos parámetros controlan la suavidad de la frontera y es importante que se entienda como cada uno afecta la estimación de los polinomios. Por lo tanto y para pasar de esta base de datos sencilla a algunas más retadoras, se juega un poco con ellos para ver sus efectos en el modelo. 
-
-\subsubsection*{Ejemplo 2: polinomios constantes}
-A principio, mientras se desarrollaba el paquete, parecía intuitivo
-que, si se está construyendo una clasificación binaria, a cada observación bidimensional $\xni = (x_{i,1}, x_{i,2})^t$ se transformara en una especie de \textit{observación de diseño},\footnote{Derivado de las \textit{matrices de diseño} que se construyen para los modelos ANOVA; si se pudiera mapear cada observación a un espacio más sencillo codificando la respuesta, se podría hacer una predicción aún mejor.} la cual codificaría si su correspondiente respuesta $y_i$ era 0 o 1. Esta linea de pensamiento, llevo a pensar que escoger los polinomios por partes como constantes sería la mejor opción para la predicción y separación de las regiones. Por lo tanto, se corre el modelo con los parámetros presentados en la Tabla \ref{ej:2}.
-\begin{table}[h]
-$$\paramsmod{1}{2}{0}{2}{2}{350}{1000}{500}{2}$$
-\caption{Ejemplo 2, rectas constantes, un solo nodo}
-\label{ej:2}
-\end{table}
-
-De donde se obtiene los resultados presentados en la Tabla \ref{tab:Test1Ej2Res}. De ahora en adelante, y hasta llegar al análisis de convergencia, dado que la complejidad de los modelos comenzará a aumentar, se opta por no mostrar los estimadores $\hat{\beta}$ y $\hat{\wsn}$ pues no aportan nada a la discusión y son difícilmente interpretables. Se opta mejor por presentar las gráficas. 
-
-\begin{table}[h]
-\begin{align*}
-\resultados{\text{Media posterior}}{92.3}{0.2081}
-\qquad\qquad\qquad
-\matconf{174}{26}{200}{1}{149}{150}{175}{175}{350}
-\end{align*} 
-\caption{Ejemplo 2, resultados}
-\label{tab:Test1Ej2Res}
-\end{table}
-
+% Realización 2
 \begin{figure}[p]
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej2Frontera}
-            \caption{Frontera}   
-            \label{fig:Test1Ej2Frontera}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej23D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test1Ej23D}
-        \end{subfigure}
-        \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej2F1}
-            \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test1Ej2F1}
-        \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej2F2}
-            \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test1Ej2F2}
-        \end{subfigure}
-        \caption{Ejemplo 2 con $M = 1$, $J = 2$, $K = 0$, función escalonada}
-        \label{fig:Test1Ej2Plots}
-\end{figure}
-Claramente, esta no es una mejora al modelo. Tanto en precisión como en métrica \textit{log-loss} el modelo empeoró significativamente. En la Figura\ref{fig:Test1Ej2Plots}, se visualiza el porqué. Al tener únicamente un nodo y polinomios por partes constantes, la región de predicción es la más sencilla posible: dos planos que separan las regiones rojas y azules. En la imagen \ref{fig:Test1Ej23D}, se visualiza la función escalonada resultante con 4 \textit{mesetas} producto de las interacciones entre los dos nodos. Se hace notar que la región inferior izquierda es más negativa pues se tiene menor probabilidad de ser del grupo azul. En las imágenes \ref{fig:Test1Ej2F1} y \ref{fig:Test1Ej2F2} se ven los polinomios constantes que siguen el diseño del experimento, esto es, codificar de forma más sencilla la variable real $\xsn$, sin embargo, al considerar las interacciones entre los nodos, la intuición se pierde. Se hace notar que en la Figura \ref{fig:Test1Ej2F2} los polinomios están invertidos, esto se debe a que $\beta_2$ se estimó negativo, por lo tanto, a mayores valores de $\hat{f_2}$, la $f$ global aumenta, indicando que los parámetros están captando bien los patrones.
-
-\subsubsection*{Ejemplo 3: aumento del número de nodos}
-
-Como un tercer ejemplo, se podría pensar que aumentando el número de nodos y dejando todo lo demás constante mejoraría la predicción, sin embargo, lo hace de forma marginal. Tomando $J = 3$ (equivalente a dos nodos) se obtiene una precisión del $95.7\%$, en la Figura \ref{fig:Test1Ej3Plots} se presentan los resultados visuales. Se hace notar, que en este caso en especifico, si la posición del segundo nodo en $x_1$ fuera ligeramente menor ($x_1 \approx 3$) la región de predicción mejoraría. De igual forma, se hace notar que se tienen $J^2 = 9$ mesetas en la representación 3D y que, en las regiones de confusión, las $f_j$ tienen valores más cercanos a cero, identificando esta incertidumbre.
-
-\begin{figure}[p]
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej3Frontera}
-            \caption{Frontera}   
-            \label{fig:Test1Ej3Frontera}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej33D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test1Ej33D}
-        \end{subfigure}
-        \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej3F1}
-            \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test1Ej3F1}
-        \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej3F2}
-            \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test1Ej3F2}
-        \end{subfigure}
-        \caption{Ejemplo 3 con $M = 1$, $J = 3$, $K = 0$}
-        \label{fig:Test1Ej3Plots}
-\end{figure}
-Seguir aumentando el número de nodos, no mejora sustancialmente la estimación. Por lo tanto, lo que se debe hacer es romper la linealidad aumentando $M$ y $K$.
-
-\subsubsection*{Ejemplo 4: linealidad + continuidad}
-Para el primer ejemplo de la Sección \ref{sec:Test1Ej1}, se usaron los parámetros, $M = 2$, $J = 2$ y $K = 0$. Esto corresponde a expansiones polinómicas lineales pero discontinuas. Parecería contra-intuitivo usar polinomios continuos en los nodos pensando en que se buscan predicciones binarias, sin embargo, resulta que al aumentar la \textit{suavidad} en los polinomios, se logra al menos igualar el nivel de precisión para este ejemplo. En otras bases de datos se verá que esta suavidad es inclusive necesaria para dar mejores predicciones. Asimismo, se ve empiricamente, que al aumentar el numero de parámetros y la suavidad, se tienen estimaciones más robustas que convergen mejor a distribuciones estacionarias. Esto se debe a que al aumentar el número de variables (en este caso dos) las fronteras flexibles, logran aproximar de mejor manera la frontera real. 
-
-Para este nuevo ejemplo, se aumenta $K = 1$ haciendo que la doble suma en la expansión de bases de \ref{ec:PoliMallik} de la página \ref{ec:PoliMallik} se desvanezca regresando a la definición de splines lineales. Se tiene el modelo resumido en la Tabla \ref{ej:4}, con sus correspondientes resultados presentados en la Tabla \ref{tab:Test1Ej4Res}. 
-
-\begin{table}[h]
-$$\paramsmod{2}{2}{1}{3}{2}{350}{1000}{500}{2}$$
-\caption{Ejemplo 4, rectas continuas, un nodo}
-\label{ej:4}
-\end{table}
-
-\begin{table}[h]
-\begin{align*}
-\resultados{\text{Media posterior}}{98.85}{0.04109}
-\qquad\qquad\qquad
-\matconf{198}{2}{200}{2}{148}{150}{200}{150}{350}
-\end{align*}
-\caption{Ejemplo 4, resultados}
-\label{tab:Test1Ej4Res}
-\end{table}
-
-Este modelo es igual de bueno que el primer ejemplo, pero con un valor de \textit{log-loss} marginalmente mayor. Una vez más, se presentan las cuatro imágenes habituales para evaluarlo en la Figura \ref{fig:Test1Ej4Plots}. Otra característica contra-intuitiva de este modelo en particular, es que se tiene un parámetro menos para cada expansión de bases, ahora $\N = 3$, pues al añadir la restricción de continuidad por nodo se elimina uno de los dos términos independientes en las expansiones de las ecuaciones (\ref{ec:Test1Ej1F1}) y (\ref{ec:Test1Ej1F2}).  
-\begin{figure}[p]
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej4Frontera}
-            \caption{Frontera}   
-            \label{fig:Test1Ej4Frontera}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej43D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test1Ej43D}
-        \end{subfigure}
-        \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej4F1}
-            \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test1Ej4F1}
-        \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej4F2}
-            \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test1Ej4F2}
-        \end{subfigure}
-        \caption{Ejemplo 4 con $M = 2$, $J = 2$, $K = 1$, modelo lineal continuo}
-        \label{fig:Test1Ej4Plots}
-\end{figure}
-Con estas imágenes, es claro ver que se está buscando mayor suavidad progresivamente. En \ref{fig:Test1Ej43D}, se ve que la \textit{sabana} ya no da brincos discontinuos y, aunque aún no sea suave, si retiene la estructura de predicción. Esta frontera se aprecia mejor en \ref{fig:Test1Ej4Frontera}, donde se ve claramente como el modelo logra detectar perfectamente bien la región problemática. Finalmente, de \ref{fig:Test1Ej4F1} y \ref{fig:Test1Ej4F2}, se pueden apreciar las rectas ya continuas. Analizándolas, se ve claramente que existe muy poca confusión en cuanto a la primera región roja por lo que $\hat{f}_1(x_1)$ es plana al principio y después comienza a crecer rápidamente. Sucede lo mismo con $\hat{f}_2(x_2)$, sin embargo, la escala es un poco diferente, ya que $\hat{\beta}_2$ es cercana a cero, confirmando la creencia de que la región se puede separar de manera excelente, únicamente con la información de $x_1$.\footnote{Aunque no se implementaron, técnicas de \textit{selección de variables} también podrían ser útiles.} Asimismo, aumentar el número de nodos ya no mejora significativamente el modelo y sólo le agrega más parámetros por estimar. 
-
-\subsubsection*{Ejemplo 5 y 6: polinomios de orden mayor} \label{sec:Test1Ej6}
-Para cerrar las pruebas con esta base de datos y empezar a probarlo en regiones más interesantes, se corren dos últimos modelos con polinomios de orden mayor. En particular para el ejemplo 5, se usan parábolas discontinuas con 2 nodos para ver las capacidades del modelo. Finalmente para el ejemplo 6 se usan los famosos splines cúbicos para ver que tan suave puede llegar a ser el modelo. 
-\begin{table}
-	\begin{subtable}{0.45\textwidth}
 	\centering
-	$\paramsmod{3}{3}{0}{9}{2}{350}{1000}{500}{2}$
-	\caption{Ejemplo 5, parábolas discontinuas}
-	\label{ej:5}
-	\end{subtable}
-	\quad
-	\begin{subtable}{0.45\textwidth}
+	\begin{subfigure}[b]{0.45\textwidth}
+    	\includegraphics[width =\textwidth]{Tests/Test1/T1M2Frontera}
+		\caption{Frontera de predicción}
+		\label{fig:T1M2Frontera}
+	\end{subfigure}
+	\hfill    
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{Tests/Test1/T1M23D}
+        \caption{Representación 3D de $\hat{\eta}$}
+        \label{fig:T1M23D}
+    \end{subfigure}
+    \\[3pt]
+    \begin{subfigure}[b]{0.45\textwidth}
+    	\includegraphics[width =\textwidth]{Tests/Test1/T1M2F1}
+		\caption{$\hat{f}_1(x_1)$}
+		\label{fig:T1M2F1}
+	\end{subfigure}
+	\hfill    
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{Tests/Test1/T1M2F2}
+        \caption{$\hat{f}_2(x_2)$}
+        \label{fig:T1M2F2}
+    \end{subfigure}
+    \caption{Realización 2 - parábolas continuas mas no suaves (M = 3, J = 5 y K = 1)}
+    \label{fig:T1M2}
+\end{figure}
+
+% Realización 3
+\begin{figure}[p]
 	\centering
-	$\paramsmod{4}{3}{3}{6}{2}{350}{2000}{1000}{3}$	
-	\caption{Ejemplo 6, splines cúbicos}
-	\label{ej:6}
-	\end{subtable}
-\end{table}
+	\begin{subfigure}[b]{0.45\textwidth}
+    	\includegraphics[width =\textwidth]{Tests/Test1/T1M3Frontera}
+		\caption{Frontera de predicción}
+		\label{fig:T1M3Frontera}
+	\end{subfigure}
+	\hfill    
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{Tests/Test1/T1M33D}
+        \caption{Representación 3D de $\hat{\eta}$}
+        \label{fig:T1M33D}
+    \end{subfigure}
+    \\[3pt]
+    \begin{subfigure}[b]{0.45\textwidth}
+    	\includegraphics[width =\textwidth]{Tests/Test1/T1M3F1}
+		\caption{$\hat{f}_1(x_1)$}
+		\label{fig:T1M3F1}
+	\end{subfigure}
+	\hfill    
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{Tests/Test1/T1M3F2}
+        \caption{$\hat{f}_2(x_2)$}
+        \label{fig:T1M3F2}
+    \end{subfigure}
+    \caption{Realización 3 - \textit{splines} cúbicos (M = 4, J = 3 y K = 3)}
+    \label{fig:T1M3}
+\end{figure}
 
-Se hace notar, que para el ejemplo 6 se corre una cadena relativamente más larga y con periodo de \textit{burn-in} $k^*$ también mayor. Esto se debe a el ejemplo 6 es el elegido para analizar su convergencia en la Sección \ref{sec:AnalisisConv} pues se dan resultados interesantes.
-
-Para el ejemplo 5, se obtuvieron los resultados presentados en la Tabla \ref{tab:Test1Ej5Res} con sus respectivas imágenes presentadas en la Figura \ref{fig:Test1Ej5Plots}.
 \begin{table}[h]
-\begin{align*}
-\resultados{\text{Media posterior}}{98.85}{0.03189}
-\qquad\qquad\qquad
-\matconf{198}{2}{200}{2}{148}{150}{200}{150}{350}
-\end{align*}
-\caption{Ejemplo 5, resultados}
-\label{tab:Test1Ej5Res}
+\begin{subtable}[t]{0.45\textwidth}
+	\centering
+	$\matconf{198}{2}{200}{2}{148}{150}{200}{150}{350}$
+	\caption{Matriz de confusión}
+	\label{tab:T1MatConf}
+\end{subtable}
+\hfill
+\begin{subtable}[t]{0.45\textwidth}
+	\centering
+	$\begin{array}{c|c}
+		\text{Realización} & ll \\ \hline\hline
+		1 & 0.04088 \\
+		2 & 0.03464 \\
+		3 & 0.03498
+	\end{array}$
+	\caption{\textit{log-loss}}
+	\label{tab:T1ll}
+\end{subtable}
+\caption{Ejemplo 1 - resultados}
+\label{tab:T1Resultados}
+\end{table}
+Al estar tratando con una base de datos tan sencilla, no es el enfoque comparar estas realizaciones entre si pues las tres logran exactamente la misma clasificación desglosada en la tabla \ref{tab:T1MatConf}. Al compartir la matriz de confusión, por ende, las realizaciones también comparten una precisión de $98.9\%$. De la matriz y las imágenes, se observa que se clasifican de forma incorrecta solo cuatro observaciones. Sería inverosímil tratar de alcanzar una precisión del $100\%$ pues implicaría sobre-ajsutar el modelo. Para estas cuatro observaciones, no se tiene la suficiente evidencia como para clasificarlas en su categoría contraría. Sin embargo, los modelos se pueden comparar más a fondo por medio de la métrica $ll$ presentada en la tabla \ref{tab:T1ll}. Aunque muy similares, la definición de la métrica indica que la realización dos es la mejor por un pequeño margen pues es la más cercana a cero. Claro está, bajo esta comparación no se toma en cuenta el número de parámetros y la complejidad del modelo en si.
+
+Cabe mencionar que para esta sencilla base de datos particular, usar un modelo complejo como el \textit{bpwpm} no es del todo necesario pues la base podría ser clasificada con la misma precisión por un modelo que use un predictor lineal en las covariables. Sin embargo, se usa el modelo para ejemplificar las fronteras flexibles. Asimismo, presentar las formas funcionales que toman las funciones $f_j$ tampoco aportaría mucho pues están compuestas de muchos términos aditivos que no vale la pena prensentar. De igual forma, dado que este es un ejemplo introductorio la estimación de los parámetros, se realizó \textit{dentro de la muestra} (\textit{in-sample}) esto quiere decir, que el modelo se entrena con las mismas observaciones contra las que se busca predecir.\footnote{El efecto que esto puede tener es que se sobre-ajuste o se hagan predicciones demasiado acertadas. De cualquier forma el paquete es suficientemente flexible como para permitir un entrenamiento previo y una predicción\textit{fuera de muestra} (\textit{out-of-sample)}.} 
+
+\section{Ejemplo 2 - comparación contra un GLM} \label{sec:T2}
+Aprovechando la familiaridad de la base de datos anterior, se decidió modificarala para que existieran dos regiones de clasificación separadas. Se tomaron aproximadamente trece puntos, más allá de $x_1 \approx 5.5$ y se cambia su clasificación. En la imágen \ref{fig:T2Datos} se presenta la base de datos modificada. 
+
+Con afán de comparar las predicciones del modelo \textit{bpwpm} presentado en este trabajo, primeramente se corre un modelo probit lineal sobre esta base de datos. Es decir, se estiman\footnote{La estimación se realiza bajo el paradigma frecuentista usando el método de mínimos cuadrados a través de la función \texttt{glm(..., family = binomial(link = 'probit'))} en \texttt{R}.} los parámetros $\bm{\beta} = (\beta_0,\beta_1,\beta_2)^t$ del modelo:
+\begin{align}
+	p_i & = P(y_i = 1) =\E[y|\xni] = \Phi(\eta(\xni))  \quad \Rightarrow  			\nonumber \\
+	\Phi^{-1}(p_i) &= \beta_0 + \beta_1x_{i,1} + \beta_2x_{i,2} 
+	\qquad 	\forall i =1,\ldots,n \label{ec:T2GLM}
+\end{align}
+De donde se obtien los resultados presentados en la tabla \ref{tab:T2GLM} y la figura \ref{fig:T2GLM}.	
+\begin{figure}[h]
+	\centering
+   	\includegraphics[width =0.95\textwidth]{Tests/Test2/T2GLM}
+	\caption{frontera de predicción para modelo probit lineal}
+	\label{fig:T2GLM}
+\end{figure}
+
+\begin{table}[h]
+	\begin{subtable}[t]{0.45\textwidth}
+		\centering
+		$\begin{array}{c|c}
+		\text{Parámetro} &\text{Estimado} \\
+		\hline\hline
+		\hat{\beta_0} & -4.67\\
+		\hat{\beta_1} & 0.45 \\
+		\hat{\beta_2} & 0.91 \\
+		\end{array}$
+	\end{subtable}
+	\hfill
+	\begin{subtable}[t]{0.45\textwidth}
+		\centering
+		$\resultados{\text{No aplica}}{90}{0.28072}$
+	\end{subtable}
+	\vskip\baselineskip
+	\begin{subtable}[t]{\textwidth}
+		\centering
+		$\matconf{194}{19}{213}{16}{121}{137}{210}{140}{350}$
+	\end{subtable}		
+	\caption{Resultados para modelo probit lineal}
+	\label{tab:T2GLMRes}
+\end{table}
+
+Por ende, el modelo resultante es:
+\begin{align}
+ \phi^{-1}(\hat{p}_i) &= \hat{\eta}(\xsn) = -4.67 + 0.45x_{i,1} + 0.91x_{i,2}, \label{ec:T2GLMEst}
+\end{align}
+de donde se puede obtener explicitamente la ecuación de la frontera de predicción igualando \eqref{ec:T2GLMEst} a 0.5:
+\begin{align}
+	\phi(\hat{\eta}(\xni)) &\equiv 0.5 \qquad \iff \nonumber \\
+	\hat{\eta}(\xni) &= 0 \;\;\qquad \iff  \nonumber \\
+	0.45x_{i,1} + 0.91x_{i,2} &= 4.67  \label{ec:T2RectaGLM}
+\end{align}
+
+Ahora, se corre el modelo \textit{bpwpm} con los parámetros escogidos resumidos en la tabla \ref{tab:T2}. Asimismo se presentan los resultados en la tabla \ref{tab:T2Res} e imágenes en la figura \ref{fig:T2Plots}.
+\begin{table}[h]
+$$\paramsmod{3}{3}{2}{4}{9}{350}{\num{10000}}{\num{7500}}{0}$$
+\caption{ejemplo 3 - región parabólica}
+\label{tab:T2}
+\end{table}
+
+\begin{table}[ph]
+	\begin{subtable}[t]{0.45\textwidth}
+		\centering
+		$\resultados{\text{Media posterior}}{98.6}{0.04505}$
+	\end{subtable}
+	\hfill
+	\begin{subtable}[t]{0.45\textwidth}
+		\centering
+		$\matconf{210}{2}{200}{2}{135}{137}{212}{138}{350}$
+	\end{subtable}
+	\vskip\baselineskip
+	\begin{subtable}[t]{0.45\textwidth}	
+		\centering
+		\renewcommand*{\arraystretch}{1.4}
+		$\begin{array}{c|cl}
+		\bm{\beta} & \text{Valor} & ~ \\
+		\hline\hline
+		\hat{\beta_0} & -2.03 &  \rdelim\}{1}{0pt}[$\hat{f}_0$]\\
+		\hat{\beta_1} & -1.74 &  \rdelim\}{4}{0pt}[$\hat{f}_1(x_{i,1})$]\\
+		\hat{\beta_2} & 0.90  & ~ \\
+		\hat{\beta_3} & -0.07 & ~ \\
+		\hat{\beta_4} & -3.68 & ~ \\
+		\hat{\beta_5} & -1.01 &  \rdelim\}{4}{0pt}[$\hat{f}_1(x_{i,1})$]\\
+		\hat{\beta_6} & 0.13 & ~ \\
+		\hat{\beta_7} & 0.31 & ~ \\
+		\hat{\beta_8} & -0.25 & ~ 
+		\end{array}$
+	\end{subtable}
+	\hfill
+	\begin{subtable}[t]{0.45\textwidth}
+	\centering
+	\renewcommand*{\arraystretch}{1.4}
+	$\begin{array}{c|cl}
+	\mathcal{P} & \text{Valor} & ~ \\
+	\hline\hline
+	\hat{\t}_{1,1} & 2.07 & \rdelim\}{4}{0pt}[Nodos]\\
+	\hat{\t}_{1,2} & 3.69 & ~ \\
+	\hat{\t}_{2,1} & 2.00 & ~ \\
+	\hat{\t}_{2,2} & 3.52 & ~ 
+	\end{array}$
+	\end{subtable}
+\caption{ejemplo 3 - resultados}
+\label{tab:T2Res}
 \end{table}
 
 \begin{figure}[p]
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej5Frontera}
-            \caption{Frontera}   
-            \label{fig:Test1Ej5Frontera}
+        \centering 
+        \begin{subfigure}[b]{0.45\linewidth}
+		   	\includegraphics[width=\linewidth]{Tests/Test2/T2Datos}
+			\caption{Base del ejemplo 1 modificada}
+			\label{fig:T2Datos}
         \end{subfigure}
         \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej53D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test1Ej53D}
+        \begin{subfigure}[b]{0.45\linewidth}  
+            \includegraphics[width=\linewidth]{Tests/Test2/T2FSpace}
+            \caption{Transformación no lineal}
+            \label{fig:T2FSpace}
         \end{subfigure}
-        \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej5F1}
+		\vskip\baselineskip
+        \begin{subfigure}[b]{0.45\linewidth}   
+            \includegraphics[width=\linewidth]{Tests/Test2/T2Frontera}
+            \caption{Frontera de predicción}
+            \label{fig:T2Frontera}
+        \end{subfigure}
+		\hfill
+        \begin{subfigure}[b]{0.45\linewidth}   
+            \includegraphics[width=\linewidth]{Tests/Test2/T23D}
+            \caption{Representación 3D de $\hat{\eta}$}    
+            \label{fig:T23D}
+        \end{subfigure}
+		\vskip\baselineskip
+        \begin{subfigure}[b]{0.45\linewidth}  
+            \includegraphics[width=\linewidth]{Tests/Test2/T2F1}
             \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test1Ej5F1}
+            \label{fig:T2F1}
         \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej5F2}
+		\hfill
+		\begin{subfigure}[b]{0.45\linewidth}   
+            \includegraphics[width=\linewidth]{Tests/Test2/T2F2}
             \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test1Ej5F2}
-        \end{subfigure}
-        \caption{Ejemplo 5 con $M = 3$, $J = 3$, $K = 0$, parábolas discontinuas}
-        \label{fig:Test1Ej5Plots}
+            \label{fig:T2F2}
+        \end{subfigure}    
+	\caption{ejemplo 2 - regiones disjuntas de clasificación ($M = 3$, $J = 3$ y $K = 2$)}
+	\label{fig:T2Plots}
 \end{figure}
-De donde lo único diferente es la forma de las funciones $\hat{f}_j$. La Figura \ref{fig:Test1Ej5F1}, presenta un comportamiento interesante: se conserva algo de la continuidad, casi como si las parábolas \textit{quisieran} ser continuas pues esa es la mejor opción para la predicción. Asimismo \ref{fig:Test1Ej53D} y \ref{fig:Test1Ej5Frontera} presentan claramente los efectos de las discontinuidades derivados de elegir $K = 0$. Este ejemplo, funciona mejor como un referente de las capacidades del modelo preservando la precisión, en la práctica tener 21 parámetros para un ejemplo tan sencillo no es nada útil.
 
-Finalmente, el ejemplo 6, es más de lo mismo, los resultados son prácticamente iguales que los obtenidos con los demás modelos. 
-%Esta similitud, se debe al hecho que la base de datos es muy sencilla.
-Sin embargo, se presentan las imágenes en la Figura \ref{fig:Test1Ej6Plots} donde se puede ver claramente la \textit{suavidad} obtenida en la frontera, en la función $\hat{f}$ y las correspondientes $\hat{f}_j$. 
-\begin{figure}[p]
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej6Frontera}
-            \caption{Frontera}   
-            \label{fig:Test1Ej6Frontera}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej63D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test1Ej63D}
-        \end{subfigure}
-        \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej6F1}
-            \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test1Ej6F1}
-        \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test1/Ej6F2}
-            \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test1Ej6F2}
-        \end{subfigure}
-        \caption{Ejemplo 6 con $M = 4$, $J = 3$, $K = 3$, splines cúbicos}
-        \label{fig:Test1Ej6Plots}
-\end{figure}
-Al tener una cadena más larga, la escala de las $\hat{f}_j$, empieza a ser relativamente arbitraria, sobre todo para la segunda pues, conforme converge el modelo los parámetros $\wsn$ compensan la escala de $\beta$ y viceversa. Se continúa con este ejemplo en la siguiente sección.
+Juntando todo, el modelo final tiene la forma:
+\begin{align}
+	\phi^{-1}(\hat{p}_i) = &\; \hat{\eta}(\xsn) = \hat{f}_0 + \hat{f}_1(x_{i,1}) +  \hat{f}_2(x_{i,2}) \label{ec:T2}\\[5pt]	
+	= & \overbrace{\hat{\beta}_0}^{\hat{f}_0} \nonumber \\ 
+	+ & \overbrace{\hat{\beta}_1x_{i,1} + \hat{\beta}_2x_{i,1}^2 
++ \hat{\beta}_3(x_{i,1} - \hat{\t}_{1,1})_+^2 + \hat{\beta}_4(x_{i,1} - \hat{\t}_{1,2})_+^2}^{\hat{f}_1(x_{i,1})} \nonumber \\
+	+ & \overbrace{\hat{\beta}_5x_{i,2} + \hat{\beta}_6x_{i,2}^2 
++ \hat{\beta}_7(x_{i,2} - \hat{\t}_{2,1})_+^2 + \hat{\beta}_8(x_{i,2} - \hat{\t}_{2,2})_+^2}^{\hat{f}_2(x_{i,2})} \nonumber
+\end{align}
 
-En la practica, escoger el \textit{mejor} modelo es subjetivo pues depende del proceso de calibración de los parámetros y los resultados que se busquen obtener. Dado que el algoritmo es rápido, sobre todo para $d$ pequeñas, se puede jugar mucho con el, y explorar una serie de modelos. En casi todos los ejemplos presentados en esta base de datos se obtuvo una precisión de $98.85\%$, sería inverosímil tratar de mejorarla pues obligaría al modelo a sobreajustar y hacer regiones pequeñas para los 4 puntos que quedan en regiones de predicción opuestas. Asimismo, el número de nodos, al menos en este ejemplo, parece no importar mucho, aumentarlo, únicamente aumenta la complejidad del modelo y no aporta mucho, se ve claramente que con pocos parámetros y nodos, se tiene excelentes resultados. 
+Contrastando los resultados del modelo probit lineal \ref{tab:T2GLMRes} contra el modelo \textit{bpwpm} \ref{tab:T2Res}, se observa que se tiene una mejora en precisión sustancial. Claramente esto se debe a la no linealidad de la frontera de clasificación, imagen \ref{fig:T2Frontera}, contra la frontera perfectamente lineal del modelo tradicional, imagen \ref{fig:T2GLM}. Sin embargo, uno de los beneficios es que para el modelo probit lineal, esta frontera se puede derivar de forma explicita \eqref{ec:T2RectaGLM}, mientras que para el modelo \textit{bpwpm} implicaría resolver numéricamente la ecuación no lineal \eqref{ec:T2}. Asimismo, al compara la métrica \textit{log-loss}, se observa que se tiene una mejora sustancial. No obstante, uno de los pormenores grandes del modelo \textit{bpwpm} es que el número de parámetros aumenta considerable para realizar la estimación. En cuanto a tiempo computacional sin embargo, no aumenta significativamente. 
 
-Como comentario final, se hace notar que dado el algoritmo es \textit{estocástico} y depende de la simulación de parámetros aleatorios, replicar exactamente las cadenas es una tarea casi imposible; mas, los resultados y las regiones son consistentes. Al menos para este ejemplo, los valores de $k^*$ y $\kthin$ también parecieran no importar mucho pues las cadenas convergen muy rápido por las propiedades de las distribuciones conjugadas usadas. 
+La ecuación \eqref{ec:T2} también permite observar la expansión en bases final de $\eta(\cdot)$ para esta realización y elección de $\MJK$. Asimismo, posteriormente de cortar la cadena, se tienene las estimaciones puntuales de $\bm{\beta}$ y los nodos $\P$ en la tabla \ref{tab:T2Res}. Es necesario remarcar, la trasnformación que está realizando las funciones no lineales $f_j$ y se observa en las imágenes \ref{fig:T2Datos} hacia \ref{fig:T2Fspace}. 
 
-\subsection{Análisis de convergencias} \label{sec:AnalisisConv}
-El ejemplo 6 es interesante, pues ya se había explorado, sin saberlo, cuando se hablo de mustreo Gibbs en la sección \ref{sec:GibbsSampler}. En la Figura \ref{fig:GibbsSamplerSimulado} de la página \pageref{fig:GibbsSamplerSimulado}, se aprecian las trazas y los histogramas de los parámetros $\beta$ derivados de la simulación del modelo. Analizando la imagen \ref{fig:GibbsChain}, a primera vista, se observan varias cosas; la linea azul, que representa el parámetro $\hat{\beta}_2$ es prácticamente cero, la linea verde del parámetro $\hat{\beta}_1$ es muy consistente, casi sin variar, y la traza de $\hat{\beta}_0$ sube y baja sin aparente patrón. La imagen \ref{fig:GibbsChain} únicamente confirma esta creencia.
 
-Este es el inicio de un análisis de convergencia más profundo que se debe realizar independientemente de los resultados tan positivos que se mostraron anteriormente. Pues, se recuerda, que estos fueron derivados de estimaciones puntuales para los parámetros usando la media posterior, la cual, no se sabe si es exacta o si depende de la sección que se tome de la cadena. Asimismo, este proceso se debe realizar para todos los parámetros del modelo, es decir, además de $\beta$, se deben estudiar los vectores $w_j \quad j = 1,2$. Por lo tanto, se realiza un análisis exploratorio de estas cadenas usando tres fuentes de información. Primero, se presentan resúmenes numéricos en la Tabla \ref{tab:ParametrosConv} para todos los parámetros del modelo una vez \textit{corregidas} las cadenas.\footnote{Descartando las observaciones antes de $k^*$ y adelgazando cada $\kthin$-ésimo valor} Después se contrastan estos números con la Figura \ref{fig:ACGibbs}, donde se  analizan gráficamente las cadenas por si mismas. Por último, en la Figura \ref{fig:ACEM}, se presentan las \textit{medias ergódicas} de las cadenas. Esta medida, no es más que la media acumulada de la cadena, la cual, se espera coincidan de forma muy puntual al valor de la media posterior. Con toda esta información, se puede formar una pintura completa de la estimación y convergencia de los parámetros del modelo.
+\subsection{Análisis de convergencia} \label{sec:AnalisisConv}
+
+- Hablar de que se está buscando hacer 
 
 \begin{table}[p]
-	\centering
-	\begin{subtable}{\textwidth}
-		$\arraycolsep=12pt
-		\begin{array}{l|c:c:c}
-		\text{Métrica} &	\hat{\beta}_0 & \hat{\beta}_1 & \hat{\beta}_2\\
-		\hline
-		\text{Mínimo}              & -3.34 & 0.63 & 0.00 \\
-		\text{Primer Cuartíl}      & -2.50 & 0.79 & 0.00 \\
-		\text{Media}               & -1.65 & 0.82 & 0.00 \\
-		\text{Mediana}             & -1.74 & 0.81 & 0.00 \\
-		\text{Tercer Cuartíl}      & -0.93 & 0.85 & 0.00 \\
-		\text{Máximo}              & 1.01 & 0.99 & 0.00 \\
-		\text{Desviación Estandar} & 0.93 & 0.06 & 0.00 \\
+	\begin{subtable}[t]{\textwidth}
+		$\begin{array}{l|r:r:r:r:r}
+			\text{Métrica}             & \hat{\beta}_0 & \hat{\beta}_1 & \hat{\beta}_2 & \hat{\beta}_3 & \hat{\beta}_4 \\
+			\hline\hline
+			\text{Mínimo}              & -6.79         & -6.63         & -0.39         & -2.11         & -27.40        \\
+			\text{Primer Cuartíl}      & -2.54         & -2.22         & 0.66          & -0.48         & -3.72         \\
+			\text{Media}               & -2.03         & -1.73         & 0.90          & -0.07         & -3.68         \\
+			\text{Mediana}             & -1.98         & -1.69         & 0.85          & -0.09         & -3.28         \\
+			\text{Tercer Cuartíl}      & -1.44         & -1.17         & 1.05          & 0.27          & -2.86         \\
+			\text{Máximo}              & 0.85          & 1.56          & 4.21          & 10.38         & -1.07         \\
+			\text{Desviación Estandar} & 0.89          & 0.87          & 0.45          & 0.72          & 2.61         
 		\end{array}$
-	%\caption{\hat{\beta}}
 	\end{subtable}
-	\vskip\baselineskip
-	\begin{subtable}{\textwidth}
-		$\begin{array}{l|c:c:c:c:c:c}
-		\multicolumn{7}{c}{\hat{w}_1} \\
-		\text{Métrica} & \hat{w}_{1,1} & \hat{w}_{1,2} & \hat{w}_{1,3} & \hat{w}_{1,4} & \hat{w}_{1,5} & \hat{w}_{1,6} \\
-        \hline                    
-        \text{Mínimo} 			& -12.60 & -9.18 & -23.62 & -0.14 & -16.06 & -1.59 \\
-        \text{Primer Cuartíl} 	& -2.44  & -2.87 & -2.27  & 0.45  & -3.31  & 0.28  \\
-        \text{Media} 			& -1.55  & -1.94 & -1.64  & 0.97  & -2.27  & 1.46  \\
-        \text{Mediana} 			& -1.24  & -1.56 & -1.20  & 0.69  & -1.53  & 0.88  \\
-        \text{Tercer Cuartíl} 	& -0.32  & -0.72 & -0.53  & 1.30  & -0.90  & 2.29  \\
-        \text{Máximo} 			& 15.22  & 4.67  & 4.10   & 7.74  & 0.60   & 11.55 \\
-        \text{Desviación Estandar} & 2.10   & 1.74  & 1.94   & 0.78  & 1.98   & 1.84 
+		\vskip\baselineskip
+	\begin{subtable}[t]{\textwidth}
+		$\begin{array}{l|r:r:r:r}
+			\text{Métrica}             & \hat{\beta}_5 & \hat{\beta}_6 & \hat{\beta}_7 & \hat{\beta}_8 \\
+			\hline\hline
+			\text{Mínimo}              & -5.59         & -1.64         & -1.89         & -2.47        \\
+			\text{Primer Cuartíl}      & -1.49         & -0.04         & -0.05         & -0.69        \\
+			\text{Media}               & -1.00         & 0.13          & 0.31          & -0.21        \\
+			\text{Mediana}             & -0.97         & 0.13          & 0.27          & -0.27        \\
+			\text{Tercer Cuartíl}      & -0.44         & 0.31          & 0.63          & 0.13         \\
+			\text{Máximo}              & 2.44          & 1.47          & 6.67          & 11.0         \\
+			\text{Desviación Estandar} & 0.87          & 0.28          & 0.60          & 0.94        
 		\end{array}$
-	%\caption{$\hat{w}_1$}
-	\end{subtable}	
-	\vskip\baselineskip
-	\begin{subtable}{\textwidth}	
-		$\begin{array}{l|c:c:c:c:c:c}
-		\multicolumn{7}{c}{\hat{w}_2} \\
-		\text{Métrica} & \hat{w}_{2,1} & \hat{w}_{2,2} & \hat{w}_{2,3} & \hat{w}_{2,4} & \hat{w}_{2,5} & \hat{w}_{2,6} \\
-        \hline                    
-		\text{Mínimo} 			& 0.00 & -61080 &  -46710	&  -7448 &	-25550  &  0.00 \\
-		\text{Primer Cuartíl} 	& 0.00 &  -7509 &  -5396	&  77.7	 &	-4444   &  -43.9 \\
-		\text{Media} 			& 0.00 &  -4693 &  -3515	&  1543  &	-2917   &  160.07 \\
-		\text{Mediana} 			& 0.00 &  -2846 &  -1887	&  1227  &	-2320   &  355.6 \\
-		\text{Tercer Cuartíl} 	& 0.00 &    -69 &    -82	&  2293  &	-103.2  &  3185 \\
-		\text{Máximo} 			& 0.00 &  29420 &  36720	&  4110  &	14410   &  3092 \\
-		\text{Desviación Estandar} & 0.00 &   7147 &   5691	&  1799  &	3562    &  452 
-		\end{array}$
-	%\caption{$\hat{w}_2$}
 	\end{subtable}
-	\caption{Resúmenes numéricos para los parámetros del modelo presentado en el ejemplo 6}
-	\label{tab:ParametrosConv}
+	\caption{resúmenes numéricos para las cadenas de $\bm{\beta}$}
+	\label{tab:T2Betas}
 \end{table}
 
-Para los parámetros $\hat{\beta}$, las medias y las medianas son en general similares como se aprecia en la imágenes \ref{fig:ACBetaChain} y \ref{fig:ACBetaHist}. Por un lado, $\hat{\beta}_0$ fluctúa bastante, teniendo un rango máximo de 4 unidades y una desviación estándar de casi una unidad, sin embargo, el rango intercuartílico queda consistentemente en los números negativos. Análizando sus medias ergódicas, tanto la total en  \ref{fig:ACEMBetaToda} como la parcial \ref{fig:ACEMBetaParcial}, se confirma que $\hat{\beta}_0$ está convergiendo a valores negativos alrededor de $-1$. Aunque su valor fluctúa y no es el más consistente, lo importante es que sea negativo y su media es un valor que funciona en la práctica. Por el otro lado, $\hat{\beta}_1$ tiene resultados más precisos confirmado por todas sus gráficas. La traza casi no varia, y tomando la segunda mitad de la cadena, su valor converge a algo cercano de $0.8$. La estabilidad de $\hat{\beta}_1$, se debe a que es fundamental para el modelo, es el parámetro más significante, pues, junto con $\hat{\beta}_0$ logra capturar toda la información de los datos y resultar en los niveles de precisión presentados. Se enfatiza la importancia de el periodo de \textit{calentamiento}, al estimar la media posterior, se necesitan únicamente observaciones de la distribución posterior; si se toma el principio de la cadena se estaría metiendo ruido al cálculo.
-
-\begin{figure}[p]
-		% Matriz de imágenes de 3x2, los parámetros para abajo, beta, w1, w2 y cada uno chain y hist
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{AnalisisConv/BetaChain}
-            \caption{Traza de $\hat{\beta}$}   
-            \label{fig:ACBetaChain}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
-            \centering 
-            \includegraphics[width=\textwidth]{AnalisisConv/BetaHist}
-            \caption{Histograma de $\hat{\beta}$}
-            \label{fig:ACBetaHist}
-        \end{subfigure}
-        \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{AnalisisConv/W1Chain}
-            \caption{Traza de $\hat{w}_1$}
-            \label{fig:ACW1Chain}
-        \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{AnalisisConv/W1Hist}
-            \caption{Histograma de $\hat{w}_1$}    
-            \label{fig:ACW1Hist}
-        \end{subfigure}
-                \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{AnalisisConv/W2Chain}
-            \caption{Traza de $\hat{w}_2$}
-            \label{fig:ACW2Chain}
-        \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{AnalisisConv/W2Hist}
-            \caption{Histograma de $\hat{w}_2$}    
-            \label{fig:ACW2Hist}
-        \end{subfigure}
-        \caption{Trazas e histogramas del ejemplo 6}
-        \label{fig:ACGibbs}    
-        
-  \medskip
-  \begin{flushleft}
-  \small
-Se grafican los últimos 1000 valores de las cadenas del muestreo Gibbs
-	\end{flushleft}          
-\end{figure}
-
-Algo que queda claro tanto en tablas como en imágenes, es que el parámetro $\hat{\beta}_2$ es idénticamente cero. Aunque pareciera raro, este fenómeno está perfectamente explicado también por la importancia que tiene $\hat{\beta}_1$, al haber explicado los datos únicamente en la primera dimensión con algo de ayuda de $\hat{\beta}_0$, la contribución de $\hat{\beta}_2$ y toda su correspondiente expansión polinómica se puede obviar.\footnote{Este efecto también se debe a la forma que está implementado el algoritmo, los residuales parciales se van capturando de forma ascendente en las dimensiones. Si se hiciera al revés, el parámetro significativo sería $\hat{\beta}_2$ y $\hat{\beta}_1$ sería cero.} Asimismo, dada la falta de ortogonalidad entre las $\hat{\beta}$ y $\hat{\wsn}$, es que los resúmenes numéricos de $\hat{w}_2$ no tienen sentido. Al tener que el parámetro que controla toda la expansión de $j = 2$ es cero, los parámetros $\hat{w}_2$ pueden tomar escalar arbitrarias y fluctuar todo lo quieran sin afectar al modelo. Estas escalas y comportamiento no convergente se ilustra en las imágenes \ref{fig:ACW2Chain} y \ref{fig:ACEMW2Toda}. Sin embargo, al revisar de cerca la figura \ref{fig:ACW2Hist}, se nota que prácticamente todos los parámetros de $\hat{w}_2$ parecieran tener distribuciones normales con media en cero y lo que están haciendo es subir y bajar. La creencia es confirmada por la imagen \ref{fig:ACEMW2Parcial}. Este comportamiento, aunque indeseado, no es atípico. En la práctica, llega a causar problemas de \textit{condicionamiento} de las matrices si las cadenas son muy largas. Por ello, vale la pena \textit{monitoriear} y hacer exploraciones preeliminares para ir descartando parámetros o probando modelos diferentes hasta lograr uno que satisfaga cierto umbral subjetivo del estadista. Para este ejemplo, no tiene mucha relevancia dado que las cadenas convergen rápido, por lo que se toma el segundo parámetro $\hat{\beta}_2$ con motivos ilustrativos.
-
-\begin{figure}[p]
-		% Matriz de imágenes de 3x2, los parámetros para abajo, beta, w1, w2 y cada uno chain y hist
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{AnalisisConv/EMBetaToda}
-            \caption{Media ergódica para $\hat{\beta}$}   
-            \label{fig:ACEMBetaToda}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{AnalisisConv/EMBetaParcial}
-            \caption{Media ergódica para $\hat{\beta}$ corregida}   
-            \label{fig:ACEMBetaParcial}
-        \end{subfigure}        
-        \vskip\baselineskip        
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{AnalisisConv/EMW1Toda}
-            \caption{Media ergódica para $\hat{w}_1$}   
-            \label{fig:ACEMW1Toda}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{AnalisisConv/EMW1Parcial}
-            \caption{Media ergódica para $\hat{w}_1$ corregida}   
-            \label{fig:ACEMW1Parcial}
-        \end{subfigure}        
-        \vskip\baselineskip
-                \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{AnalisisConv/EMW2Toda}
-            \caption{Media ergódica para $\hat{w}_2$}   
-            \label{fig:ACEMW2Toda}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{AnalisisConv/EMW2Parcial}
-            \caption{Media ergódica para $\hat{w}_2$ corregida}   
-            \label{fig:ACEMW2Parcial}
-        \end{subfigure}        
-        \caption{Medias ergódicas del ejemplo 6}
-        \label{fig:ACEM}
-        
-          \medskip
-  \begin{flushleft}
-  \small
-En la primera columna, se muestran las medias ergódicas para toda la cadena, es decir, los $\nsim = 2000$ parámetros. En la segunda, se muestran las medias ergódicas para las cadenas corregidas con $k^* = 1000$ y $\kthin = 1000$
-	\end{flushleft}          
-\end{figure}
-
-Finalmente, se nota la tabla de $\hat{w}_1$. Aunque pareciera se tiene mucha variabilidad en la mayoría de los parámetros, en realidad, se forman cadenas bastante estables que derivan en estimaciones puntuales buenas. Además, la estimación es robusta pues se respeta la normalidad de la distribución posterior derivada de los cálculos bayesianos. Este efecto se ve claramente en la imagen \ref{fig:ACW1Hist}. De esta misma, se nota una clara separación en los parámetros que al final se tomarán negativos y en los positivos, incluso, con procedimientos frecuentistas de pruebas de hipótesis, se podría concluir cuales de ellos pueden ser estadísticamente cero, reduciendo el número de parámetros. Se hace una mención especial a la excelente convergencia de estos parámetros que se nota en las figuras \ref{fig:ACEMW1Toda}
-y \ref{fig:ACEMW1Parcial}, al ser realmente importantes para el modelo, controlando la curvatura de la frontera, vale la pena que sean estimados con precisión.
-
-Es interesante notar, que la mayoría de los ejemplos presentados en este trabajo alcanzaron convergencia, pero, esta convergencia no fue tan precisa como gustaría. Sin embargo, los resultados son, sorprendentemente, tan buenos que posiblemente existan relaciones no consideradas que hacen que los parámetros capturen información adicional y hagan excelentes fronteras de predicción. Adicionalmente, estas gráficas son generadas por rutinas del paquete desarrollado para este trabajo, cuya función es automatizar, hasta cierto punto, el análisis de convergencia.
-
-\section{Otros resultados interesantes}
-Los ejemplos presentados a continuación, son más expositivos que analíticos, es decir, se enfatizan los resultados y las características fundamentales que los detalles tediosos y técnicos del modelo como se hizo en la sección anterior. Estos ejemplos y bases de datos simuladas, buscan sobre todo, poner a prueba las capacidades no lineales del modelo haciendo predicciones que serían imposibles para un GLM.
-
-% Ej 7 - Normal BiVariada Modificada
-\subsubsection*{Una ligera modificación}
-Aprovechando la familiaridad de la base de datos anterior, se decidió modificarala para que existieran dos regiones separadas con observaciones del primer grupo. Se tomaron aproximadamente 13 puntos, más allá de $x_1 = 6$ y se cambió su clasificación. Se corre un modelo usando ahora 4 nodos y parábolas continuas resumindo en la Tabla \ref{ej:7}. Los resultados se presentan en la Tabla \ref{tab:Test2Ej7Res} y la Figura \ref{fig:Test2Ej7Plots}.
-\begin{table}[h]
-$$\paramsmod{3}{4}{1}{9}{2}{350}{1000}{500}{2}$$
-\caption{Ejemplo 7, datos normales bivariados modificados}
-\label{ej:7}
-\end{table}
-
-\begin{table}[h]
-\begin{align*}
-\resultados{\text{Media posterior}}{98.6}{0.04217}
-\qquad\qquad\qquad
-\matconf{211}{2}{213}{3}{134}{137}{214}{136}{350}
-\end{align*}
-\caption{Ejemplo 7, resultados}
-\label{tab:Test2Ej7Res}
-\end{table}
-
-\begin{figure}[p]
-        \centering
-        \begin{subfigure}[b]{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{Tests/Test2/Ej7Frontera}
-            \caption{Frontera}   
-            \label{fig:Test2Ej7Frontera}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test2/Ej73D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test2Ej73D}
-        \end{subfigure}
-        \vskip\baselineskip
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test2/Ej7F1}
-            \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test2Ej7F1}
-        \end{subfigure}
-        \quad
-        \begin{subfigure}[b]{0.45\textwidth}   
-            \centering 
-            \includegraphics[width=\textwidth]{Tests/Test2/Ej7F2}
-            \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test2Ej7F2}
-        \end{subfigure}
-        \caption{Ejemplo 7 con $M = 3$, $J = 4$, $K = 1$}
-        \label{fig:Test2Ej7Plots}
-\end{figure}
-
+- Mejorar
 Este ejemplo es interesante pues, como se ve en la imágen \ref{fig:Test2Ej73D}, la \textit{sabana} que antes era creciente a medida que $x_1$ crecía, ahora se vuelve a curvar, volviéndose negativa otra vez y clasificando bien la segunda sección roja. Una vez más, se tienen esos pocos puntos que no quedan bien clasificados, incluyendo uno nuevo cerca de las coordenadas cartesianas $(5.8, 2.3)$. Para estos datos, se debe usar un nodo adicional cerca de la segunda región, ya que la curvatura, deriva de él. El parámetro $K$ en este ejemplo no es muy relevante como se ve en la imagen \ref{fig:Test2Ej7F1}, nuevamente porque $\hat{f}_1(x_1)$ pareciera ser suficientemente suave sin tener que restringir el modelo. Finalmente, se enfatiza que vuelve a suceder lo mismo que pasó con el ejemplo 6, donde la información se podía resumir únicamente con las primeras dos dimensiones. 
 
-% Ej 9 y 10 - Parabola y Circular Data
-\subsubsection{Regiones curvas}
-Como siguientes dos ejemplos, se buscó estresar la interacción entre las dimensiones buscando regiones más complejas. En particular, se buscó replicar algo similar a la imagen del capítulo introductorio \ref{fig:DiagramaIntro} de la página \pageref{fig:DiagramaIntro}. Para el ejemplo 8, se generaron datos con coordenadas polares para ángulos con rango entre $(-1,1)$ y tomando diferentes radios para cada grupo. Posteriormente, se les sumó ruido blanco a los puntos para que existiera una región de confusión. Dadas las características curvas de los datos, piensa que usar parábolas continuas es una buena opción para modelarlos. El modelo final termina con los parámetros presentados en la Tabla \ref{ej:8}. Los resultados e imágenes se presentan en la Tabla \ref{tab:Test3Ej8Res} y la Figura \ref{fig:Test3Ej8Plots} respectivamente.
+\begin{figure}[p]
+        \centering 
+        \begin{subfigure}[b]{0.45\linewidth}
+		   	\includegraphics[width=\linewidth]{Tests/Test2/T2Trazas1}
+			\caption{Trazas de $\hat{\beta}_0$ a $\hat{\beta}_4$}
+			\label{fig:T2Trazas1}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\linewidth}  
+            \includegraphics[width=\linewidth]{Tests/Test2/T2Hist1}
+            \caption{Histogramas de $\hat{\beta}_0$ a $\hat{\beta}_4$}
+            \label{fig:T2Hist1}
+        \end{subfigure}
+
+        \begin{subfigure}[b]{0.45\linewidth}   
+            \includegraphics[width=\linewidth]{Tests/Test2/T2Trazas2}
+            \caption{Trazas de $\hat{\beta}_5$ a $\hat{\beta}_8$}
+            \label{fig:T2Trazas2}
+        \end{subfigure}
+		\hfill
+        \begin{subfigure}[b]{0.45\linewidth}   
+            \includegraphics[width=\linewidth]{Tests/Test2/T2Hist2}
+            \caption{Histogramas de $\hat{\beta}_5$ a $\hat{\beta}_8$}    
+            \label{fig:T2Hist2}
+        \end{subfigure}
+		\vskip\baselineskip
+        \begin{subfigure}[b]{0.45\linewidth}  
+            \includegraphics[width=\linewidth]{Tests/Test2/T2ME}
+            \caption{Media ergódica}
+            \label{fig:T2ME}
+        \end{subfigure}
+	\caption{ejemplo 2 - análisis de convergencia}
+	\label{fig:T2Conv}
+\end{figure}
+
+\section{Ejemplos 3 a 5 - otros resultados interesantes} \label{sec:T3-5}
+Los ejemplos presentados a continuación, son más expositivos que analíticos, es decir, se enfatizan los resultados más que los detalles matemáticos como se hizo en la sección anterior. Estos ejemplos y bases de datos simuladas, buscan sobre todo, poner a prueba las capacidades no lineales del modelo y estresar las interacciones entre las dimensiones. Al estar tratando con regiones de clasificación más complejas, la predicción sería imposible para un GLM.
+
+% Ej 4 - Parábola
+\subsection*{Ejemplo 3 - región parabólicos}
+Para este ejemplo, se generaron $n = 400$ datos en $\mathbb{R}^2$ usando coordenadas polares al tomar ángulos con un rango entre $[-1,1]$. Posteriormente se tomaron diferentes radios para diferenciar cada grupo y finalmente se les sumó ruido blanco a los puntos para que existiera una región de confusión. Las simulación derivó en un patrón de datos cuya frontera es curva, inclusive parabólica. Dadas las características de los datos, se piensa que usar polinomios por partes parabólicos y suaves ($M = 3$ y $K = 2$) es una buena opción para modelarlos. Los parámetros escogidos para la realización final del modelo, se presentan en la tabla \ref{tab:T3}. Asimismo, los resultados e imágenes se presentan en la tabla \ref{tab:T3Res} y la figura \ref{fig:T3Plots} respectivamente.
 
 \begin{table}[h]
-$$\paramsmod{3}{4}{1}{9}{2}{400}{1000}{500}{1}$$
-\caption{Ejemplo 8, datos parabólicos anidados}
-\label{ej:8}
+$$\paramsmod{3}{4}{2}{5}{11}{400}{\num{10000}}{\num{2500}}{0}$$
+\caption{Ejemplo 3 - región parabólica}
+\label{tab:T3}
 \end{table}
 
 \begin{table}[h]
 \begin{align*}
-\resultados{\text{Media posterior}}{98.8}{0.04217}
+\resultados{\text{Media posterior}}{99.2}{0.04352}
 \qquad\qquad\qquad
-\matconf{196}{4}{200}{1}{199}{200}{197}{203}{400}
+\matconf{198}{2}{200}{1}{199}{200}{199}{201}{400}
 \end{align*}
-\caption{Ejemplo 8, resultados}
-\label{tab:Test3Ej8Res}
+\caption{Ejemplo 3 - resultados}
+\label{tab:T3Res}
 \end{table}
 
 \begin{figure}[p]
         \centering
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{Tests/Test3/Ej8Frontera}
+            \includegraphics[width=\textwidth]{Tests/Test3/T3Frontera}
             \caption{Frontera}   
-            \label{fig:Test3Ej8Frontera}
+            \label{fig:T3Frontera}
         \end{subfigure}
         \hfill
         \begin{subfigure}[b]{0.45\textwidth}  
             \centering 
-            \includegraphics[width=\textwidth]{Tests/Test3/Ej83D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test3Ej83D}
+            \includegraphics[width=\textwidth]{Tests/Test3/T3FSpace}
+            \caption{Transformación no lineal}
+            \label{fig:T3FSpace}
         \end{subfigure}
         \vskip\baselineskip
         \begin{subfigure}[b]{0.45\textwidth}   
             \centering 
-            \includegraphics[width=\textwidth]{Tests/Test3/Ej8F1}
+            \includegraphics[width=\textwidth]{Tests/Test3/T3F1}
             \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test3Ej8F1}
+            \label{fig:T3F1}
         \end{subfigure}
-        \quad
+		\hfill
         \begin{subfigure}[b]{0.45\textwidth}   
             \centering 
-            \includegraphics[width=\textwidth]{Tests/Test3/Ej8F2}
+            \includegraphics[width=\textwidth]{Tests/Test3/T3F2}
             \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test3Ej8F2}
+            \label{fig:T3F2}
         \end{subfigure}
-        \caption{Ejemplo 8 con $M = 3$, $J = 4$, $K = 1$}
-        \label{fig:Test3Ej8Plots}
+		\vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test3/T33D}
+            \caption{Representación 3D de $\hat{\eta}$}
+            \label{fig:T33D}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test3/T3ME}
+            \caption{Medias ergódicas}
+            \label{fig:T3ME}
+        \end{subfigure}        
+	\caption{ejemplo 3 - parábolas suaves ($M = 3$, $J = 4$ y $K = 2$)}
+	\label{fig:T3Plots}
 \end{figure}
-Este es un modelo particularmente interesante de forma gráfica. Se ve claramente que la segunda dimensión \ref{fig:Test3Ej8F2} captura la parte parabólica y la primera \ref{fig:Test3Ej8F2}, la región donde se confunden los grupos pero posteriormente hay certidumbre. A diferencia de los modelos presentados hasta ahora, todos los parámetros $\beta$ son altamente significantes, pues sin su interacción, claramente no se habría detectado el patrón. Sin embargo, estos datos siguen teniendo una clara separación por lo que el modelo sigue logrando detectar la frontera de forma correcta y tener precisión.
+Esta es una realización particularmente interesante pues con un total $\lambda = 11$ parámetros se logra una precisión alta además de obtener convergencia relativamente rápido ($\nsim = \num{10000}$ y $k^* = \num{2500}$). Analizando el modelo de forma gráfica, se observa claramente que la segunda transformación $\hat{f}_2(x_2)$ (imagen \ref{fig:T3F2}) captura la parte parabólica. A la vez, la primera transformación $\hat{f}_1(x_1)$ (imagen \ref{fig:T3F1}) le da poco peso a la región donde hay confusión entre los los grupos pero posteriormente crece en donde hay certidumbre.  Asimismo, se presenta el espacio de la transformación no lineal en la imagen \ref{fig:T3FSpace} en donde se observa que el grupo rojo cero, se concentra en la esquina inferior izquierda, representando la posible separación lineal en este espacio transformado. 
 
-Continuando con las regiones no lineales, se obtuvo una base de datos pequeña del curso online de Machine Learning de \citet{andrew2018ml}.\footnote{Este curso, se ofrece de forma gratuita en la página de \href{https://www.coursera.org/learn/machine-learning}{Coursera}} Esta base de datos se usa para entrenar modelos saturados logit con regularización, logrando predecir fronteras circulares con modelos lineales. Se decidió, probarlo también con el modelo a ver si se obtenían resultados comparables. Efectivamente se logró y con un menor número de parámetros por entrenar. El modelo, una vez más, fue ajustado con parábolas continuas las cuales resultaron ser excelentes herramientas. Se tiene el ejemplo 9 resumido en la Tabla \ref{ej:9}, con resultados e imágenes en la Tabla \ref{tab:Test4Ej9Res} y Figura \ref{fig:Test4Ej9Plots} respectivamente. 
+\subsection*{Ejemplo 4 - región ovalada}
+Para esta base de datos en particular se busca replicar algo similar a la imagen del capítulo introductorio \ref{fig:DiagramaIntro} de la página \pageref{fig:DiagramaIntro}. Avanzando con las regiones no lineales, se obtuvo una base de datos pequeña del curso en linea de ML de \citet{andrew2018ml} que presenta una frontera de clasificación ovalada.\footnote{Este curso, se ofrece de forma gratuita en la página de \href{https://www.coursera.org/learn/machine-learning}{Coursera}.} Esta base de datos se usa para entrenar modelos saturados logit con regularización, \citet{hastie2008elements}, logrando predecir fronteras curvas con modelos tradicionalmente lineales al incluir las interacciones entre las covariables. Por lo tanto, se decidió probarlo también con el modelo presentado para contrastar.
 
+El modelo una vez más, fue ajustado usando parábolas suaves las cuales resultaron ser excelentes herramientas. La parámetros escogidos para la realización final del modelo, se presenta en la tabla \ref{tab:T4} con resultados e imágenes en la tabla \ref{tab:T4Res} y figura \ref{fig:T4Plots} respectivamente.  
 \begin{table}[h]
-$$\paramsmod{3}{4}{2}{6}{2}{118}{1000}{500}{1}$$
-\caption{Ejemplo 9, datos circulares}
-\label{ej:9}
+$$\paramsmod{3}{2}{2}{3}{7}{118}{\num{2000}}{500}{0}$$
+\caption{Ejemplo 4 - región ovalada}
+\label{tab:T4}
 \end{table}
 
 \begin{table}[h]
 \begin{align*}
-\resultados{\text{Media posterior}}{78.8}{0.4532}
+\resultados{\text{Media posterior}}{78.8}{0.4714}
 \qquad\qquad\qquad
-\matconf{48}{12}{60}{13}{45}{58}{61}{44}{118}
+\matconf{48}{12}{60}{13}{45}{58}{61}{57}{118}
 \end{align*}
-\caption{Ejemplo 9, resultados}
+\caption{Ejemplo 4 - resultados}
 \label{tab:Test4Ej9Res}
 \end{table}
 
+Para esta realización del modelo, se buscó estresar su flexibilidad al incluir el menor número de términos posibles usando un solo nodo ($J = 2$ y $\lambda = 7$) y cadenas cortas ($\nsim = \num{2000}$). Aunque una precisión de $78.8\%$ no resulte tan atractiva, es la precisión que se presenta en el curso en línea y permanece constante aún si se aumenta $\lambda$. La métrica \textit{ll} mejora (marginalmente) sobre la presentada en el curso, sin embargo, se logra una reducción significativa en el número de parámetros pues el modelo saurado de \citet{andrew2018ml} inicia con 28 parámetros.\footnote{Dada la regularización, muchos de estos se desvanecían.}. Asimismo, como se observa en la figura \ref{fig:T4ME} las cadenas convergen rápidamente. Todo el poder del modelo, recae en la forma funcional de las funciones $\hat{f}_j$ al poder estimar regiones irregularmente curvas, con muy pocas observaciones y parámetros. 
+
 \begin{figure}[p]
         \centering
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{Tests/Test4/Ej9Frontera}
+            \includegraphics[width=\textwidth]{Tests/Test4/T4Frontera}
             \caption{Frontera}   
-            \label{fig:Test4Ej9Frontera}
+            \label{fig:T4Frontera}
         \end{subfigure}
         \hfill
         \begin{subfigure}[b]{0.45\textwidth}  
             \centering 
-            \includegraphics[width=\textwidth]{Tests/Test4/Ej93D}
-            \caption{Representación 3D de $\hat{f}$}
-            \label{fig:Test4Ej93D}
+            \includegraphics[width=\textwidth]{Tests/Test4/T4FSpace}
+            \caption{Transformación no lineal}
+            \label{fig:T4FSpace}
         \end{subfigure}
         \vskip\baselineskip
         \begin{subfigure}[b]{0.45\textwidth}   
             \centering 
-            \includegraphics[width=\textwidth]{Tests/Test4/Ej9F1}
+            \includegraphics[width=\textwidth]{Tests/Test4/T4F1}
             \caption{$\hat{f}_1(x_1)$}
-            \label{fig:Test4Ej9F1}
+            \label{fig:T4F1}
         \end{subfigure}
-        \quad
+		\hfill
         \begin{subfigure}[b]{0.45\textwidth}   
             \centering 
-            \includegraphics[width=\textwidth]{Tests/Test4/Ej9F2}
+            \includegraphics[width=\textwidth]{Tests/Test4/T4F2}
             \caption{$\hat{f}_2(x_2)$}    
-            \label{fig:Test4Ej9F2}
+            \label{fig:T4F2}
         \end{subfigure}
-        \caption{Ejemplo 9 con $M = 3$, $J = 4$, $K = 2$}
-        \label{fig:Test4Ej9Plots}
+		\vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test4/T43D}
+            \caption{Representación 3D de $\hat{\eta}$}
+            \label{fig:T43D}
+        \end{subfigure}
+		\hfill
+		\begin{subfigure}[b]{0.45\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test4/T4ME}
+            \caption{Medias ergódicas}    
+            \label{fig:T4ME}
+        \end{subfigure}    
+	\caption{ejemplo 4 - parábolas suaves en un nodos ($M = 3$, $J = 2$ y $K = 2$)}
+	\label{fig:T4Plots}
 \end{figure}
 
-Todo el poder del modelo, recae en esta forma de romper la linealidad y poder estimar regiones irregularmente curvas, incluso con muy pocas observaciones. El modelo tiene un total de $15$ parámetros,\footnote{3 en beta $\beta$ más $2\times6$ de los vectores $w_j$} cuando en el curso, se entrenaba con 28 parámetros.\footnote{Cabe mencionar que, dada la regularización, muchos de estos términos ser desvanecían.} La forma en la que interactún los nodos, combinando las dos parábolas que se forman en \ref{fig:Test4Ej9F1} y \ref{fig:Test4Ej9F1} es muy interesante, pues, aunque se tienen 3 nodos, lo optimo para estas figuras es formar dos parábolas continuas y suaves al aumentar $K$. 
-
-\subsubsection*{Ultimo ejemplo con datos simulados - limitaciones del modelo}
-Para finalizar con las  bases de datos simulados, el modelo se llevó al límite de sus capacidades sobre un patrón de puntos, intuitivo al ojo humano, pero realmente difícil de identificar por un algoritmo.\footnote{O al menos el presentado en este trabajo} Los datos tratan de simular un \textit{yin-yang} que se puede ver en la Figura \ref{fig:YYDatos}. La simple simulación de la base de datos representó un reto donde se conjuntaron varias áreas de la matemática aplicada. En el software \verb|GeoGebra|, se generó el diagrama presentado en la Figura \ref{fig:YYGG} que consiste de las siguientes desigualdades cartesianas:
+\subsubsection*{Ejemplo 5 - \textit{yin-yang}, limitaciones del modelo}
+Para finalizar con las bases de datos simulados, el modelo se llevó al límite de sus capacidades sobre un patrón de puntos, intuitivo al ojo humano, pero difícil de identificar por un algoritmo.\footnote{O al menos el presentado en este trabajo} Los datos tratan de simular un \textit{yin-yang} que se puede observar en la figura \ref{fig:YYDatos}. La simple simulación de la base de datos representó un reto donde se conjuntaron varias áreas de la matemática aplicada. En el software \verb|GeoGebra|, se generó el diagrama presentado en la figura \ref{fig:YYGG} que consiste de las siguientes desigualdades cartesianas:
 \begin{align*}
 	x^2 + y^2 &< 16, \\
 	(x+2)^2 + (y-1.5)^2 &< 0.49, \\
@@ -791,47 +574,46 @@ Para finalizar con las  bases de datos simulados, el modelo se llevó al límite
 
 \begin{figure}[h]
         \centering
-        \begin{subfigure}[b]{0.45\textwidth}
+        \begin{subfigure}[t]{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth]{Tests/Test5/YYDatos}
-            \caption{Datos simulados representando un yin-yang}   
+            \caption{Datos simulados}   
             \label{fig:YYDatos}
         \end{subfigure}
         \hfill
-        \begin{subfigure}[b]{0.45\textwidth}  
+        \begin{subfigure}[t]{0.45\textwidth}  
             \centering 
             \includegraphics[width=\textwidth]{Tests/Test5/YYGG}
-            \caption{Salida del software donde se construyeron las ecuaciones para generar los datos.}
+            \caption{Salida del software \texttt{GeoGebra}}
             \label{fig:YYGG}
         \end{subfigure}
         \caption{Patrón yin-yang}
         \label{fig:YYInitialPlots}
 \end{figure}
-Una vez \textit{dibujadas} las ecuaciones, se generaron dos bases de datos de aproximadamente $n \approx 1500$ observaciones. La primera, con distribución uniforme dentro del círculo,\footnote{Usando coordenadas polares} y otra usando una distribución normal bivariada simétrica ($\rho = 0$) pero con desviación estándar $\sigma = 2.5$ para abarcar todo el circulo. A todos estos puntos se les asignó la categoría 0, posteriormente, se asignó la categoría 1 a los puntos que cayeran en las regiones deseadas. Al final, se le añadió algo de ruido normal a cada punto para darle aleatoriedad a la base de datos pero manteniendo el patrón terminando así la simulación.
+Una vez dibujadas las ecuaciones, se generó una base de datos de aproximadamente $n \approx \num{800}$ observaciones con una distribución uniforme dentro del círculo usando coordenadas polares. A estos puntos se les asignó la categoría cero, posteriormente, se cambió la categoría a los puntos que cumplieran con las desigualdades. Posteriormente, se le añadió algo de ruido normal a cada punto para darle aleatoriedad a la base de datos pero manteniendo el patrón. Finalmente, se escala la base para centrarla en cero.  
 
-El modelo se corrió, con muchas esperanzas, un sinfín de veces, tratando de calibrar los parámetros y captar exactamente el patrón. Sin embargo y aunque el modelo casi siempre lograba una precisión de cerca de $85\%$, no se lograron los resultados esperados. De cualquier forma, el modelo y el algoritmo, claramente están haciendo su mejor trabajo y los parámetros convergen. En la Figura \ref{fig:YY} se pueden ver las fronteras de algunos de los mejores modelos.
-
-\begin{figure}[p]
+Se corrieron un sinfín de realizaciones del modelo, tratando de calibrar los parámetros y captar de la mejor manera posible el patrón. Sin embargo y aunque el modelo casi siempre lograba una precisión de cerca de $85\%$, no se logra la clasificación esperada identificando los puntos de color dentro de las áreas contrarias. De cualquier forma se observa como el algoritmo está tratando de encontrar este patrón. En la figura \ref{fig:YY} se pueden ver fronteras de algunos de los mejores modelos.
+\begin{figure}[htp]
         \centering
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{Tests/Test5/YY1}
-            \caption{Datos uniformes sin ruido, buen ajuste}
-			\label{fig:YY1}
+            \includegraphics[width=\textwidth]{Tests/Test5/YY3}
+            \caption{Sobre-ajuste}
+			\label{fig:YY3}
         \end{subfigure}
         \hfill
         \begin{subfigure}[b]{0.45\textwidth}  
             \centering 
             \includegraphics[width=\textwidth]{Tests/Test5/YY2}
-            \caption{Datos uniformes con ruido, mejor modelo}
+            \caption{Mejor modelo}
 			\label{fig:YY2}
         \end{subfigure}
         \vskip\baselineskip
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{Tests/Test5/YY3}
-			\caption{Datos normales con ruido}
-			\label{fig:YY3}
+            \includegraphics[width=\textwidth]{Tests/Test5/YY1}
+			\caption{Falta de precisión}
+			\label{fig:YY1}
         \end{subfigure}
         \hfill
         \begin{subfigure}[b]{0.45\textwidth}  
@@ -840,24 +622,22 @@ El modelo se corrió, con muchas esperanzas, un sinfín de veces, tratando de ca
 			\caption{Gráfico 3D para uno de los modelos}
 			\label{fig:YY3D}
         \end{subfigure}
-    	\caption{Fronteras de varios modelos para datos yin-yang}
+    	\caption{fronteras de varios modelos para datos yin-yang}
         \label{fig:YY}
 \end{figure}
-Para las dos primeras imágenes \ref{fig:YY1} y \ref{fig:YY2}, se usa la base de datos uniformes, la primera sin ruido y la siguiente con. El agregarle ruido, hace que los datos no sean tan uniformes en el espacio y que ciertas características se vuelvan más prominentes que otras. Es por ello, que en la segunda imagen, se logró detectar la zona roja de la izquierda, a costa de perder algunas observaciones azules en el \textit{puente} que se forma para llegar a ella. Sin embargo, en la primera imagen, el modelo no sólo detectó relativamente bien la curva de en medio, sino que detecta de forma aislada, el circulo azul de la esquina inferior derecha. En la tercera imagen \ref{fig:YY3}, se usan los datos normales con ruido de donde se ve claramente que el modelo detecta que existen regiones que debería de estar estimando dentro de las categorías opuestas. Finalmente \ref{fig:YY3D}, muestra una, de las muchas representaciones 3D que se hicieron al tratar de ajustar esta base de datos. 
+Para las dos primeras imágenes \ref{fig:YY1} y \ref{fig:YY2}, se observa como el modelo está tratando de encontrar las regiones anidadas, sin embargo, nunca se logra de forma precisa. En la imagen \ref{fig:YY3}, el modelo detecta relativamente bien la curva que separa las regiones, sino que detecta de forma aislada, el circulo azul de la esquina inferior derecha. Finalmente \ref{fig:YY3D}, muestra una, de las muchas representaciones 3D que se hicieron al tratar de ajustar esta base de datos. Precisamente en esta última imagen esconde el porqué no se logró hacer la estimación correcta: la dependencia implícita entre los nodos. Estos nodos, en realidad están dividiendo el espacio bi-dimensional en una cuadrícula donde las interacciones son difíciles de discernir. Conforme aumenta el número de nodos, más complejo se vuelve el modelo. Es por ello, que los picos y valles se repiten en un patrón uniforme. Asimismo, dada la naturaleza global de los polinomios y esta interacción, el modelo tiene esta estructura decreciente siempre, derivando que los picos y los valles nunca alcancen las regiones extremas en polos opuestos. De igual forma, la uniformidad y simetría impar, inherente a esta base de datos, llevó a que la estimación de los parámetros fuera óptima dentro de las capacidades del modelo. Otra desventaja de esta base, es que estos modelos se tuvieron que correr con un número grande de nodos $J \approx 20$, derivando en un número de parámetros aún más alto.
 
-Precisamente en esta última imagen se esconde el porqué no se logró hacer la estimación correcta: la dependencia implícita entre los nodos. Estos nodos, en realidad están dividiendo el espacio bi-dimensional en una cuadrícula donde las interacciones son difíciles de discernir. Conforme aumenta el número de nodos, más complejo se vuelve el modelo. Es por ello, que los picos y valles se repiten en un patrón uniforme. Asimismo, dada la naturaleza global de los polinomios y esta interacción, el modelo tiene esta estructura decreciente siempre, derivando que los picos y los valles nunca alcancen las regiones extremas en polos opuestos. De igual forma, la uniformidad y simetría impar, inherente a esta base de datos, llevó a que la estimación de los parámetros fuera óptima dentro de las capacidades del modelo. Otra desventaja de esta base, es que estos modelos se tuvieron que correr con un número grande de nodos $J \approx 20$, derivando en un número de parámetros aún más alto $\N \approx 50$. Sin embargo, el tiempo de estimación para cadenas de más de 4000 observaciones y alrededor de 100 parámetros, nunca excedió el minuto. 
+\section{Ejemplo 6 - el modelo en la práctica} \label{sec:T6}
+Hasta ahora, todos los resultados de este trabajo han sido sobre bases de datos simuladas. Claramente  se forman imágenes atractivas por construcción, sin embargo, no se está prediciendo nada en realidad pues se utiliza una metodología \textit{dentro de muestra} para enfatizar las posibles fronteras del modelo. Por lo tanto y como último ejemplo, se presenta la base de datos de cáncer de mama de la Universidad de Wisconsin. Esta base de datos, es citada en varios trabajos de los años noventa, donde se tratan de hacer clasificaciones binarias usando una serie de procedimientos más robustos que los tradicionales GLM,  \citet{mangasarian1990pattern} y \citet{bennett1992robust}.
 
-\section{Prueba con datos médicos reales}
-Aunque interesantes, hasta ahora, todos los resultados de este trabajo han sido sobre bases de datos simuladas sin trascendencia alguna. Claramente forman imágenes atractivas por construcción, pero no se está prediciendo nada ni formando modelos aplicables en la vida real. Por lo tanto, y para hacer una última prueba de el modelo, se presenta una base de datos de cáncer de mama de la Univeridad de Wisconsin. Esta base de datos, es citada en varios trabajos de los años noventa, donde se tratan de hacer clasificaciones binarias usando una serie de procedimientos más robustos que los tradicionales GLM \autocite{mangasarian1990pattern}, \autocite{bennett1992robust}.
-
-De manera general y sin entrar en la parte médica de las variables como tal, se presenta un análisis exploratorio preliminar que se lleva a cabo para seleccionar las que se consideren relevantes. La base de datos cuenta con $n = 699$ observaciones de las cuales el $34.5\%$ representan pacientes infectados con tumores malignos representados por el color rojo. Se cuenta con diez variables (dimensiones) médicas sobre las características de los tumores como lo son: el tamaño, la uniformidad de la pared celular, etcétera. En la Figura \ref{fig:BCExp}, se muestran los gráficos de puntos \textit{pareados} para todas las posibles combinaciones, además de información adicional.
+De manera general y sin entrar en el detalle biológico de las variables como tal, se presenta un análisis exploratorio preliminar que se lleva a cabo para seleccionar las que se consideren relevantes. La base de datos cuenta con $n = 699$ observaciones de las cuales el $34.5\%$ representan pacientes infectados con tumores malignos representados por el color rojo (etiqueta cero). Se cuenta con diez variables (dimensiones) médicas sobre las características de los tumores como lo son: el tamaño, la uniformidad de la pared celular y la cromatina.\footnote{Forma en la que se presenta la cadena de ADN en el núcleo celular.} En la figura \ref{fig:BCExp}, se muestran los gráficos de puntos pareados para todas las posibles combinaciones de covariables además de cierta información adicional.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=.9\textwidth]{Tests/Test6/BCExp}
-	\caption{Análisis exploratorio para selección de variables}
+	\caption{análisis exploratorio para selección de variables}
 	\label{fig:BCExp}
 \end{figure}
-Este proceso, se lleva a cabo para tratar de seleccionar las variables relevantes y/o, discernir alguna región que se pueda separar por proyectores no lineales. Se hace notar que las variables, están codificadas en una escala a 10 puntos, por lo tanto, la representación gráfica de los datos se ve más como una cuadrícula que como un espacio real de variables. Se seleccionan las variables \textit{clump, size} y \textit{chromatin}\footnote{Estas variables corresponden a el espesor de los tumores, su tamaño y la textura de la cromatina en las células respectivamente} debido a que pareciera ser las que mejor separan el espacio. En la Figura \ref{fig:BCJP} se presentan dos gráficos de puntos con algo de ruido para hacer notar que las regiones son un poco más complejas de lo que podría parecer a simple vista, además de que se tienen puntos idénticos con clasificaciones contrarias. Sin embargo, si se detecta cierto patrón en los datos.
+Este proceso se lleva a cabo para tratar de seleccionar las covariables relevantes y estudiar un poco los datos. Asimismo, las covariables están codificadas en una escala a 10 puntos, por lo tanto, la representación gráfica de los datos se ve más como una cuadrícula que como un espacio real de variables. Derivado de esta exploración previa, se seleccionan las covariables \textit{clump, size} y \textit{chromatin}\footnote{Estas covariables corresponden a el espesor de los tumores, su tamaño y la textura de la cromatina en las células respectivamente.} debido a que parecieran ser las que mejor separan el espacio. En la figura \ref{fig:BCJP} se presentan dos gráficos de puntos con algo de ruido para hacer notar que las regiones son un poco más complejas de lo que podría parecer a simple vista, además de que se tienen puntos idénticos con clasificaciones contrarias. Sin embargo, a simple vista se detecta cierto patrón en los datos.
 \begin{figure}[h]
         \centering
         \begin{subfigure}[b]{0.45\textwidth}
@@ -870,29 +650,60 @@ Este proceso, se lleva a cabo para tratar de seleccionar las variables relevante
         \begin{subfigure}[b]{0.45\textwidth}  
             \centering 
             \includegraphics[width=\textwidth]{Tests/Test6/BCJP1}
-            \caption{Variables \textit{clump} y \textit{size} con algo de ruido para separar las observaciones.}
+            \caption{Variables \textit{clump} y \textit{size}}
 			\label{fig:BCJP2}
         \end{subfigure}
-		\caption{Gráficos con  ruido para separar las observaciones}
+		\caption{gráficos de puntos con ruido para separar las observaciones}
 		\label{fig:BCJP}
 \end{figure}
-
-Para poder hablar de \textit{predicción} como tal, tiene que existir una base de datos contra la cual probar las estimaciones del modelo. Por lo tanto, la base original se decide partir en dos, un conjunto de entrenamiento con el $60\%$ de las observaciones ($n=274$) y un conjunto de prueba, con las observaciones restantes sobre las que se evaluará el modelo.\footnote{La diferencia de 16 observaciones entre la suma de entrenamiento y prueba, contra las 699 originales, se debe a que estas estaban incompletas y por lo tanto se descartan.} El modelo final, se resume en la Tabla \ref{ej:BC}, y consta de parábolas continuas con cuatro nodos. Como de costumbre, los resultados numéricos se presentan en la Tabla \ref{tab:BCRes}.
-\begin{table}[h]
-$$\paramsmod{3}{5}{1}{11}{3}{409}{4000}{3000}{0}$$
-\caption{Prueba con datos médicos reales}
+Para poder hablar de predicción como tal, tiene que existir una base de datos contra la cual probar las estimaciones del modelo. Por lo tanto, la base original se parte en dos: un conjunto de entrenamiento con el $60\%$ de las observaciones ($n_{\text{train}} = 409$) y un conjunto de prueba con las observaciones restantes ($n_{\text{test}} = 274$) sobre las que se evaluará el modelo.\footnote{La diferencia de 16 observaciones entre la suma de entrenamiento y prueba, contra las 699 originales, se debe a que estas estaban incompletas y por lo tanto se descartan.} La realización final de entrenamiento del modelo se resume en la tabla \ref{ej:BC}, se escogen segmentos de recta continuos sobre tres nodos. Los resultados numéricos sobre la base de datos de prueba se presentan en la tabla \ref{tab:BCRes} y el análisis de convergencia a través de las medias ergódicas en la figura \ref{fig:T6ME}. Asimismo, se presenta cada $\hat{f}_j\quad j = 1,2,3$ en las figuras \ref{fig:T6F1}, \ref{fig:T6F2} y \ref{fig:T6F3} respectivamente.
+\begin{table}[ht]
+$$\paramsmod{2}{4}{1}{4}{13}{409}{\num{50000}}{\num{10000}}{0}$$
+\caption{ejemplo 6 - datos médicos reales}
 \label{ej:BC}
 \end{table}
 
-\begin{table}
+\begin{table}[ht]
 \begin{align*}
-\resultados{\text{Media posterior}}{96}{0.2199}
+\resultados{\text{Media posterior}}{95.6}{0.1561}
 \qquad\qquad\qquad
-\matconf{170}{8}{178}{3}{93}{96}{173}{101}{274}
+\matconf{169}{9}{178}{3}{93}{96}{172}{102}{274}
 \end{align*}
-\caption{Datos médicos, resultados}
+\caption{datos médicos - resultados}
 \label{tab:BCRes}
-\end{table}
 
-Estos resultados son excelentes pues, incluso haciendo una predicción \textit{fuera de muestra} se logra una precisión del $96\%$, significando, que inclusive en $d=3$ el modelo logra hacer una buena separación. Sin embargo, derivado también de lo mismo, es que no se pueden hacer visualizaciones como en los ejemplos anteriores. La convergencia es clara aunque, si se revisan los resultados numéricos, las escalas son relativamente arbitrarias. El algoritmo, aunque bueno en general, sufre de un problema de estabilidad numérica. Al aumentar el número de parámetros, sobre todo a través de $d$, las cadenas empiezan a divergir mucho y muy rápido, haciendo que la estimación de los parámetros sea errónea. Por lo pronto y para $d\leq4$, el algoritmo funciona bien para cadenas cortas y, aunque pueda ser inestable a la larga, da resultados predictivos muy buenos. De igual manera, para esta base de datos, la codificación de las variables usando una escala de 10 puntos, no es óptima para el modelo pues los nodos se asumen reales. 
+\end{table}
+\begin{figure}[p]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{Tests/Test6/T6ME}
+            \caption{Medias ergódica}
+			\label{fig:T6ME}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test6/T6F1}
+            \caption{$\hat{f}_1(x_1)$}
+			\label{fig:T6F1}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{Tests/Test6/T6F2}
+			\caption{$\hat{f}_2(x_2)$}
+			\label{fig:T6F2}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{Tests/Test6/T6F3}
+			\caption{$\hat{f}_3(x_3)$}
+			\label{fig:T6F3}
+        \end{subfigure}
+    	\caption{media ergódica y funciones $\hat{f}_j(x_j)\quad j=1,2,3$}
+        \label{fig:T6Plots}
+\end{figure}
+Inclusive, haciendo una predicción fuera de muestra los resultados son buenos logrando una precisión del $95.6\%$. Asimismo, se resalta que inclusive en dimensiones ($d = 3$) más altas si se escogen los parámetros correctos $\MJK$, el número total de parámetros ($\lambda = 13$) no necesita aumentar demasiado para lograr una buena separación del espacio.\footnote{Se corrieron otras realizaciones del modelo aumentando el número de covariables $d$. Sin embargo, no logró aumentar significativamente la precisión del modelo.} Derivado también del número de covariables es que no se pueden hacer una visualización en el plano cartesiano $\mathbb{R}^2$ como en los ejemplos anteriores. No obstante, la convergencia es clara y los resultados buenos, incluso usando segmentos de recta y un número de nodos pequeño. e hace notar que la codificación de las covariables usando una escala de diez puntos no es óptima para un modelo que se construye pensando en un espacio real de covaraibles $\mathcal{X}^d$, sin embargo, no parece afectar la estimación de los parámetros. 
 \end{document}
