@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							PREAMBLE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[pdftex,11pt, oneside]{book}
@@ -30,7 +30,14 @@
 \usepackage{stackengine} % Una 
 
 % Tablas e Imagenes
-\usepackage[pdftex]{graphicx} 
+\newcommand{\tituloSentence}{Un Modelo Probit Bayesiano No Lineal} % Debería de ir abajo
+\usepackage[pdftex,
+            pdfauthor={Gianpaolo Luciano Rivera},
+            pdftitle={\tituloSentence},
+            pdfsubject={Tesis Licenciatura},
+            pdfkeywords={probit, bayes	iano, modelo, machine learning },
+            pdfcreator={pdflatex}]{hyperref}
+\usepackage{graphicx}
 \usepackage{array} % Tablas bonitas
 \usepackage{arydshln} % Lineas para tablas aún más bonitas
 \usepackage{multirow,bigdelim} % Ya la neta por forzado
@@ -51,7 +58,7 @@
 \graphicspath{{../Imagenes/}{../Imagenes/}} % El primer path es relativo al Main y el otro es relativo a los subfiles
 
 % Extras
-\usepackage{hyperref} %Hipervinculos
+%\usepackage{hyperref} %Hipervinculos
 %\usepackage{multicol}  % Latex a Dos Columnas
 % Cuando quería hacer un glosario de terminos y definiciones
 %\usepackage{glossaries}
@@ -72,7 +79,7 @@
 \usepackage[authordate, bibencoding=auto, strict, backend=biber, natbib]{biblatex-chicago}
 \addbibresource{Tesis.bib} 
 \usepackage[nottoc,numbib]{tocbibind}
-% \citet, para citas donde usas el nombre de los autrores y solo el año entre paréntesis.
+%\DeclareFieldFormat{pagetotal}{\mkpagetotal[bookpagination]{#1~pag.}}
  
 % Para hacer listas sin bullets
 \usepackage{enumitem}
@@ -83,7 +90,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							COMMANDS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \newcommand{\tituloMayus}{UN MODELO PROBIT BAYESIANO NO LINEAL}
 
 % Negritas
@@ -97,6 +103,9 @@
 \newcommand{\fsn}{\mathbf{f}}
 \newcommand{\psn}{\mathbf{p}}
 \newcommand{\betabf}{\bm{\beta}}
+\newcommand{\Psibf}{\bm{\Psi}}
+\newcommand{\etabf}{\bm{\eta}}
+\newcommand{\thetabf}{\bm{\theta}}
 
 % Parámetros y cosas muy usadas
 \renewcommand{\t}{\tau}
@@ -109,6 +118,8 @@
 \renewcommand{\P}{\mathcal{P}}
 \renewcommand{\H}{\mathcal{H}}
 \newcommand{\intinfty}{\int_{-\infty}^\in1ty}
+\newcommand{\hati}{\hat{\imath}}
+\newcommand{\hatj}{\hat{\jmath}}
 
 % Otros
 \newcommand{\E}{\mathbb{E}}
@@ -117,10 +128,10 @@
 
 % Normal Bivar
 \newcommand{\normbivar}[6]{
-N_2 \left(
+\mathcal{N}_2 \left(
 	\left(\left. \begin{array}{c} x_1 \\ x_2  \end{array} \right) \;
 	\right| \;
-	\mu_{#6} = \left( \begin{array}{c} #1 \\ #2 \end{array} \right), \;
+	\bm{\mu}_{#6} = \left( \begin{array}{c} #1 \\ #2 \end{array} \right), \;
 	\Sigma_{#6} = \left( \begin{array}{cc} 
 						#3 & #4 \\ 
 						#4 & #5 \end{array} \right) \right)}
@@ -198,7 +209,7 @@ K = #3 & n = #6	& \kthin = #9
 
 \begin{document}
 %\subfile{../PortadaYMas/PortadaGrande}
-%\subfile{../PortadaYMas/Portada}
+\subfile{../PortadaYMas/Portada}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %						PREÁMBULO E ÍNDICE
@@ -209,7 +220,7 @@ K = #3 & n = #6	& \kthin = #9
 \listoftables
 
 \chapter{Notación y abreviaciones} \label{ap:Notacion}
-%\subfile{../Apendices/Notacion/Notacion}
+\subfile{../Apendices/Notacion/Notacion}
 
 %\chapter{Definiciones, teoremas y abreviaciones} 
 %\label{ap:Definiciones}
@@ -250,7 +261,7 @@ K = #3 & n = #6	& \kthin = #9
 
 \chapter{Distribuciones conjugadas} 
 \label{ap:DistrosConjugadas}
-%\subfile{../Apendices/DistrosConjugadas/DistrosConjugadas}
+\subfile{../Apendices/DistrosConjugadas/DistrosConjugadas}
 
 \chapter{Paquete en R: desarrollo y lista de funciones} \label{ap:Paquete}
 %\subfile{../Apendices/Paquete/Paquete}

@@ -1,85 +1,87 @@
 \documentclass[../../Main/Main.tex]{subfiles}
 
 \begin{document}
-
 \textbf{Datos y variables}
 \begin{itemize}[label={}]
 	\item $y_i \in \{0,1\}\quad \forall i = 1\ldots,n$: variables de respuesta binarias. Usualmente representadas por el vector $\mathbf{y} = (y_1,\ldots,y_n)^t$
 	\item $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d\quad \forall \; i = 1\ldots,n$: covariables o regresores. Si se usa por si sola $x$ o $\xsn$ (vector), esta representa una variable arbitraria. Si se habla de toda la matriz de datos, se denota por $\xmat \in \mathcal{X}^{n\times d}\subseteq \mathbb{R}^{n\times d}$. Juntos con las $y_i$, se tienen los datos para el modelo: $\{(y_i,\xni)\}_{i = 1}^n$
 	\item $n \in \mathbb{N}$: número de observaciones en la muestra. 
-	\item $d \in \mathbb{N}$: número de covariables, dimensionalidad de los regresores. 
-	\item $\mathcal{X}^d$: subconjunto de $\mathbb{R}^d$, espacio de covariables. Formado por el producto punto de los rangos de cada variable: $\mathcal{X}^d = [a_1,b_1]\times[a_2,b_2]\times\ldots\times[a_d,b_d]$, donde $[a_j,b_j] \subset \mathbb{R}$ es un intervalo cerrado estándar en los reales. 
+	\item $d \in \mathbb{N}$: número de covariables, dimensionalidad de los regresores
+	\item $\lambda \in \mathbb{N}$: número total de términos del modelo. 
+	\item $\mathcal{X}^d \subseteq \mathbb{R}^d$: espacio de covariables. Formado por el producto punto de los rangos de cada variable: $\mathcal{X}^d = [a_1,b_1]\times[a_2,b_2]\times\ldots\times[a_d,b_d]$, donde $[a_j,b_j] \subset \mathbb{R}$ es un intervalo cerrado en los reales
 \end{itemize}
 
-\textbf{Especificos del modelo}
+\textbf{Específicos del modelo}
 \begin{itemize}[label={}]
-
-	\item $z_i \sim N(\cdot) \forall i = 1\ldots,n$: variables latentes del modelo cuya distribución es normal . Usualmente se acomodan en un vector $\zsn = (z_1,\ldots,z_n)^t$ 
-	\item $f(\xsn)$: función de proyección. 
-	\item $f_j(x_j) \quad \forall j = 1,\ldots,d$: polinomio por partes anidada en la función de proyección. Sirve para hacer una transformación no lineal de la dimensión $J$. En ocasiones se acomodan en su forma vectorial $\mathbf{f}(\xsn)$. Ver ecuación (\ref{ec:fvector})
-	\item $\beta = (\beta_0, \beta_1,\ldots,\beta_j)^t$: vector de coeficientes para la regresión lineal.
-	\item $w_j = (w_{j,1},\ldots,w_{j,\N})^t \quad \forall j = 1,\ldots d$: vector de pesos para las funciones base de la transformación lineal en $j$. Si se habla de todos los pesos en conjunto, esos se acomodan en una matriz $\wsn = [w_1,\ldots w_d]^t \in \mathbb{R}^{\N\times d}$
-	\item $\Psi_j(\cdot) = (\Psi_{j,1}(\cdot),\ldots,\Psi_{j,\N}(\cdot))^t$: vector de funciones base para los polinomios por parte flexibles. Ver ecuación (\ref{ec:ExpBase_NEstrella}) y (\ref{ec:PoliMallik})
-	\item $\N$: número total de funciones base. Ver ecuación (\ref{ec:NEstrella}) para su expansión final. 
-	\item $M$: número de bases para los polinomios por partes. M-1 indica el grado de los polinomios.
-	\item $J$: número de sub-intervalos en los que se parte cada $[a_j,b_j]$. 
-	\item $K$: número de restricciones de continuidad impuestas. 
-	\item $\mathcal{P}_j = \left\{\t_1,\ldots,\t_{J-1}\right\} \quad \forall j = 1,\ldots,d$: partición del espacio de la dimensión $j$.
-	\item $\t$: nodos, se omiten los índices para evitar confusión, pero se tienen un total de $d*(J-1)$ nodos acomodados en una matriz de igual tamaño.
+	\item $z_i \sim \mathcal{N}(\cdot) \quad \forall i = 1\ldots,n$: variables latentes del modelo cuya distribución es normal. En su forma vectorial: $\zsn = (z_1,\ldots,z_n)^t$ 
+	\item $\eta(\xsn)$: función aditiva de predicción
+	\item $f_j(x_j) \quad \forall j = 1,\ldots,d$: polinomios por partes
+	\item $\betabf = (\beta_0, \beta_1,\ldots,\beta_\lambda)^t$: vector de parámetros por estimar. Si se le añade tilde entonces el contador comienza en uno y el vector no contiene el parámetro independiente, es decir: $\tilde{\betabf} = (\beta_1,\ldots,\beta_\lambda)^t$
+	\item $\Psi_l(\cdot) \quad \forall l=1,\ldots,\N$: funciones bases para la expansión en polinomios por partes de $f_j$. Ver \eqref{ec:ExpansionBases} y (\ref{ec:ExpBase_NEstrella}). En ocasiones, todas las funciones base se organizan en una matriz $\widetilde{\Phi}$
+	\item $\N$: número total de funciones base. Ver ecuación (\ref{ec:PoliFinal}) para su expansión final. Si se usa $N$ sin el asterisco denota de igual forma un número de funciones base arbitrario.
+	\item $M$: tamaño de la base para los polinomios por partes, por lo tanto, M-1 indica el grado de los polinomios
+	\item $J$: número de sub-intervalos en los que se parte cada $[a_j,b_j]$
+	\item $K$: número de restricciones de continuidad impuestas 
+	\item $\mathcal{P}_j = \left\{\t_1,\ldots,\t_{J-1}\right\} \quad \forall j = 1,\ldots,d$: partición del espacio de la dimensión $j$
+	\item $\t$: nodos, se tienen un total de $d(J-1)$ nodos acomodados en una matriz de igual tamaño.
 \end{itemize}
 
 \textbf{Contadores e índices}
 \begin{itemize}[label={}]
-	\item $i$: contador, usado para denotar un conjunto de observaciones \textit{hacia abajo}, i.e. $i = 1,\ldots,n$. En la sección \ref{sec:PolisYSplines} se usa para contar sobre el grado del polinomio i.e. $i = 1,\ldots,M$. (Ver ecuación \ref{ec:ExpBase_NEstrella})
-	\item $j$: contador, usado para denotar el conjunto de variables \textit{a lo largo}, i.e. $j = 1,\ldots,d$. Usualmente se hace referencia a la dimensión arbitraria $j$. En la sección\ref{sec:PolisYSplines} se usa para contar sobre los nodos entre intervalos i.e. $j = 1,\ldots,J-1$. (Ver ecuación \ref{ec:ExpBase_NEstrella})
+	\item $i = 1,\ldots,n$: contador, usado para denotar un conjunto de observaciones
+	\item $j = 1,\ldots,d$: contador, usado para denotar el conjunto de covariables. Usualmente se hace referencia a la dimensión arbitraria $j$
 	\item $k$: contador, usado para denotar el número de iteración en el algoritmo, i.e. $k = 1,2,3,\ldots$
-	\item $l$: contador adicional, asociado al número de funciones base $\N$ constante para cada dimensión $j$.
+	\item $l = 1,\ldots,\N$: contador asociado al número de funciones base total en la expansión de polinomios por partes $\N$.
+	\item $\hati = 1,\ldots,M-1$: contador asociado al número de funciones base para cada subintervalo, $M$, en las expansione de polinomios truncados.
+	\item $\hatj = 1,\ldots,J-1$ contador asociado al número de funciones base para cada subintervalo (parámetro $M$) en las expansione de polinomios truncados
 \end{itemize}
 	
 \textbf{Probabilidad}
 \begin{itemize}[label={}]
-	\item $F(\cdot)$: Función de distribución arbitraria de la familia exponencial. 
-	\item $N(\cdot|\mu,\sigma^2)$: distribución normal con su correspondiente parametrización de media y varianza. Se utiliza la misma notación para su forma vectorial añadiendo un subíndice indicando su dimensionalidad: $N_{\cdot}(\cdot|z,\sigma)$ con su correspondiente vector de medias $\mu$ y vector de varianza covariazna $\Sigma$. 
-	\item $\Phi(\cdot):\mathbb{R}\rightarrow(0,1)$: la función de distribución acumulada de una distribución normal estándar $N(\cdot| 1,0)$, con su correspondiente inversa $\Phi^{-1}$. 
-	\item $\Be(\cdot|p)$: distribución bernoulli con probabilidad de éxito $p$.
-	\item $p \in [0,1]$: probabilidad arbitraria. 
-	\item $g(\cdot)$: función liga. Ver diagrama \ref{fig:DiagramaFuncLiga}
-	\item $\epsilon$: errores aleatorios, usualmente distribuidos $N(\epsilon|\mu,\sigma^2)$.
-	\item $P(\cdot),\, \E[\cdot],\, \Var[\cdot]$: medida de probabilidad, operadores de esperanza y varianza respectivamente.
-	\item $\theta \in \Theta$ parámetros canónicos de distribuciones exponenciales, con $\Theta$ su correspondiente espacio. 
-	\item $\pi(\cdot)$: función de densidad.
-	\item $\alpha$: símbolo de proporcionalidad.
-	\item $S(\cdot|\cdot)$: función de suavizamiento. 
-	\item $\rho$: correlación.
+	\item $F(\cdot)$: Función de distribución arbitraria de la familia exponencial
+	\item $\mathcal{N}(\,\cdot\,|\mu,\sigma^2)$: distribución normal con su correspondiente parametrización de media y varianza. Se utiliza la misma notación para su forma vectorial añadiendo un subíndice para denotar su dimensionalidad: $\mathcal{N}_{\cdot}(\cdot|\bm{\mu},\sigma)$ con su correspondiente vector de medias $\mu$ y vector de varianza covarianza $\Sigma$
+	\item $\Phi(\cdot):\mathbb{R}\rightarrow(0,1)$: la función de distribución acumulada de una distribución normal estándar $\mathcal{N}(\,\cdot\,| 1,0)$, con su correspondiente inversa $\Phi^{-1}$.
+	\item $\Be(\,\cdot\,|p)$: distribución bernoulli con probabilidad de éxito $p$
+	\item $p \in [0,1]$: probabilidad arbitraria
+	\item $g(\cdot)$: función liga, ver diagrama \ref{fig:DiagramaFuncLiga}
+	\item $\epsilon$: errores aleatorios, usualmente distribuidos $\mathcal{N}(\epsilon|\mu,\sigma^2)$.
+	\item $P(\cdot),\, \E[\cdot],\, \Var[\cdot]$: medida de probabilidad, operadores de esperanza y varianza respectivamente
+	\item $\theta \in \Theta$ parámetros canónicos de distribuciones exponenciales, con $\Theta$ su correspondiente espacio
+	\item $\pi(\cdot)$: función de densidad
+	\item $\propto$: operador de proporcionalidad
+%	\item $S(\cdot|\cdot)$: función de suavizamiento
+	\item $\rho\,$: correlación lineal de Pearson
+	\item $L\,$: función de perdida
 \end{itemize}
 	
 \textbf{Algoritmo}
 \begin{itemize}[label={}]
-	\item $\nsim$: número de simulaciones realizadas en el algoritmo.
-	\item $k^*$: número de observaciones por descartar, periodo de \textit{burn-in}. 
-	\item $\kthin$: parámetro de adelgazamiento. 
-	\item $r_{j^*}$: residuales parciales para alguna $j^*$ en particular. 
+	\item $\nsim$: número de simulaciones realizadas en el algoritmo
+	\item $k^*$:  periodo de \textit{burn-in}; número de observaciones por descartar
+	\item $\kthin$: parámetro de adelgazamiento 
+%	\item $r_{j^*}$: residuales parciales para alguna $j^*$ en particular. 
 \end{itemize}
 
 \textbf{Otros}
 \begin{itemize}[label={}]
-	\item $h(\cdot)$: función arbitraria. 
-	\item $h^{(k)}$: (k)-ésima derivada de $h$. 
-	\item $s: \mathbb{R} \rightarrow (0,1)$: familia de funciones sigmoidales. 
-	\item $I$: función indicadora. 
-	\item $(\cdot)_{+}$: función parte positiva. 
-	\item $\mathbf{1}$: vector de números uno.
-	\item $ll$: función \textit{log-loss}. 
-	\item El símbolo $\hat{\cdot}$ se usa para indicar que se trata de una variable estimada, i.e. $\hat{y}$ es la estimación de las variables correspondientes $y$.
+	\item $h(\cdot)$: función arbitraria
+	\item $h^{(k)}$: (k)-ésima derivada de la función $h$.
+	\item $s: \mathbb{R} \rightarrow (0,1)$: familia de funciones sigmoidales
+	\item $I$: función indicadora
+	\item $(\cdot)_{+}$: función parte positiva
+%	\item $\mathbf{1}$: vector de números uno
+	\item $ll$: función \textit{log-loss}
+	\item El símbolo $\hat{\cdot}$ se usa para indicar que se trata de una variable estimada, i.e. $\hat{y}$ es la estimación de las variables correspondientes $y$
 \end{itemize}
 
 \subsection*{Abreviaciones}
 \begin{description}
-	\item[GAM]: \textit{Generalized aditive model}, Modelo aditivo generalizado. 
-	\item[GLM]: \textit{Generalized linear model}, Modelo lineal generalizado
-	\item[MCMC]: \textit{Markov Chain Monte Carlo}.
-	\item[ML]: \textit{Machine Learning}, Aprendizaje de máquina.
-	\item[RSS]: \textit{Residual sum of squares}, Suma de residuales cuadrados.
+	\item[ANOVA]:\textit{ANalysis Of VAriance}, modelos de análisis de varianza
+	\item[GAM]: \textit{Generalized aditive model}, modelo aditivo generalizado. 
+	\item[GLM]: \textit{Generalized linear model}, modelo lineal generalizado
+	\item[MCMC]: \textit{Markov Chain Monte Carlo}, cadena de Markov Montecarlo
+	\item[ML]: \textit{Machine Learning}, aprendizaje de máquina.
+	\item[RSS]: \textit{Residual sum of squares}, suma de residuales cuadrados
 \end{description}
 
 \end{document}

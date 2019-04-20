@@ -1,6 +1,47 @@
-\documentclass[../Main/Main.tex]{subfiles}
+\documentclass[../../Main/Main.tex]{subfiles}
 
 \begin{document}
-- Hacer un resumen de todas las distribuciones conjugadas y las matemáticas que se usan al hacerlas.
+% Introducción a las distribuciones conjugadas y definición
+
+
+\begin{theorem}
+Dado el modelo bpwpm (definición \ref{def:BPWPMFinal}, página \pageref{def:BPWPMFinal}) donde se tienen las siguientes distribuciones:
+\begin{align}
+z_i \,|\, \xni\, &\sim \mathcal{N}(z_i\,|\,\eta(\xni),1) 
+	\tag{\ref{ec:DefZ-X}} \\[2pt]
+\betabf &\sim \mathcal{N}_{\lambda}(\betabf\,|\,\bm{\mu}_{\betabf}, \Sigma_{\betabf}), \tag{\ref{ec:BetaAPriori}} 
+\end{align}
+la distribución posterior de $\betabf$ dado	$\ysn,\zsn$ y $\xmat$ es conjugada. Es decir:
+\begin{align}
+	\betabf\,|\,\ysn,\zsn,\xmat &\sim \mathcal{N}_{\lambda}(\betabf\,|\,\mu_{\betabf}^*, \Sigma_{\betabf}^*), \tag{\ref{ec:SimBeta}}
+\end{align}
+con los parámetros actualizados,
+\begin{align*}
+	\mu_{\betabf}^* &= \Sigma_{\betabf}^* \times (\Sigma_{\betabf}^{-1}\mu_{\betabf} + \widetilde{\Psi}(\xmat)^t\zsn ) \\[2pt]
+	 \Sigma_{\betabf}^* &= \left[\Sigma_{\betabf}^{-1} + \widetilde{\Psi}(\xmat)^t\widetilde{\Psi}(\xmat)\right]^{-1}.
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+Se retoma la derivación comenzada en la página \pageref{ec:DefProbaCond}.
+\begin{align*}
+	\pi(\betabf|\zsn,\ysn,\xmat)
+	& = \dfrac{\pi(\zsn, \betabf| \ysn, \xmat)}{\pi(\zsn)} \\
+	& = C \,\pi(\betabf) \, \prod_{i = 1}^n\phi(z_i|\eta(\xni),1),
+\end{align*}
+utilizando un argumento de proporcionalidad sobre $\betabf$ y expandiendo la función de densidad de una variable aleatoria normal $\phi$ se tiene:
+\begin{align*}
+	& \propto \quad \pi(\betabf)\times \prod_{i = 1}^n \dfrac{1}{\sqrt{2\pi}}\exp{\left\{ -\dfrac{1}{2}(z_i - \eta(\xni))^2 \right\}}.
+\end{align*}
+Ahora, se sustituyendo la identidad \eqref{ec:EtaFinal}, $\eta(\xni) = \betabf^t\xnpsi$ y se desglosa $\pi(\betabf)$ con la correspondiente densidad normal multivariada,
+\begin{align*}
+	& \propto \quad \pi(\betabf)\times \prod_{i = 1}^n \dfrac{1}{\sqrt{2\pi}}\exp{\left\{ -\dfrac{1}{2}(z_i - \eta(\xni))^2 \right\}}.
+\end{align*}
+
+\end{proof}
+
+
+
+%  Concluir que bajo el paradigma bayesiano el paso de actualziación del conocimietno dada información nuvea y que se puede meter eso al algorito si ya se conoce B haciendo todo automático 
 
 \end{document}

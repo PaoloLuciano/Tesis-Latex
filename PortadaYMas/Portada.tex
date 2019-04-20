@@ -4,7 +4,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							PORTADA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\title{TÍTULO DE LA TESIS} %Con este nombre se guardará el proyecto en writeLaTex
 
 \begin{titlepage}
 \begin{center}
@@ -37,7 +36,7 @@
 \end{center}
 
 \vspace*{\fill}
-\textsc{Ciudad de México \hspace*{\fill} 2018}
+\textsc{Ciudad de México \hspace*{\fill} 2019}
 
 \end{titlepage}
 
@@ -45,7 +44,7 @@
 %							DECLARACIÓN LEGAL
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \thispagestyle{empty}
-%\vspace*{\fill}
+
 \begingroup
 ``Con fundamento en los artículos 21 y 27 de la Ley Federal del Derecho de Autor y como titular de los derechos moral y patrimonial de la obra titulada ``\textbf{\tituloMayus}'', otorgo de manera gratuita y permanente al Instituto Tecnológico Autónomo de México y a la Biblioteca Raúl Bailléres Jr., la autorización para que fijen la obra en cualquier medio, incluido el electrónico, y la divulguen entre sus usuarios, profesores, estudiantes o terceras personas, sin que pueda percibir por tal divulgación una contraprestación''.
 
@@ -75,8 +74,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 	\begin{singlespace}
-	En respuesta al cambiante mundo del \textit{Aprendizaje de Máquina}, se desarrolla, desde sus cimientos, un modelo aplicable a esta categoría. El modelo, no es más que un modelo lineal generalizado, particularmente un probit, que busca la predicción de variables binarias. A este, se le añadió un proyector aditivo no lineal para transformar a las covariables y lograr captar patrones más complejos. La transformación esta basada en polinomios por partes de continuidad arbitraria los cuales se explican en detalle. Bajo un paradigma de aprendizaje bayesiano, se desarrolla un algoritmo eficiente para su entrenamiento. Posteriormente, este algoritmo se implementa en un paquete para el software estadístico \verb|R|. Usando este paquete, finalmente, se prueba y valida el modelo, presentan una variedad de resultados, que exponen de forma clara las capacidades de el modelo. 
-	\noindent \textbf{Palabras clave: modelos lineales generalizados, probit, modelos aditivos, bayesiano, no lineal, machine learning, splines, polinomios por partes.}
+	En respuesta al cambiante mundo del \textit{Aprendizaje de Máquina} se desarrolla desde sus cimientos un modelo aplicable a esta categoría. El modelo, no es más que un modelo lineal generalizado, particularmente un probit, que busca la predicción de variables binarias. A este, se le añadió un proyector aditivo que transforma de forma no lineal a las covariables para lograr detectar patrones más complejos. La transformación esta basada en polinomios por partes de continuidad arbitraria los cuales se estudian en detalle. Bajo el paradigma de aprendizaje bayesiano, se desarrolla un algoritmo eficiente para la estimación de los parámetros. Posteriormente, este algoritmo se implementa en un paquete para el software estadístico \verb|R|. Usando este paquete, finalmente, se prueba y se valida el modelo, presentando una variedad de resultados que exponen de forma clara e intuitiva las capacidades de el modelo. 
+\vfill
+	\noindent \textbf{Palabras clave}: modelos lineales generalizados, probit, modelos aditivos, bayesiano, no lineal, machine learning, splines, polinomios por partes
 	\end{singlespace}
 \end{abstract}
 \clearpage
@@ -85,43 +85,29 @@
 %							DEDICATORIA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \thispagestyle{empty}
-%\pagenumbering{roman}
-\setcounter{page}{0} %% para que las dedicatorias no tuvieran número de hoja. Si te hace reido quítaselo. 
+\setcounter{page}{0} %Para que la dedicatoria no tengan número de hoja 
+
 \begin{flushright}
 	\null\vspace{\stretch{1}}
-	\emph{A mi madre, Irma, que no sólo le debo la vida, sino todo lo que soy y todo lo que tengo; que está tesis también es suya.} 
-	\\
-	\emph{A mi padre, Antonio, que aunque no esté, siempre lo he sentido presente.} 
-	\\
-	\emph{A mi otro padre, Fernando, por su guía, apoyo incondicional y sobre todo el amor que siempre me ha dado.}
-	\\
-	\emph{A mi abuelo, Carlos, por enseñarme el amor a la sabiduría y el valor del trabajo.}	
-	\\
-	\emph{A Paulina, que es lo mejor que me ha pasado en la vida.}
-	\\
-	\emph{A Iñigo por su amistad sin medida, por su apoyo, compañía e inteligencia fuera de este mundo.}
-	\\
-	\emph{A los DonChis: Pamela, Rodrigo, Brenda, Hector y George. Por ser los mejores amigos que alguien podría pedir, las personas más exitosas que conozco y por siempre inspirarme a crecer y seguir adelante.}
-	\\
-	\emph{A Luis, Jime, Eli, Charly, Mercy, Santiago y Tulio por acompañarme en la carrera y rompernos más de una vez la cabeza en demostraciones oscuras.}
-	\\
-	\emph{A Toño, Chris, Edu, Mau y Luis V. por ser los mejores actuarios que conozco.}
-	\\
-	\emph{A Jorge, por enseñarme de perseverancia y resiliencia y por ser uno de mis más viejos amigos.}
-	\\
-	\emph{A Pau C. y a Fernanda, por ser algunas de las mejores amigas que podría pedir.}
-	\\
-	\emph{A todos mis alumnos, porque más que un negocio, fueron un medio para consolidar mis conocimientos y siempre aprender más.}
-	\\
-	\emph{A mi asesor, Juan Carlos Martínez-Ovando que, aunque no siempre fácil,  sin su guía y consejo jamás habría logrado avanzar de la primera página.}	
-	\\
-	\emph{A los grandes profesores que tuve en la carrera, que no sólo me enseñaron, sino que me inculcaron el amor por las matemáticas. En particular al profesor E. Barrios, M. Gregorio, J. Alfaro, R. Espinoza, G. Gravinsky y Z. Parada.}
-	\\
-	\emph{A mis profesores de matemáticas y física del Green Hills que plantaron en mi la curiosidad por sus temas y siempre creyeron en mi, impuslandome a seguir mis sueños.}
-	\\	
-	\emph{A lo grandes estadísticos que han dedicados sus vidas a los datos. En particular a T.Hastie, R. Tibshirani y J. Friedman que sin sus contribuciones, hubiera estado perdido.} 
-	\\
-	\emph{Al Café Parabien por ser un espacio de trabajo y un hogar para mi los meses de arduo trabajo.}
+	\emph{a mi mamá Irma} 
 	\vspace{\stretch{2}}\null
 \end{flushright}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%							AGRADECIMIENTOS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Agradecimientos}
+\thispagestyle{empty}
+
+Creo que la mejor analogía a escribir una tesis es un maratón. Un maratón que me tomó más de dos años de vida, durante los cuales, la vida misma se llevó a mi abuela Teresa, mi padrino Jorge y mi tío abuelo del mismo nombre. Con ellos es con los que más estoy agradecido pues sé que sin sus bendiciones, no habría tenido la resistencia para terminar este trabajo.
+
+Asimismo, quiero agradecer a un sinfín de personas pero principalmente a mi mamá Irma, pues no solo le debo la vida sino todo lo que soy y todo lo que tengo pues esta tesis también es suya. A mi papá Antonio, pues aunque no esté siempre lo he sentido presente. A mi otro papá Fernando, por su guía, apoyo incondicional y todo el amor que siempre me ha dado. A mi abuelo Carlos por inculcarme el gusto por el conocimiento y el valor del trabajo. 
+
+A Paulina, que es lo mejor que me ha pasado en la vida y con quién quiero pasar el resto. A Iñigo por su amistad sin medida, compañía e inteligencia fuera de este mundo. A los mejores amigos que alguien pudiera pedir, Pamela, Rodrigo, Brenda, Hector y Jorge, pues siempre me han inspirado a crecer y seguir adelante, así como ser las personas más exitosas que conozco. A Luis, Jime, Eli, Carlos, Mercy, Santiago y Tulio por acompañarme en la carrera y rompernos más de una vez la cabeza en demostraciones oscuras. A Toño, Chris, Edu y Mau por ser los mejores actuarios que conozco. A Jorge, por enseñarme de perseverancia y resiliencia así como por ser uno de mis más viejos amigos. A Pau C. y a Fernanda, por ser grandes amigas y compañeras de este viaje.
+\thispagestyle{empty}
+
+A todos mis alumnos, porque más que un negocio, fueron un medio para consolidar mis conocimientos y seguir aprendiendo día a día. A mi asesor, Juan Carlos Martínez-Ovando que, aunque no siempre fácil, sin su guía y consejo jamás habría logrado avanzar de la primera página. A los grandes profesores que tuve en la carrera, que no sólo me enseñaron, sino que me inculcaron el amor por las matemáticas. En particular a los profesores E. Barrios, M. Gregorio, J. Alfaro, R. Espinoza, G. Gravinsky y Z. Parada. A Beatriz Rumbos por darme esperanza cuando pensé que todo estaba perdido. A mis profesores de matemáticas y física del Green Hills que sembraron en mi la curiosidad por las matemáticas mientras creyeron en mi, impulsandome a perseguir mis sueños. A los grandes estadísticos que han dedicados sus vidas a estudiar los datos. En particular a T. Hastie, R. Tibshirani y J. Friedman que sin sus contribuciones, no tendría tesis alguna. Y finalmente, al Café Parabien y todo su personal por ser un espacio de trabajo y un hogar para mi los meses de más arduo trabajo.
+\thispagestyle{empty}
+
 \end{document}
