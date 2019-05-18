@@ -2,28 +2,28 @@
 \babel@toc {spanish}{}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces Diagrama explicativo de un modelo de clasificaci\IeC {\'o}n probit no lineal\relax }}{3}{figure.caption.8}
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Diagrama explicativo de un modelo de clasificaci\IeC {\'o}n probit no lineal\relax }}{3}{figure.caption.7}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces Diagrama del modelo\relax }}{11}{figure.caption.10}
-\contentsline {figure}{\numberline {2.2}{\ignorespaces Esquema de funci\IeC {\'o}n liga $g$ para un modelo probit\relax }}{16}{figure.caption.11}
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Diagrama del modelo\relax }}{11}{figure.caption.9}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Esquema de funci\IeC {\'o}n liga $g$ para un modelo probit\relax }}{16}{figure.caption.10}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Muestro Gibbs para el ejemplo 1 (secci\IeC {\'o}n \ref {sec:T1})\relax }}{55}{figure.caption.23}
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Esquema del algoritmo\relax }}{66}{figure.caption.51}
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Muestro Gibbs para el ejemplo 1 (secci\IeC {\'o}n \ref {sec:T1})\relax }}{55}{figure.caption.22}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Esquema del algoritmo\relax }}{66}{figure.caption.50}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Ejemplo 1 - datos normales bivariados\relax }}{72}{figure.caption.53}
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Realizaci\IeC {\'o}n 1 - fronteras lineales con un nodo (M = 2, J = 2 y K = 1)\relax }}{75}{figure.caption.56}
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Realizaci\IeC {\'o}n 2 - par\IeC {\'a}bolas continuas mas no suaves (M = 3, J = 5 y K = 1)\relax }}{76}{figure.caption.57}
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Realizaci\IeC {\'o}n 3 - \textit {splines} c\IeC {\'u}bicos (M = 4, J = 3 y K = 3)\relax }}{77}{figure.caption.58}
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Frontera de predicci\IeC {\'o}n para modelo probit lineal en covariables\relax }}{79}{figure.caption.60}
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Ejemplo 2 - regiones disjuntas de clasificaci\IeC {\'o}n ($M = 3$, $J = 3$ y $K = 2$)\relax }}{84}{figure.caption.64}
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Ejemplo 2 - an\IeC {\'a}lisis de convergencia\relax }}{87}{figure.caption.66}
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Ejemplo 3 - par\IeC {\'a}bolas suaves ($M = 3$, $J = 4$ y $K = 2$)\relax }}{89}{figure.caption.70}
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Ejemplo 4 - par\IeC {\'a}bolas suaves en un nodos ($M = 3$, $J = 2$ y $K = 2$)\relax }}{93}{figure.caption.74}
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Ejemplo 5 - patr\IeC {\'o}n yin-yang\relax }}{94}{figure.caption.76}
-\contentsline {figure}{\numberline {4.11}{\ignorespaces Fronteras de varios modelos para datos yin-yang\relax }}{96}{figure.caption.77}
-\contentsline {figure}{\numberline {4.12}{\ignorespaces An\IeC {\'a}lisis exploratorio para selecci\IeC {\'o}n de variables\relax }}{98}{figure.caption.78}
-\contentsline {figure}{\numberline {4.13}{\ignorespaces Gr\IeC {\'a}ficos de puntos con ruido para separar las observaciones\relax }}{99}{figure.caption.79}
-\contentsline {figure}{\numberline {4.14}{\ignorespaces Media erg\IeC {\'o}dica y funciones $\mathaccentV {hat}05E{f}_j(x_j)\hskip 1em\relax j=1,2,3$\relax }}{100}{figure.caption.82}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Ejemplo 1 - datos normales bivariados\relax }}{72}{figure.caption.52}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Realizaci\IeC {\'o}n 1 - fronteras lineales con un nodo (M = 2, J = 2 y K = 1)\relax }}{75}{figure.caption.55}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Realizaci\IeC {\'o}n 2 - par\IeC {\'a}bolas continuas mas no suaves (M = 3, J = 5 y K = 1)\relax }}{76}{figure.caption.56}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Realizaci\IeC {\'o}n 3 - \textit {splines} c\IeC {\'u}bicos (M = 4, J = 3 y K = 3)\relax }}{77}{figure.caption.57}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Frontera de predicci\IeC {\'o}n para modelo probit lineal en covariables\relax }}{79}{figure.caption.59}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Ejemplo 2 - regiones disjuntas de clasificaci\IeC {\'o}n ($M = 3$, $J = 3$ y $K = 2$)\relax }}{84}{figure.caption.63}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Ejemplo 2 - an\IeC {\'a}lisis de convergencia\relax }}{87}{figure.caption.65}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Ejemplo 3 - par\IeC {\'a}bolas suaves ($M = 3$, $J = 4$ y $K = 2$)\relax }}{89}{figure.caption.69}
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Ejemplo 4 - par\IeC {\'a}bolas suaves en un nodos ($M = 3$, $J = 2$ y $K = 2$)\relax }}{93}{figure.caption.73}
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Ejemplo 5 - patr\IeC {\'o}n yin-yang\relax }}{94}{figure.caption.75}
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Fronteras de varios modelos para datos yin-yang\relax }}{96}{figure.caption.76}
+\contentsline {figure}{\numberline {4.12}{\ignorespaces An\IeC {\'a}lisis exploratorio para selecci\IeC {\'o}n de variables\relax }}{98}{figure.caption.77}
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Gr\IeC {\'a}ficos de puntos con ruido para separar las observaciones\relax }}{99}{figure.caption.78}
+\contentsline {figure}{\numberline {4.14}{\ignorespaces Media erg\IeC {\'o}dica y funciones $\mathaccentV {hat}05E{f}_j(x_j)\hskip 1em\relax j=1,2,3$\relax }}{100}{figure.caption.81}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

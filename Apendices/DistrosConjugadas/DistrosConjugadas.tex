@@ -1,24 +1,30 @@
 \documentclass[../../Main/Main.tex]{subfiles}
 
 \begin{document}
-% Introducción a las distribuciones conjugadas y definición
+Durante el trabajo se menciona que la distribución posterior de $\betabf$ es conjugada, sin embargo, no sé da una definición formal aún pues se busca profundizar en los detalles y las implicaciones de la definición. Asimismo, este apéndice se concentra en demostrar formalmente el proceso de actualización de los hiperparámetros y su interpretación bayesiana. \\
 
+\begin{definition}
+Se dice que una distribución previa $\pi(\beta)\in\mathcal{F}$  es \emph{conjugada} bajo el muestreo $\pi(\xmat|\betabf)$, si la distribución posterior $\pi(\betabf|\xmat)$ pertenece a la misma familia de distribuciones $\mathcal{F}$. Es decir: $$\pi(\betabf) \in \mathcal{F} \Rightarrow \pi(\betabf|\xmat) \in \mathcal{F}, $$ con $\xmat$ cualquier muestra aleatoria, \citet{mendoza2011estadistica} y \cite{barber2010bayesian}. Si se cumple esta definición, es usual referirse al modelo como conjugado o hablar  de distribuciones conjugadas.
+\end{definition}
+Como ejemplos clásicos de distribuciones conjugadas, se tiene el modelo \textit{normal-normal} como el utilizado en este trabajo o el modelo \textit{beta-bernoulli}. Para el segundo, la muestra consiste en observaciones binarias con parámetro $\theta$, el cual a su vez, se modela de forma previa con una distribución beta. Una vez llevado a cabo el procedimiento de actualización, la distribución posterior de $\theta$ bajo el muestreo correspondiente vuelve a pertenecer a la familia de distribuciones beta. Asimismo, las distribuciones conjugadas tienen la ventaja que simplifican relativamente los cálculos permitiendo derivar distribuciones cerradas.
+
+Esta definición es interesante pues retoma la idea central de la estadística bayesiana de actualización de la medida de incertidumbre ante la presencia de nueva información. Esto pues, bajo el modelado propuesto y dado que ya se piensa que $\betabf\sim\mathcal{F}$, el introducir la nueva información bajo cierto muestreo, únicamente refina el entendimiento de $\betabf$ pues su forma funcional no cambia al seguir perteneciendo a la misma familia de distribuciones. Sin embargo, al modificar los hiperparámetros, si se está actualizando la asignación de incertidumbre asociada a $\betabf$.  Ante la eventualidad que se obtuviera más información (bajo el mismo muestreo), el proceso se podría repetir, iterando en la actualización para continuar mejorando el entendimiento de $\betabf$. Para ejemplificar de forma más rigurosa, se completa la derivación de la distribución posterior usada para este trabajo.\\
 
 \begin{theorem}
 Dado el modelo bpwpm (definición \ref{def:BPWPMFinal}, página \pageref{def:BPWPMFinal}) donde se tienen las siguientes distribuciones:
 \begin{align}
 z_i \,|\, \xni\, &\sim \mathcal{N}(z_i\,|\,\eta(\xni),1) 
 	\tag{\ref{ec:DefZ-X}} \\[2pt]
-\betabf &\sim \mathcal{N}_{\lambda}(\betabf\,|\,\bm{\mu}_{\betabf}, \Sigma_{\betabf}), \tag{\ref{ec:BetaAPriori}} 
+\betabf &\sim \mathcal{N}_{\lambda}(\betabf\,|\,\bm{\mu}_{\betabf}, \Sigmabeta), \tag{\ref{ec:BetaAPriori}} 
 \end{align}
-la distribución posterior de $\betabf$ dado	$\ysn,\zsn$ y $\xmat$ es conjugada. Es decir:
+la distribución posterior de $\betabf$ dado $\ysn,\zsn$ y $\xmat$ es conjugada. Es decir, esta también pertenece a la familia normal multivariada,
 \begin{align}
-	\betabf\,|\,\ysn,\zsn,\xmat &\sim \mathcal{N}_{\lambda}(\betabf\,|\,\mu_{\betabf}^*, \Sigma_{\betabf}^*), \tag{\ref{ec:SimBeta}}
+	\betabf\,|\,\ysn,\zsn,\xmat &\sim \mathcal{N}_{\lambda}(\betabf\,|\,\mubeta^*, \Sigmabeta^*), \tag{\ref{ec:SimBeta}}
 \end{align}
-con los parámetros actualizados,
+con los hiper-parámetros actualizados:
 \begin{align*}
-	\mu_{\betabf}^* &= \Sigma_{\betabf}^* \times (\Sigma_{\betabf}^{-1}\mu_{\betabf} + \widetilde{\Psi}(\xmat)^t\zsn ) \\[2pt]
-	 \Sigma_{\betabf}^* &= \left[\Sigma_{\betabf}^{-1} + \widetilde{\Psi}(\xmat)^t\widetilde{\Psi}(\xmat)\right]^{-1}.
+	\mubeta^* &= \Sigmabeta^* \times (\Sigmabeta^{-1}\mubeta + \tildePsi^t\zsn ) \\[2pt]
+	 \Sigmabeta^* &= \left[\Sigmabeta^{-1} + \tildePsi^t\tildePsi\right]^{-1}.
 \end{align*}
 \end{theorem}
 
@@ -33,15 +39,43 @@ utilizando un argumento de proporcionalidad sobre $\betabf$ y expandiendo la fun
 \begin{align*}
 	& \propto \quad \pi(\betabf)\times \prod_{i = 1}^n \dfrac{1}{\sqrt{2\pi}}\exp{\left\{ -\dfrac{1}{2}(z_i - \eta(\xni))^2 \right\}}.
 \end{align*}
-Ahora, se sustituyendo la identidad \eqref{ec:EtaFinal}, $\eta(\xni) = \betabf^t\xnpsi$ y se desglosa $\pi(\betabf)$ con la correspondiente densidad normal multivariada,
+Ahora, se sustituye la identidad \eqref{ec:EtaFinal}, $\eta(\xni) = \betabf^t\xnpsi$, y por las propiedades de la función exponencial, el producto se convierte en suma:
 \begin{align*}
-	& \propto \quad \pi(\betabf)\times \prod_{i = 1}^n \dfrac{1}{\sqrt{2\pi}}\exp{\left\{ -\dfrac{1}{2}(z_i - \eta(\xni))^2 \right\}}.
+	& \propto \quad  \exp{\left\{ -\dfrac{1}{2}\sum_{i = 1}^n(z_i - \betabf^t\xnpsi)^2 \right\}}\times \pi(\betabf).
 \end{align*}
-
+Posteriormente, se re-expresa la identidad en su forma matricial usando la siguiente propiedad $$||\usn||^2 = \usn^t\usn = \sum_{i = 1}^n u_i^2$$ donde $\usn$ representa un vector de tamaño $n$ arbitrario. En este caso $u_i = (z_i - \betabf^t\xnpsi)$:
+\begin{align*}
+	& \propto \quad  \exp{\left\{ -\dfrac{1}{2}(\zsn - \tildePsi \betabf)^t(\zsn - \tildePsi \betabf) \right\}}\times \pi(\betabf).
+\end{align*}
+Se hace notar que se juntan todas las funciones $\xnpsi$ en su correspondiente matriz $\tildePsi$. Lo anterior es análogo a que $\zsn$ sea definida como una distribución normal multivariada de tamaño $n$ con vector de medias $\tildePsi \betabf$ y a la matriz identidad como matriz de varianza covarianza (preservando la independencia). Ahora, se desglosa $\pi(\betabf)$ en su correspondiente densidad normal multivariada:
+\begin{align}
+	& \propto \quad \exp{\left\{ -\dfrac{1}{2}(\zsn - \tildePsi \betabf)^t(\zsn - \tildePsi\betabf) \right\}}\times \exp{\left\{ -\dfrac{1}{2}(\betabf - \mubeta)^t\Sigmabeta^{-1}(\betabf - \mubeta) \right\}} \nonumber\\[6pt]
+	& \propto \quad \exp{\left\{ -\dfrac{1}{2} \left[ (\zsn - \tildePsi \betabf)^t(\zsn - \tildePsi\betabf) + (\betabf - \mubeta)^t\Sigmabeta^{-1}(\betabf - \mubeta) \right]\right\}} \label{ec:DerivacionNormal1}.
+\end{align}
+De lo anterior, basta concentrase únicamente en la expresión dentro de los corchetes en \eqref{ec:DerivacionNormal1} la cual se desarrolla usando propiedades estándar de álgebra lineal,
+\begin{align}
+& (\zsn - \tildePsi \betabf)^t(\zsn - \tildePsi\betabf) + (\betabf - \mubeta)^t\Sigmabeta^{-1}(\betabf - \mubeta) \nonumber \\
+& = \zsn^t\zsn -2\betabf^t\tildePsi^t\zsn + \betabf^t\tildePsi^t\tildePsi\betabf + \betabf^t\Sigmabeta^{-1}\betabf - 2\betabf \Sigmabeta^{-1}\mubeta +\mubeta^t\Sigmabeta^{-1}\mubeta \nonumber \\
+& = \underbrace{\betabf^t(\Sigmabeta^{-1} + \tildePsi^t\tildePsi)\betabf}_{\text{término cuadrado}} - \underbrace{2\betabf(\Sigmabeta^{-1}\mubeta + \tildePsi^t\zsn)}_{\text{término lineal}} + \underbrace{(\zsn^t\zsn + \mubeta^t\Sigmabeta^{-1}\mubeta)}_{\text{término independiente}}. \label{ec:CuadradosPorCompletar}
+\end{align}
+Estudiando a detalle la línea \eqref{ec:CuadradosPorCompletar}, se nota que está compuesta por un término cuadrático, un término lineal y un término independiente en su forma multi-dimensional. De resultados estándar de álgebra básica se piensa que si se logra completar el trinomio cuadrado perfecto se puede simplificar mucho la expresión. En el caso multivariado, completar el un trinomio cuadrado perfecto es análogo al utiliza la propiedad de \emph{rectificación elipsoidal}:
+\begin{align*}
+\usn^t A\usn - 2\usn^t\alphabf = (\usn - A^{-1}\alphabf)A(\usn - A^{-1}\alphabf) - \alphabf^tA^{-1}\alphabf
+\end{align*} 
+donde $\usn$ y $\alphabf$ son vectores de igual tamaño y $A$ una matriz invertible. Por lo tanto, basta con reemplazar las variables $\usn = \betabf$, $A = \Sigmabeta^{-1} + \tildePsi^t\tildePsi$\footnote{La matriz $A$ es de rango completo y por ende invertible pues tanto $\Sigmabeta^{-1}$ como $\tildePsi^t\tildePsi$ son simétricas positivas definidas, por lo tanto, su suma también lo es.} y $\alphabf = \Sigmabeta^{-1}\mubeta + \tildePsi^t\zsn$, para derivar que \eqref{ec:CuadradosPorCompletar} es es igual a:
+\begin{align}
+& = (\betabf - \mubeta^*)\Sigmabeta^*(\betabf - \mubeta^*) + \gamma \label{ec:CuadradosCompletados} \\
+& \text{con:} \nonumber\\
+	\mubeta^* &= \Sigmabeta^* \times (\Sigmabeta^{-1}\mubeta + \tildePsi^t\zsn ) \nonumber \\[2pt]
+	 \Sigmabeta^* &= \left[\Sigmabeta^{-1} + \tildePsi^t\tildePsi\right]^{-1}\nonumber \\
+	 & \gamma = \zsn^t\zsn + \mubeta^t\Sigmabeta^{-1}\mubeta + (\Sigmabeta^{-1}\mubeta + \tildePsi^t\zsn)^t\mubeta^* \nonumber.
+\end{align}
+donde $\gamma$ es un término independiente que no depende de $\betabf$. Retomando la notación de \eqref{ec:DerivacionNormal1} y sustituyendo \eqref{ec:CuadradosCompletados}, se tiene:
+\begin{align*}
+&\propto \quad \exp{\left\{ -\dfrac{1}{2} \left[ (\betabf - \mubeta^*)\Sigmabeta^{*-1}(\betabf - \mubeta^*) + \gamma \right]\right\}} \nonumber \\
+&\propto \quad \exp{\left\{ -\dfrac{1}{2}  (\betabf - \mubeta^*)\Sigmabeta^{*-1}(\betabf - \mubeta^*)\right\}},
+\end{align*}
+lo cual es el kernel de una distribución normal multivariada con vector de medias $\mubeta^*$ y matriz de varianza y covarianza $\Sigmabeta^*$. Dado que la distribución previa y posterior pertenecen a la misma familia de distribuciones, estas son conjugadas y se termina así la prueba. 
 \end{proof}
-
-
-
-%  Concluir que bajo el paradigma bayesiano el paso de actualziación del conocimietno dada información nuvea y que se puede meter eso al algorito si ya se conoce B haciendo todo automático 
 
 \end{document}

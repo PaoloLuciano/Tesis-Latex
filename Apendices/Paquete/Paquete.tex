@@ -1,20 +1,24 @@
 \documentclass[../../Main/Main.tex]{subfiles}
 
 \begin{document}
+El desarrollo de un paquete computacional para la estimación de los parámetros del modelo resulto ser la tarea más retadora y cautivante de del trabajo. El código, conecta la teoría abstracta del modelo y la aterriza en un terreno práctico y tangible. Durante este esfuerzo, se encontró la necesidad de desarrollar funcionalidad adicional para probar cada parte del modelo e ir visualizando paso a paso las correspondientes proyecciones. Al final, la capacidad y flexibilidad del paquete quedan reflejadas en la practicidad de su uso pues con pocas líneas de código se puede correr una realización del modelo y visualizar ciertos componentes.
 
-El desarrollo de un paquete computacional para la estimación del modelo resulto ser la tarea, al mismo tiempo, más retadora y cautivante de este trabajo. El código, conecta la teoría del modelo con el componente probabilista y lo lleva a un terreno práctico y más tangible. Durante este esfuerzo, se vio la necesidad de desarrollar funcionalidad adicional para ir probando cada parte del modelo, desde la estimación de la matriz $F$ hasta las proyecciones de ejemplos en 2D. La capacidad y flexibilidad del paquete se ven reflejadas en la simpleza de su uso en su estado actual. 
+El paquete se desarrolló en el lenguaje abierto de programación estadístico \verb|R| por dos razones: por la familiaridad con la que previamente se contaba y por la facilidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas.  Asimismo el paquete se escribe siguiendo a \citet{}, uno de los principales desarrolladores del popular IDE\footnote{\emph{Integrated Development Enviroment}} \verb|RStudio|. 
 
-El paquete se desarrolló en el lenguaje de programación estadístico \verb|R| por dos razones: por la familiaridad con la que se contaba y por la practicidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas. 
+Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paquete adicional y correr una línea, ver tabla \ref{tab:Codigo}. Posterior a esto, toda las las capacidades y funcionalidad del modelo con las que se crearon las gráficas de este trabajo deberían de ser asequibles para el usuario.
 
-%- Citar a H.Wickham y los paquetes que ayudaron a hacer el desarrollo 
-%-Como descargarlo e instalar el paquete
-%- Mencionar los métodos S3 de \verb|plot| y \verb|summary|, mencionar las clases
-%- Mencionar que se trata de respetar la notación matemática del trabajo
-%- Mencionar que en el paquete en si, hay una mejor descripción de los objetos y se hicieron usando el paquete Reoxygen 2
+\begin{table}[h]
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\begin{verbatim}
+	install.package("devtools")
+	devtools::install_github("https://github.com/PaoloLuciano/bpwpm2")
+\end{verbatim}
+\makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
+\caption{Descarga del paquete}
+\label{tab:Descarga}
+\end{table}
 
-
-
-La idea del paquete es poder usar el modelo de una forma sencilla, asimismo, poderlo validar y explorarlo sin tener que programar demasiado. En general, se busca respetar la sintaxis clásica de \verb|R| para la estimación y exploración de objetos. En la Tabla \ref{tab:Codigo} se presenta un ejemplo \textit{mínimiamente funcional} de como se puede correr un \verb|bpwpm|.
+La idea de desarrollar un paquete es poder usar el modelo de una forma sencilla, así como validar y explorar las realizaciones del modelo sin tener que programar demasiado. Por lo tanto, en la tabla \ref{tab:Codigo} se presenta un ejemplo \textit{mínimiamente funcional} de como se puede correr un modelo \verb|bpwpm|.
 
 \begin{table}[h]
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
@@ -22,7 +26,7 @@ La idea del paquete es poder usar el modelo de una forma sencilla, asimismo, pod
 	mod <- bpwpm(datos y parámetros)
 	summary(mod)
 	plot(mod) 
-	plot_2D(mod)	# Si los datos están en 2D 
+	plot_2D(mod) # Si los datos están en 2D 
 
 	# Datos X y Y en muestra o fuera de ella	
 	mod_res <- predict(mod,X,Y)
@@ -34,21 +38,22 @@ La idea del paquete es poder usar el modelo de una forma sencilla, asimismo, pod
 \label{tab:Codigo}
 \end{table}
 
+\section{Listado de funciones}
+Se trata de respetar la notación usada dentro del trabajo para su fácil comprensión. Sin embargo, como parte del desarrollo del paquete, este también cuenta con una documentación más detallada que se puede acceder directamente desde la terminal o un IDE. 
 
-\subsection{Listado de funciones}
 \subsubsection*{Función \textit{bpwpm\_gibbs}}
 Encontrada en el archivo \verb|bpwpm_gibbs.R|.
 \begin{itemize}[label={}]
 	\item \verb|bpwpm_gibbs|($\ysn,X,M,J,K,\ldots$): esta es la función principal del paquete que realiza la simulación de la cadena de Markov usando los datos para el entrenamiento y los parámetros especificados.
 \end{itemize}
 
-\subsubsection*{Función \textit{predict.bpwpm}}
+\subsection*{Función \textit{predict.bpwpm}}
 Encontrada en el archivo \verb|predict_funcs.R|.
 \begin{itemize}[label={}]
 	\item \verb|predict.bpwpm|(\verb|object|,$\,\tilde{y},\tilde{X\,}$,\verb|thin|, \verb|burn-in|, \verb|type|, $\ldots$): función genérica de la clase S3 que realiza predicciones de un nuevo conjunto de datos $\tilde{X}$ dado un objeto de la clase \verb|bpwpm| y los prueba contra las etiquetas reales $\tilde{y}$.
 \end{itemize}
 
-\subsubsection*{Funciones matemáticas}
+\subsection*{Funciones matemáticas}
 Funciones auxiliares relacionadas con procedimientos matemáticos más complejos. Encontradas en el archivo \verb|math_utils.R|.
 \begin{itemize}[label = {}]
 	\item \verb|calculate_Phi|($X,M,J,K,d,\tau$): calcula la expansión de bases $\Psi_j(X,\P)$ para $j = 1,\ldots,d$ y cada una de las observaciones con base en los parámetros $\MJK$.
@@ -63,7 +68,7 @@ Funciones auxiliares relacionadas con procedimientos matemáticos más complejos
 	\item \verb|ergodic_mean|(\verb|mcmc_chain|): calcula la media ergódica de una cadena MCMC.
 \end{itemize}
 
-\subsubsection*{Funciones útiles}
+\subsection*{Funciones útiles}
 Funciones auxiliares para la simplificación de procesos en en las funciones de más alto nivel. Encontradas en el archivo \verb|utils.R|.
 \begin{itemize}[label={}]
 	\item \verb|thin_chain|(\verb|mcmc_chain, thin, burn_in|): dada una matriz de una cadena MCMC esta función auxiliar recorta y adelgaza la cadena.
@@ -71,7 +76,7 @@ Funciones auxiliares para la simplificación de procesos en en las funciones de 
 	\item \verb|post_params|(\verb|bpwpm, thin, burn_in, type|): dado un objeto de la clase \verb|bpwpm|, la función hace la estimación puntual de los parámetros del modelo $\beta$ y $\wsn$ utilizando el tipo de estimación puntual (media, moda o mediana) especificado en \verb|type|. Además, recorta y adelgaza la cadena y regresa un objeto conteniendo todos los parámetros con clase \verb|bpwpm_params|.
 \end{itemize}
 
-\subsubsection*{Funciones gráficas}
+\subsection*{Funciones gráficas}
 Funciones que habilitan el análisis gráfico de los datos y el modelo de forma rápida y sencilla. Existen 3 funciones importante que toman el papel \textit{envoltorio}\footnote{wrapper function} para las demás: \verb|plot.bpwpm, plot.bpwpm_predictions| y \verb|plot_2D|. Encontradas en el archivo \verb|plot_funcs.R|.
 
 \begin{itemize}[label = {}]
@@ -87,8 +92,8 @@ Funciones que habilitan el análisis gráfico de los datos y el modelo de forma 
 	\item \verb|plot.ergodic_mean|(\verb|bpwpm, thin, burn_in|): grafica la media ergódica para las cadenas de un \verb|bpwpm| para todos los parámetros $\beta$ y $w_j$.
 \end{itemize}
 
-\subsubsection*{Funciones de resumen}
-Estas tres funciones, son métodos S3 para la rápida exploración de los objetos del paquete. Se encuentran en el archivo \verb|summary_funcs.R|.
+\subsection*{Funciones de resumen}
+Estas tres funciones, son métodos S3\footnote{Los métodos S3 (precisando, clases S3) son funciones que crean objetos y son la estructura que permite que \texttt{R} sea más análogo a un lenguaje orientado a objetos tradicional como lo sería \texttt{Python}. Son útiles, pues detectan automáticamente la clase del objeto con el que se las llama, ya sea un modelo o cualquier otra estructura soportada por \texttt{R} y actúan de forma automática según el tipo.} para la rápida exploración de los objetos del paquete. Se encuentran en el archivo \verb|summary_funcs.R|.
 
 \begin{itemize}[label = {}]
 	\item \verb|summary.bpwpm|(\verb|objeto y parámetros|): imprime en pantalla la información sobre la llamada del modelo y los principales resúmenes numéricos de las cadenas para los parámetros $\beta$ y $\wsn$.

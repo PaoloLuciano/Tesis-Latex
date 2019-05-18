@@ -1,4 +1,4 @@
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							PREAMBLE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \documentclass[pdftex,11pt, oneside]{book}
@@ -106,6 +106,12 @@
 \newcommand{\Psibf}{\bm{\Psi}}
 \newcommand{\etabf}{\bm{\eta}}
 \newcommand{\thetabf}{\bm{\theta}}
+\newcommand{\tildePsi}{\widetilde{\Psi}(\xmat)}
+\newcommand{\mubeta}{\mu_{\betabf}}
+\newcommand{\Sigmabeta}{\Sigma_{\betabf}}
+\newcommand{\usn}{\bm{u}}
+\newcommand{\alphabf}{\bm{\alpha}}
+
 
 % Parámetros y cosas muy usadas
 \renewcommand{\t}{\tau}
@@ -208,23 +214,25 @@ K = #3 & n = #6	& \kthin = #9
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-%\subfile{../PortadaYMas/PortadaGrande}
 \subfile{../PortadaYMas/Portada}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%						AGRADECIMIENTOS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frontmatter
+%\subfile{../PortadaYMas/Agradecimientos/Agradecimientos}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %						PREÁMBULO E ÍNDICE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\frontmatter
+
 \tableofcontents
 \listoffigures
 \listoftables
 
 \chapter{Notación y abreviaciones} \label{ap:Notacion}
 \subfile{../Apendices/Notacion/Notacion}
-
-%\chapter{Definiciones, teoremas y abreviaciones} 
-%\label{ap:Definiciones}
-%I\subfile{../Apendices/Definiciones/Definiciones}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							CAPITULOS
@@ -264,7 +272,7 @@ K = #3 & n = #6	& \kthin = #9
 \subfile{../Apendices/DistrosConjugadas/DistrosConjugadas}
 
 \chapter{Paquete en R: desarrollo y lista de funciones} \label{ap:Paquete}
-%\subfile{../Apendices/Paquete/Paquete}
+\subfile{../Apendices/Paquete/Paquete}
 
 %Bibliografía
 \backmatter
