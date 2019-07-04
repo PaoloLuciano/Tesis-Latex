@@ -41,7 +41,14 @@
 \usepackage{array} % Tablas bonitas
 \usepackage{arydshln} % Lineas para tablas aún más bonitas
 \usepackage{multirow,bigdelim} % Ya la neta por forzado
-\usepackage{listings} % Insertar código con verbatim
+\usepackage{listings} % Insertar código en R 
+\lstdefinestyle{base}{
+  language = R,
+  emptylines = 1,
+  breaklines = false,
+  basicstyle = \ttfamily\color{black},
+  moredelim = **[is][\color{blue}]{@}{@},
+}
 \usepackage{setspace} 
 \usepackage{float} % Poner mejor las imágenes y tablas
 \usepackage{subcaption}
@@ -259,9 +266,6 @@ K = #3 & n = #6	& \kthin = #9
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
-%\chapter{Análisis Funcional} \label{ap:AnalisisFunc}
-%HC SVNT DRACONES
-%\subfile{../Apendices/AnalisisFunc/AnalisisFunc}
 
 \chapter{Splines: orígenes y justificación de su uso} 
 \label{ap:Splines}
@@ -273,6 +277,11 @@ K = #3 & n = #6	& \kthin = #9
 
 \chapter{Paquete en R: desarrollo y lista de funciones} \label{ap:Paquete}
 \subfile{../Apendices/Paquete/Paquete}
+
+%HC SVNT DRACONES
+%\chapter{Análisis Funcional} 
+%\label{ap:AnalisisFunc}
+%\subfile{../Apen1dices/AnalisisFunc/AnalisisFunc}
 
 %Bibliografía
 \backmatter

@@ -3,102 +3,124 @@
 \begin{document}
 El desarrollo de un paquete computacional para la estimación de los parámetros del modelo resulto ser la tarea más retadora y cautivante de del trabajo. El código, conecta la teoría abstracta del modelo y la aterriza en un terreno práctico y tangible. Durante este esfuerzo, se encontró la necesidad de desarrollar funcionalidad adicional para probar cada parte del modelo e ir visualizando paso a paso las correspondientes proyecciones. Al final, la capacidad y flexibilidad del paquete quedan reflejadas en la practicidad de su uso pues con pocas líneas de código se puede correr una realización del modelo y visualizar ciertos componentes.
 
-El paquete se desarrolló en el lenguaje abierto de programación estadístico \verb|R| por dos razones: por la familiaridad con la que previamente se contaba y por la facilidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas.  Asimismo el paquete se escribe siguiendo a \citet{}, uno de los principales desarrolladores del popular IDE\footnote{\emph{Integrated Development Enviroment}} \verb|RStudio|. 
+El paquete se desarrolló en el lenguaje abierto de programación estadístico \verb|R| por dos razones: por la familiaridad con la que previamente se contaba y por la facilidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas.  Asimismo el paquete se escribe siguiendo \citet{wickham2015rpck}, uno de los principales desarrolladores del popular IDE\footnote{\emph{Integrated Development Enviroment}} \verb|RStudio|. 
 
-Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paquete adicional y correr una línea, ver tabla \ref{tab:Codigo}. Posterior a esto, toda las las capacidades y funcionalidad del modelo con las que se crearon las gráficas de este trabajo deberían de ser asequibles para el usuario.
+Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paquete adicional y correr una línea, ver código \ref{tab:Descarga}. Posterior a esto, toda las las capacidades y funcionalidad del modelo con las que se crearon las gráficas de este trabajo deberían de ser asequibles para el usuario.
 
 \begin{table}[h]
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\begin{verbatim}
-	install.package("devtools")
-	devtools::install_github("https://github.com/PaoloLuciano/bpwpm2")
-\end{verbatim}
+\begin{lstlisting}[language = R, style = base]
+	@install.package("devtools")@
+	@devtools::install_github("PaoloLuciano/bpwpm2")@
+\end{lstlisting}
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 \caption{Descarga del paquete}
 \label{tab:Descarga}
 \end{table}
 
-La idea de desarrollar un paquete es poder usar el modelo de una forma sencilla, así como validar y explorar las realizaciones del modelo sin tener que programar demasiado. Por lo tanto, en la tabla \ref{tab:Codigo} se presenta un ejemplo \textit{mínimiamente funcional} de como se puede correr un modelo \verb|bpwpm|.
+La idea de desarrollar un paquete es poder usar el modelo de una forma sencilla, así como validar y explorar las realizaciones del modelo sin tener que programar demasiado. Por lo tanto, en la tabla \ref{tab:Codigo} se presenta un ejemplo \textit{mínimiamente funcional} de como se puede correr un modelo \verb|bpwpm|, ver código \ref{tab:Codigo}. La base de datos viene incluida en el paquete y corresponde a la del ejemplo 2.
 
-\begin{table}[h]
+\begin{table}[p]
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\begin{verbatim}
-	mod <- bpwpm(datos y parámetros)
-	summary(mod)
-	plot(mod) 
-	plot_2D(mod) # Si los datos están en 2D 
+\begin{lstlisting}[language = R, style = base]
+	# Ejemplo minimo del paquete bpwpm2
 
-	# Datos X y Y en muestra o fuera de ella	
-	mod_res <- predict(mod,X,Y)
-	summary(mod_res)
-	plot(mod_res)
-\end{verbatim}
+# 0. Lectura de datos y preparacion del modelo  
+@library(bpwpm2)@
+# set.seed(135491) incluir para obtener replicabilidad
+
+@datos <- bpwpm2::NormalBiVarMod@
+@Y <- datos$Y@ # Consitencia en la notacion 
+de este trabajo
+@X <- datos[,2:3]@
+@plot_2D_data(Y,X)@ # Visualizacion de los datos
+
+# Parametros del modelo
+@M <- 3@
+@J <- 3@
+@K <- 2@
+@draws <- 10000@
+
+# 1. Modelo
+@model <- bpwpm2_gibbs(	Y = Y, X = X, 
+	M = M, J = J, 
+	K = K, draws = draws)@
+@burn_in <- 7500@
+@thin <- 0@
+@predictions <- predict(model, Y, X, burn_in, thin, 'mean')@
+
+# 2. Analisis y visualizaciones
+@summary(model)@
+@plot(model, n = draws, m = 5)@
+@summary(predictions)@
+@plot(predictions)@
+@plot_2D(Y, X, predictions, n = 20, alpha = 0.9)@
+\end{lstlisting}
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
 \caption{Ejemplo mínimamente funcional}
 \label{tab:Codigo}
 \end{table}
 
 \section{Listado de funciones}
-Se trata de respetar la notación usada dentro del trabajo para su fácil comprensión. Sin embargo, como parte del desarrollo del paquete, este también cuenta con una documentación más detallada que se puede acceder directamente desde la terminal o un IDE. 
+Se trata de respetar la notación usada dentro del trabajo para su fácil comprensión. Sin embargo, como parte del desarrollo del paquete, este también cuenta con una documentación más detallada que se puede acceder directamente desde la terminal o un IDE.
 
 \subsubsection*{Función \textit{bpwpm\_gibbs}}
-Encontrada en el archivo \verb|bpwpm_gibbs.R|.
+Encontrada en el archivo \verb|bpwpm2.R|.
 \begin{itemize}[label={}]
-	\item \verb|bpwpm_gibbs|($\ysn,X,M,J,K,\ldots$): esta es la función principal del paquete que realiza la simulación de la cadena de Markov usando los datos para el entrenamiento y los parámetros especificados.
+	\item \verb|bpwpm_gibbs|($\ysn,\xmat,M,J,K,\ldots$): esta es la función principal del paquete que realiza la simulación de la cadena de Markov usando los datos para el entrenamiento y los parámetros especificados.
 \end{itemize}
 
 \subsection*{Función \textit{predict.bpwpm}}
 Encontrada en el archivo \verb|predict_funcs.R|.
 \begin{itemize}[label={}]
-	\item \verb|predict.bpwpm|(\verb|object|,$\,\tilde{y},\tilde{X\,}$,\verb|thin|, \verb|burn-in|, \verb|type|, $\ldots$): función genérica de la clase S3 que realiza predicciones de un nuevo conjunto de datos $\tilde{X}$ dado un objeto de la clase \verb|bpwpm| y los prueba contra las etiquetas reales $\tilde{y}$.
+	\item \verb|predict.bpwpm|(\verb|object|,$\,\tilde{y},\tilde{\xmat\,}$,\verb|thin|, \verb|burn-in|, \verb|type|, $\ldots$): función genérica de la clase S3 que realiza predicciones de un nuevo conjunto de datos $\tilde{\xmat}$ dado un objeto de la clase \verb|bpwpm| y los prueba contra las etiquetas reales $\tilde{y}$.\footnote{Los métodos S3 (precisando, clases S3) son funciones que crean objetos y son la estructura que permite que \texttt{R} sea más análogo a un lenguaje orientado a objetos tradicional como lo sería \texttt{Python}. Son útiles pues detectan automáticamente la clase del objeto con el que se las llama, ya sea un modelo o cualquier otra estructura soportada por \texttt{R} y actúan de forma automática según el tipo. Algunos ejemplos son las funciones \texttt{print} y \texttt{summary}.}
 \end{itemize}
 
 \subsection*{Funciones matemáticas}
 Funciones auxiliares relacionadas con procedimientos matemáticos más complejos. Encontradas en el archivo \verb|math_utils.R|.
 \begin{itemize}[label = {}]
-	\item \verb|calculate_Phi|($X,M,J,K,d,\tau$): calcula la expansión de bases $\Psi_j(X,\P)$ para $j = 1,\ldots,d$ y cada una de las observaciones con base en los parámetros $\MJK$.
-	\item \verb|calc_F|($\Psi,w,d$,\verb|intercept|): calcula la matriz $F = \Psi \wsn$ donde cada columna representa la transformación $f_j$.
-	\item \verb|log_loss|($\ysn,\hat{\mathbf{p}},\ldots $): calcula la función \textit{log-loss} dados los valores reales $\ysn$ y las probabilidades ajustadas $\hat{p}$.
-	\item \verb|mode|($x$): calcula la moda de un vector $x$.
-	\item \verb|calc_proy|($F,\beta$): calcula el vector de medias para cada observación $f=F\beta$.
-	\item \verb|model_proy|($\tilde{X}$, \verb|params|): calcula la función de proyección $f$ para un conjunto de datos $\tilde{X}$, pueden ser con los que se entrenaron los parámetros o un conjunto de datos nuevos.
-	\item \verb|post_probs|($\tilde{X}$, \verb|params|): calcula la probabilidad posterior de la clasificación. 
-	\item \verb|acurracy|($\tilde{y},\hat{\mathbf{p}}$): calcula la precisión total del modelo.
-	\item \verb|contingency_table|($\tilde{y},\hat{\mathbf{p}}$): calcula la matriz de contingencia.
-	\item \verb|ergodic_mean|(\verb|mcmc_chain|): calcula la media ergódica de una cadena MCMC.
+	\item \verb|calculate_Psi|($\xmat,M,J,K,n,d,\tau$): calcula matriz $\widetilde{\Psi}(\xmat)$ con base en los parámetros $\MJK$. Los componentes de la matriz son las expansiones de bases de cada covariable para cada una de las observaciones $i=1,\ldots,n$.
+	\item \verb|calc_F|($\Psi, \betabf, d$): calcula una matriz $F$ donde cada columna representa la transformación $f_j$. Este calculo se obtiene de separar $\widetilde{\Psi}(\xmat)$ en sus correspondientes componentes.
+	\item \verb|ergodic_mean(mcmc_chain)|: calcula la media ergódica por componentes de una cadena de Markov.
+	\item \verb|log_loss|($\ysn,\hat{\mathbf{p}},\ldots $): calcula la función \textit{log-loss} dados los valores reales $\ysn$ y las probabilidades ajustadas $\hat{p}$. La versión implementada controla por el posible error de máquina para probabiliades muy cercanas a cero o a uno.
+	\item \verb|accurracy|: calcula la precisión del modelo definida como el número total de predicciones correctas entre el número total de observaciones.
+	\item \verb|contingency_table|($\tilde{\ysn},\hat{\mathbf{p}}$): calcula la matriz de contingencia para las predicciones. 
+	\item \verb|calculate_eta|($F$): calcula el vector de medias para cada observación $\etabf = \widetilde{\Psi}(\xmat)\betabf$. La implementación computacional real, únicamente es la suma por renglones de la matriz $F$ respetando la aditividad del modelo.
+	\item \verb|model_eta|($\tilde{\xmat}$, \verb|params|): calcula la función de proyección $\eta$ para un conjunto de datos $\tilde{\xmat}$, los cuales pueden ser los mismos con los que se entrenó el modelo o un conjunto de datos nuevos.
+	\item \verb|post_probs|($\tilde{\xmat}$, \verb|params|): calcula la probabilidad posterior de la clasificación para un conjunto de datos nuevo o el mismo que se usó en el entrenamiento. 
 \end{itemize}
 
 \subsection*{Funciones útiles}
-Funciones auxiliares para la simplificación de procesos en en las funciones de más alto nivel. Encontradas en el archivo \verb|utils.R|.
+Funciones auxiliares para la simplificación de procesos en las funciones de más alto nivel. Encontradas en el archivo \verb|utils.R|.
 \begin{itemize}[label={}]
-	\item \verb|thin_chain|(\verb|mcmc_chain, thin, burn_in|): dada una matriz de una cadena MCMC esta función auxiliar recorta y adelgaza la cadena.
-	\item \verb|thin_bpwpm|(\verb|bpwpm, thin, burn_in|): adelgaza todos los parámetros de un modelo \verb|bpwpm| y regresa un objeto del mismo tipo. 
-	\item \verb|post_params|(\verb|bpwpm, thin, burn_in, type|): dado un objeto de la clase \verb|bpwpm|, la función hace la estimación puntual de los parámetros del modelo $\beta$ y $\wsn$ utilizando el tipo de estimación puntual (media, moda o mediana) especificado en \verb|type|. Además, recorta y adelgaza la cadena y regresa un objeto conteniendo todos los parámetros con clase \verb|bpwpm_params|.
+	\item \verb|thin_chain|(\verb|mcmc_chain, burn_in, thin|): dada una matriz de una cadena MCMC esta función auxiliar recorta y adelgaza la cadena.
+	\item \verb|thin_bpwpm|(\verb|bpwpm, burn_in, thin|): adelgaza todos los parámetros de un modelo \verb|bpwpm| y regresa un objeto del mismo tipo. 
+	\item \verb|post_params|(\verb|bpwpm, burn_in, thin, type|): dado un objeto de la clase \verb|bpwpm|, la función hace la estimación puntual de los parámetros del modelo $\hat{\betabf}$ utilizando el tipo de estimación puntual (media o mediana) especificado en \verb|type|. Además, recorta y adelgaza la cadena y regresa un objeto conteniendo todos los parámetros con clase \verb|bpwpm_params|.
 \end{itemize}
 
 \subsection*{Funciones gráficas}
-Funciones que habilitan el análisis gráfico de los datos y el modelo de forma rápida y sencilla. Existen 3 funciones importante que toman el papel \textit{envoltorio}\footnote{wrapper function} para las demás: \verb|plot.bpwpm, plot.bpwpm_predictions| y \verb|plot_2D|. Encontradas en el archivo \verb|plot_funcs.R|.
+Funciones que facilitan el análisis gráfico de los datos y el modelo de forma rápida y sencilla. Existen 3 funciones importante que toman el papel de  \textit{envoltorio}\footnote{\emph{wrapper function}} pues ayudan llamando a otras subfunciones para visualizar una a una las gráficas relevantes: \verb|plot.bpwpm, plot.bpwpm_predictions| y \verb|plot_2D|. Prácticamente todas las funciones dependen de el paquete libre para graficación en \verb|R|: \verb|ggplot2| que se instala en paralelo con el paquete de este trabajo. Todas estas funciones se encuentran en el archivo \verb|plot_funcs.R|.
 
 \begin{itemize}[label = {}]
-	\item \verb|plot.bpwpm|(\verb|object, n|): para un objeto del tipo \verb|bpwpm|, grafica las trazas y los histogramas para los parámetros $\beta$ y cada $w_j$. 
-	\item \verb|plot_chains|(\verb|mcmc_chains, n, title|): grafica la traza de una cadena MCMC.
-	\item \verb|plot_hist|(\verb|mcmc_chains, n, title|): grafica el histograma de una cadena MCMC.  
-	\item \verb|plot.bpwpm_predictions|(\verb|object, |$\ldots$): dado un objeto del tipo \verb|bpwpm_prediction|, grafica las $f_j$ del modelo ya estimado. Se usa como \textit{wraper} para la función \verb|plot_each_F|. 
-	\item \verb|plot_each_F|($\ysn, X, F$): grafica cada una de las las funciones $f_j$. 
-	\item \verb|plot_2D|($\ysn, X$ \verb|bpwpm_params|, $n$, \verb|alpha|): dados los datos en 2D, se realizan todas las gráficas posibles para este caso particular de los modelos. El parámetro \verb|alpha| controla la transparencia de los puntos proyectados y el parámetro $n$ la finura de la malla. 
-	\item \verb|plot.2D_data|($\ysn, X$): grafica de puntos de los datos originales usando el paquete \verb|ggplot2|.
-	\item \verb|plot.2D_proj|($\ysn, X$\verb|bpwpm.params, n, alpha|): grafica la proyección de $f$ en el espacio de covariables $\mathcal{X}$ para datos bivariados. Bueno para identificar las regiones de clasificación y visualizar los resultados del modelo.
-	\item \verb|plot.3D_proj|($X$, \verb|bpwpm.params, n|): usando el paquete de \verb|lattice|, se crea una gráfica de malla para representar la función $f$ en 3D, únicamente se puede utilizar cuando se tengan datos en 2D. El parámetro $n$ controla la finura de la malla. 
-	\item \verb|plot.ergodic_mean|(\verb|bpwpm, thin, burn_in|): grafica la media ergódica para las cadenas de un \verb|bpwpm| para todos los parámetros $\beta$ y $w_j$.
+	\item \verb|plot.bpwpm|(\verb|object, n|): para un objeto del tipo \verb|bpwpm|, grafica las trazas y los histogramas para los parámetros estimados $\hat{\betabf}$. \verb|n| controla el número de observaciones por graficar de la cadena muestreada original.
+	\item \verb|plot_ergodic_mean|(\verb|object, n|): grafica la média ergódica de una cadena de Markov muestreada.
+	\item \verb|plot_chains|(\verb|mcmc_chains, n|): grafica la traza de una cadena de Markov muestreada.
+	\item \verb|plot_hist|(\verb|mcmc_chains, n|): grafica el histograma de una cadena de Markov muestreada.  
+	\item \verb|plot.bpwpm_predictions|(\verb|object, |$\ldots$): dado un objeto del tipo \verb|bpwpm_prediction|, grafica las $f_j$ del modelo ya estimado. Se usa como \emph{envoltorio} para la función \verb|plot_each_F|. 
+	\item \verb|plot_each_F|($\ysn, \xmat, F$): grafica cada una de las las funciones $f_j$. 
+	\item \verb|plot_2D|($\ysn,\xmat$ \verb|bpwpm_params|, $n$, \verb|alpha|): dados los datos en 2D ($d = 2$), se dibujan todas las gráficas posibles para este caso particular de los modelos. El parámetro \verb|alpha| controla la transparencia de los puntos proyectados y el parámetro $n$ la finura de la malla en la representación en tres dimensiones.
+	\item \verb|plot_2D_data|($\ysn, \xmat$): grafica de puntos de los datos originales.
+	\item \verb|plot_2D_proj|($\ysn, \xmat$, \verb|bpwpm.params, n, alpha|): grafica la proyección de $\eta$ en el espacio de covariables $\mathcal{\xmat}$ para datos bivariados. Bueno para identificar las regiones de clasificación y visualizar los resultados del modelo.
+	\item \verb|plot_3D_proj|($\xmat$, \verb|bpwpm.params, n|): usando el paquete de \verb|lattice|, se crea una gráfica de malla para representar la función $\etabf(\xmat)$ en 3D. El parámetro $n$ controla la finura de la malla.
+	\item \verb|plot_3D_proj|($\ysn$, \verb|bpwpm.params|): grafica la proyección de los puntos al transformarlos no linealmente en $f_j$. 
 \end{itemize}
 
 \subsection*{Funciones de resumen}
-Estas tres funciones, son métodos S3\footnote{Los métodos S3 (precisando, clases S3) son funciones que crean objetos y son la estructura que permite que \texttt{R} sea más análogo a un lenguaje orientado a objetos tradicional como lo sería \texttt{Python}. Son útiles, pues detectan automáticamente la clase del objeto con el que se las llama, ya sea un modelo o cualquier otra estructura soportada por \texttt{R} y actúan de forma automática según el tipo.} para la rápida exploración de los objetos del paquete. Se encuentran en el archivo \verb|summary_funcs.R|.
+Estas tres funciones son métodos S3 para la rápida exploración de los objetos del paquete. Se encuentran en el archivo \verb|summary_funcs.R|.
 
 \begin{itemize}[label = {}]
-	\item \verb|summary.bpwpm|(\verb|objeto y parámetros|): imprime en pantalla la información sobre la llamada del modelo y los principales resúmenes numéricos de las cadenas para los parámetros $\beta$ y $\wsn$.
-	\item \verb|summary.bpwpm_params|(\verb|objeto y parámetros|): imprime la estimación sobre los parámetros posteriores $\hat{\beta}$ y $\hat{\wsn}$.
-	\item \verb|summary.bpwpm_prediction|(\verb|objeto y parámetros|): resume e imprime la información sobre una predicción con el modelo. Esto es: la precisión, la medida \textit{log-loss}, el tipo de estimación puntual usada, la tabla de contingencia, los nodos y los parámetros posteriores entrenados. 
+	\item \verb|summary.bpwpm|(\verb|objeto y parámetros|): imprime en pantalla la información sobre la llamada del modelo y los principales resúmenes numéricos de las cadenas para los parámetros $\betabf$.
+	\item \verb|summary.bpwpm_params|(\verb|objeto y parámetros|): imprime la estimación sobre los parámetros posteriores $\hat{\betabf}$.
+	\item \verb|summary.bpwpm_prediction|(\verb|objeto y parámetros|): resume e imprime la información sobre una predicción con el modelo. Esto es: la precisión, la medida \textit{log-loss}, el tipo de estimación puntual usada, la tabla de contingencia, los nodos y los parámetros posteriores. 
 \end{itemize}
-
 \end{document}
