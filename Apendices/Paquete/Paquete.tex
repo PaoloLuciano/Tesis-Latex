@@ -3,7 +3,7 @@
 \begin{document}
 El desarrollo de un paquete computacional para la estimación de los parámetros del modelo resulto ser la tarea más retadora y cautivante de del trabajo. El código, conecta la teoría abstracta del modelo y la aterriza en un terreno práctico y tangible. Durante este esfuerzo, se encontró la necesidad de desarrollar funcionalidad adicional para probar cada parte del modelo e ir visualizando paso a paso las correspondientes proyecciones. Al final, la capacidad y flexibilidad del paquete quedan reflejadas en la practicidad de su uso pues con pocas líneas de código se puede correr una realización del modelo y visualizar ciertos componentes.
 
-El paquete se desarrolló en el lenguaje abierto de programación estadístico \verb|R| por dos razones: por la familiaridad con la que previamente se contaba y por la facilidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas.  Asimismo el paquete se escribe siguiendo \citet{wickham2015rpck}, uno de los principales desarrolladores del popular IDE\footnote{\emph{Integrated Development Enviroment}} \verb|RStudio|. 
+El paquete se desarrolló en el lenguaje abierto de programación estadístico \verb|R| por dos razones: por la familiaridad con la que previamente se contaba y por la facilidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas.  Asimismo el paquete se escribe siguiendo \citet{wickham2015rpck}, uno de los principales desarrolladores del popular IDE \verb|RStudio|\footnote{\emph{Integrated Development Enviroment}}. 
 
 Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paquete adicional y correr una línea, ver código \ref{tab:Descarga}. Posterior a esto, toda las las capacidades y funcionalidad del modelo con las que se crearon las gráficas de este trabajo deberían de ser asequibles para el usuario.
 
@@ -18,7 +18,7 @@ Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paq
 \label{tab:Descarga}
 \end{table}
 
-La idea de desarrollar un paquete es poder usar el modelo de una forma sencilla, así como validar y explorar las realizaciones del modelo sin tener que programar demasiado. Por lo tanto, en la tabla \ref{tab:Codigo} se presenta un ejemplo \textit{mínimiamente funcional} de como se puede correr un modelo \verb|bpwpm|, ver código \ref{tab:Codigo}. La base de datos viene incluida en el paquete y corresponde a la del ejemplo 2.
+La idea de desarrollar un paquete es poder usar el modelo de una forma sencilla, así como validar y explorar las realizaciones del modelo sin tener que programar demasiado. Por lo tanto se presenta un ejemplo \textit{mínimiamente funcional} de como se puede correr un modelo \verb|bpwpm|, ver código \ref{tab:Codigo}. La base de datos viene incluida en el paquete y corresponde a la del ejemplo 2.
 
 \begin{table}[p]
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
@@ -36,10 +36,10 @@ de este trabajo
 @plot_2D_data(Y,X)@ # Visualizacion de los datos
 
 # Parametros del modelo
-@M <- 3@
-@J <- 3@
-@K <- 2@
-@draws <- 10000@
+@M <- 3@ # Controla el grado de los polinomios 
+@J <- 3@ # Controla el numero de nodos
+@K <- 2@ # Controla la suavidad
+@draws <- 10000@ # N sim
 
 # 1. Modelo
 @model <- bpwpm2_gibbs(	Y = Y, X = X, 
@@ -57,7 +57,7 @@ de este trabajo
 @plot_2D(Y, X, predictions, n = 20, alpha = 0.9)@
 \end{lstlisting}
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
-\caption{Ejemplo mínimamente funcional}
+\caption{Ejemplo mínimo funcional}
 \label{tab:Codigo}
 \end{table}
 
@@ -82,7 +82,7 @@ Funciones auxiliares relacionadas con procedimientos matemáticos más complejos
 	\item \verb|calculate_Psi|($\xmat,M,J,K,n,d,\tau$): calcula matriz $\widetilde{\Psi}(\xmat)$ con base en los parámetros $\MJK$. Los componentes de la matriz son las expansiones de bases de cada covariable para cada una de las observaciones $i=1,\ldots,n$.
 	\item \verb|calc_F|($\Psi, \betabf, d$): calcula una matriz $F$ donde cada columna representa la transformación $f_j$. Este calculo se obtiene de separar $\widetilde{\Psi}(\xmat)$ en sus correspondientes componentes.
 	\item \verb|ergodic_mean(mcmc_chain)|: calcula la media ergódica por componentes de una cadena de Markov.
-	\item \verb|log_loss|($\ysn,\hat{\mathbf{p}},\ldots $): calcula la función \textit{log-loss} dados los valores reales $\ysn$ y las probabilidades ajustadas $\hat{p}$. La versión implementada controla por el posible error de máquina para probabiliades muy cercanas a cero o a uno.
+	\item \verb|log_loss|($\ysn,\hat{\mathbf{p}},\ldots $): calcula la función \textit{log-loss} dados los valores reales $\ysn$ y las probabilidades ajustadas $\hat{p}$. La versión implementada controla por el posible error de máquina para probabiliades muy cercanas a uno o a cero.
 	\item \verb|accurracy|: calcula la precisión del modelo definida como el número total de predicciones correctas entre el número total de observaciones.
 	\item \verb|contingency_table|($\tilde{\ysn},\hat{\mathbf{p}}$): calcula la matriz de contingencia para las predicciones. 
 	\item \verb|calculate_eta|($F$): calcula el vector de medias para cada observación $\etabf = \widetilde{\Psi}(\xmat)\betabf$. La implementación computacional real, únicamente es la suma por renglones de la matriz $F$ respetando la aditividad del modelo.
@@ -99,7 +99,7 @@ Funciones auxiliares para la simplificación de procesos en las funciones de má
 \end{itemize}
 
 \subsection*{Funciones gráficas}
-Funciones que facilitan el análisis gráfico de los datos y el modelo de forma rápida y sencilla. Existen 3 funciones importante que toman el papel de  \textit{envoltorio}\footnote{\emph{wrapper function}} pues ayudan llamando a otras subfunciones para visualizar una a una las gráficas relevantes: \verb|plot.bpwpm, plot.bpwpm_predictions| y \verb|plot_2D|. Prácticamente todas las funciones dependen de el paquete libre para graficación en \verb|R|: \verb|ggplot2| que se instala en paralelo con el paquete de este trabajo. Todas estas funciones se encuentran en el archivo \verb|plot_funcs.R|.
+Funciones que facilitan el análisis gráfico de los datos y el modelo de forma rápida y sencilla. Existen 3 funciones importante que toman el papel de función \textit{envoltorio}\footnote{\emph{wrapper function}} pues ayudan llamando a otras subfunciones para visualizar una a una las gráficas relevantes: \verb|plot.bpwpm, plot.bpwpm_predictions| y \verb|plot_2D|. Prácticamente todas las funciones dependen de el paquete libre para graficación en \verb|R|: \verb|ggplot2| que se instala en paralelo con el paquete de este trabajo. Todas estas funciones se encuentran en el archivo \verb|plot_funcs.R|.
 
 \begin{itemize}[label = {}]
 	\item \verb|plot.bpwpm|(\verb|object, n|): para un objeto del tipo \verb|bpwpm|, grafica las trazas y los histogramas para los parámetros estimados $\hat{\betabf}$. \verb|n| controla el número de observaciones por graficar de la cadena muestreada original.
@@ -108,10 +108,10 @@ Funciones que facilitan el análisis gráfico de los datos y el modelo de forma 
 	\item \verb|plot_hist|(\verb|mcmc_chains, n|): grafica el histograma de una cadena de Markov muestreada.  
 	\item \verb|plot.bpwpm_predictions|(\verb|object, |$\ldots$): dado un objeto del tipo \verb|bpwpm_prediction|, grafica las $f_j$ del modelo ya estimado. Se usa como \emph{envoltorio} para la función \verb|plot_each_F|. 
 	\item \verb|plot_each_F|($\ysn, \xmat, F$): grafica cada una de las las funciones $f_j$. 
-	\item \verb|plot_2D|($\ysn,\xmat$ \verb|bpwpm_params|, $n$, \verb|alpha|): dados los datos en 2D ($d = 2$), se dibujan todas las gráficas posibles para este caso particular de los modelos. El parámetro \verb|alpha| controla la transparencia de los puntos proyectados y el parámetro $n$ la finura de la malla en la representación en tres dimensiones.
+	\item \verb|plot_2D|($\ysn,\xmat$ \verb|bpwpm_params|, \verb|m|, \verb|alpha|): dados los datos en 2D ($d = 2$), se dibujan todas las gráficas posibles para este caso particular de los modelos. El parámetro \verb|alpha| controla la transparencia de los puntos proyectados y el parámetro $m$ la finura de la malla en la representación en tres dimensiones.
 	\item \verb|plot_2D_data|($\ysn, \xmat$): grafica de puntos de los datos originales.
 	\item \verb|plot_2D_proj|($\ysn, \xmat$, \verb|bpwpm.params, n, alpha|): grafica la proyección de $\eta$ en el espacio de covariables $\mathcal{\xmat}$ para datos bivariados. Bueno para identificar las regiones de clasificación y visualizar los resultados del modelo.
-	\item \verb|plot_3D_proj|($\xmat$, \verb|bpwpm.params, n|): usando el paquete de \verb|lattice|, se crea una gráfica de malla para representar la función $\etabf(\xmat)$ en 3D. El parámetro $n$ controla la finura de la malla.
+	\item \verb|plot_3D_proj|($\xmat$, \verb|bpwpm.params, m|): usando el paquete de \verb|lattice|, se crea una gráfica de malla para representar la función $\etabf(\xmat)$ en 3D. El parámetro $m$ controla la finura de la malla.
 	\item \verb|plot_3D_proj|($\ysn$, \verb|bpwpm.params|): grafica la proyección de los puntos al transformarlos no linealmente en $f_j$. 
 \end{itemize}
 

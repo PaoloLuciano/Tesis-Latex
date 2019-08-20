@@ -114,7 +114,7 @@
 \newcommand{\etabf}{\bm{\eta}}
 \newcommand{\thetabf}{\bm{\theta}}
 \newcommand{\tildePsi}{\widetilde{\Psi}(\xmat)}
-\newcommand{\mubeta}{\mu_{\betabf}}
+\newcommand{\mubeta}{\bm{\mu}_{\betabf}}
 \newcommand{\Sigmabeta}{\Sigma_{\betabf}}
 \newcommand{\usn}{\bm{u}}
 \newcommand{\alphabf}{\bm{\alpha}}
@@ -189,7 +189,7 @@ K = #3 & n = #6	& \kthin = #9
 
 % Poder hacer abstacts en fomato book... 
 \newcommand\abstractname{Abstract}
- 
+
 \makeatletter
 \if@titlepage
   \newenvironment{abstract}{%
@@ -215,6 +215,13 @@ K = #3 & n = #6	& \kthin = #9
       {\if@twocolumn\else\endquotation\fi}
 \fi
 \makeatother
+
+% \hfill para mathmode
+\makeatletter
+\newcommand{\pushright}[1]{\ifmeasuring@#1\else\omit\hfill$\displaystyle#1$\fi\ignorespaces}
+\newcommand{\pushleft}[1]{\ifmeasuring@#1\else\omit$\displaystyle#1$\hfill\fi\ignorespaces}
+\makeatother
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							DOCUMENTO
@@ -249,11 +256,14 @@ K = #3 & n = #6	& \kthin = #9
 \chapter{Introducción} \label{cap:Intro}
 \subfile{../Introduccion/Introduccion}
 
-\chapter{Modelo en su forma matemática} \label{cap:Modelo}
+\chapter{Los fundamentos del modelo} \label{cap:Modelo}
 \subfile{../Modelo/Modelo}
 
-\chapter{Paradigma bayesiano e implementación} \label{cap:BayesAlgoritmo}
+\chapter{El paradigma bayesiano de aprendizaje} \label{cap:BayesAlgoritmo}
 \subfile{../BayesAlgoritmo/BayesAlgoritmo}
+
+\chapter{El modelo \textit{bpmpm} y su implementación computacional} \label{cap:bpwpm}
+\subfile{../ModeloBPWPM/ModeloBPWPM}
 
 \chapter{Ejemplos y resultados} \label{cap:EjYRes}
 \subfile{../EjemYRes/EjemYRes}
@@ -266,7 +276,6 @@ K = #3 & n = #6	& \kthin = #9
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \appendix
-
 \chapter{Splines: orígenes y justificación de su uso} 
 \label{ap:Splines}
 \subfile{../Apendices/Splines/Splines}
@@ -278,7 +287,7 @@ K = #3 & n = #6	& \kthin = #9
 \chapter{Paquete en R: desarrollo y lista de funciones} \label{ap:Paquete}
 \subfile{../Apendices/Paquete/Paquete}
 
-%HC SVNT DRACONES
+%HC SVNT DRACONES :(
 %\chapter{Análisis Funcional} 
 %\label{ap:AnalisisFunc}
 %\subfile{../Apen1dices/AnalisisFunc/AnalisisFunc}

@@ -1,14 +1,17 @@
 \documentclass[../../Main/Main.tex]{subfiles}
 
 \begin{document}
+
+Se recomienda usar esta sección únicamente como referencia; a lo largo del texto principal se deriva y se presenta una descripción más detallada de cada uno de los símbolos usados. 
+
 \textbf{Datos y variables}
 \begin{itemize}[label={}]
 	\item $y_i \in \{0,1\}\quad \forall i = 1\ldots,n$: variables de respuesta binarias. Usualmente representadas por el vector $\mathbf{y} = (y_1,\ldots,y_n)^t$
 	\item $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d\quad \forall \; i = 1\ldots,n$: covariables o regresores. Si se usa por si sola $x$ o $\xsn$ (vector), esta representa una variable arbitraria. Si se habla de toda la matriz de datos, se denota por $\xmat \in \mathcal{X}^{n\times d}\subseteq \mathbb{R}^{n\times d}$. Juntos con las $y_i$, se tienen los datos para el modelo: $\{(y_i,\xni)\}_{i = 1}^n$
-	\item $n \in \mathbb{N}$: número de observaciones en la muestra. 
-	\item $d \in \mathbb{N}$: número de covariables, dimensionalidad de los regresores
-	\item $\lambda \in \mathbb{N}$: número total de términos del modelo. 
-	\item $\mathcal{X}^d \subseteq \mathbb{R}^d$: espacio de covariables. Formado por el producto punto de los rangos de cada variable: $\mathcal{X}^d = [a_1,b_1]\times[a_2,b_2]\times\ldots\times[a_d,b_d]$, donde $[a_j,b_j] \subset \mathbb{R}$ es un intervalo cerrado en los reales
+	\item $n \in \mathbb{N}$: número de observaciones en la muestra
+	\item $d \in \mathbb{N}$: número de covariables, o dimensionalidad de estos
+	\item $\lambda \in \mathbb{N}$: número total de términos en el modelo
+	\item $\mathcal{X}^d \subseteq \mathbb{R}^d$: espacio de covariables. Formado por el producto punto de los rangos de cada variable: $\mathcal{X}^d = [a_1,b_1]\times[a_2,b_2]\times\ldots\times[a_d,b_d]$, donde $[a_j,b_j] \subset \mathbb{R}$ es un intervalo compacto en los reales
 \end{itemize}
 
 \textbf{Específicos del modelo}
@@ -20,31 +23,31 @@
 	\item $\Psi_l(\cdot) \quad \forall l=1,\ldots,\N$: funciones bases para la expansión en polinomios por partes de $f_j$. Ver \eqref{ec:ExpansionBases} y (\ref{ec:ExpBase_NEstrella}). En ocasiones, todas las funciones base se organizan en una matriz $\widetilde{\Phi}$
 	\item $\N$: número total de funciones base. Ver ecuación (\ref{ec:PoliFinal}) para su expansión final. Si se usa $N$ sin el asterisco denota de igual forma un número de funciones base arbitrario.
 	\item $M$: tamaño de la base para los polinomios por partes, por lo tanto, M-1 indica el grado de los polinomios
-	\item $J$: número de sub-intervalos en los que se parte cada $[a_j,b_j]$
-	\item $K$: número de restricciones de continuidad impuestas 
+	\item $J$: número de sub-intervalos en los que se parte cada intervalo $[a_j,b_j]$
+	\item $K$: número de restricciones de continuidad impuestas a los polinomios por partes
 	\item $\mathcal{P}_j = \left\{\t_1,\ldots,\t_{J-1}\right\} \quad \forall j = 1,\ldots,d$: partición del espacio de la dimensión $j$
-	\item $\t$: nodos, se tienen un total de $d(J-1)$ nodos acomodados en una matriz de igual tamaño.
+	\item $\t$: nodos, se tienen un total de $d\times (J-1)$ nodos acomodados en una matriz de igual tamaño.
 \end{itemize}
 
 \textbf{Contadores e índices}
 \begin{itemize}[label={}]
-	\item $i = 1,\ldots,n$: contador, usado para denotar un conjunto de observaciones
-	\item $j = 1,\ldots,d$: contador, usado para denotar el conjunto de covariables. Usualmente se hace referencia a la dimensión arbitraria $j$
-	\item $k$: contador, usado para denotar el número de iteración en el algoritmo, i.e. $k = 1,2,3,\ldots$
-	\item $l = 1,\ldots,\N$: contador asociado al número de funciones base total en la expansión de polinomios por partes $\N$.
-	\item $\hati = 1,\ldots,M-1$: contador asociado al número de funciones base para cada subintervalo, $M$, en las expansione de polinomios truncados.
+	\item $i = 1,\ldots,n$: contador usado para denotar un conjunto de observaciones
+	\item $j = 1,\ldots,d$: contador usado para denotar el conjunto de covariables. Usualmente se hace referencia a la dimensión arbitraria $j$
+	\item $k$: contador usado para denotar el número de iteración en el algoritmo, i.e. $k = 0,1,2,3,\ldots$
+	\item $l = 1,\ldots,\N$: contador asociado al número de funciones base total en la expansión de polinomios por partes $\N$
+	\item $\hati = 1,\ldots,M-1$: contador asociado al número de funciones base para cada subintervalo, $M$, en las expansione de polinomios truncados
 	\item $\hatj = 1,\ldots,J-1$ contador asociado al número de funciones base para cada subintervalo (parámetro $M$) en las expansione de polinomios truncados
 \end{itemize}
 	
 \textbf{Probabilidad}
 \begin{itemize}[label={}]
 	\item $F(\cdot)$: Función de distribución arbitraria de la familia exponencial
-	\item $\mathcal{N}(\,\cdot\,|\mu,\sigma^2)$: distribución normal con su correspondiente parametrización de media y varianza. Se utiliza la misma notación para su forma vectorial añadiendo un subíndice para denotar su dimensionalidad: $\mathcal{N}_{\cdot}(\cdot|\bm{\mu},\sigma)$ con su correspondiente vector de medias $\mu$ y vector de varianza covarianza $\Sigma$
-	\item $\Phi(\cdot):\mathbb{R}\rightarrow(0,1)$: la función de distribución acumulada de una distribución normal estándar $\mathcal{N}(\,\cdot\,| 1,0)$, con su correspondiente inversa $\Phi^{-1}$.
+	\item $\mathcal{N}(\,\cdot\,|\mu,\sigma^2)$: distribución normal con su correspondiente parametrización de media y varianza. Se utiliza la misma notación para su forma vectorial añadiendo un subíndice para denotar su dimensionalidad: $\mathcal{N}_{\cdot}(\cdot|\bm{\mu},\Sigma)$ con su correspondiente vector de medias $\bf{\mu}$ y vector de varianza covarianza $\Sigma$
+	\item $\Phi(\cdot):\mathbb{R}\rightarrow(0,1)$: la función de distribución acumulada de una distribución normal estándar $\mathcal{N}(\,\cdot\,| 1,0)$, con su correspondiente función inversa $\Phi^{-1}$
 	\item $\Be(\,\cdot\,|p)$: distribución bernoulli con probabilidad de éxito $p$
 	\item $p \in [0,1]$: probabilidad arbitraria
 	\item $g(\cdot)$: función liga, ver diagrama \ref{fig:DiagramaFuncLiga}
-	\item $\epsilon$: errores aleatorios, usualmente distribuidos $\mathcal{N}(\epsilon|\mu,\sigma^2)$.
+	\item $\epsilon$: errores aleatorios, usualmente distribuidos $\mathcal{N}(\epsilon\,|\,\mu,\sigma^2)$
 	\item $P(\cdot),\, \E[\cdot],\, \Var[\cdot]$: medida de probabilidad, operadores de esperanza y varianza respectivamente
 	\item $\theta \in \Theta$ parámetros canónicos de distribuciones exponenciales, con $\Theta$ su correspondiente espacio
 	\item $\pi(\cdot)$: función de densidad
@@ -62,7 +65,7 @@
 %	\item $r_{j^*}$: residuales parciales para alguna $j^*$ en particular. 
 \end{itemize}
 
-\textbf{Otros}
+\textbf{Misceláneos}
 \begin{itemize}[label={}]
 	\item $h(\cdot)$: función arbitraria
 	\item $h^{(k)}$: (k)-ésima derivada de la función $h$.
@@ -70,7 +73,7 @@
 	\item $I$: función indicadora
 	\item $(\cdot)_{+}$: función parte positiva
 %	\item $\mathbf{1}$: vector de números uno
-	\item $ll$: función \textit{log-loss}
+	\item $ll$: función \textit{log-loss} (Ver pág. \pageref{ec:LogLoss})
 	\item El símbolo $\hat{\cdot}$ se usa para indicar que se trata de una variable estimada, i.e. $\hat{y}$ es la estimación de las variables correspondientes $y$
 \end{itemize}
 
