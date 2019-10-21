@@ -1,11 +1,11 @@
 \documentclass[../../Main/Main.tex]{subfiles}
 
 \begin{document}
-El desarrollo de un paquete computacional para la estimación de los parámetros del modelo resulto ser la tarea más retadora y cautivante de del trabajo. El código, conecta la teoría abstracta del modelo y la aterriza en un terreno práctico y tangible. Durante este esfuerzo, se encontró la necesidad de desarrollar funcionalidad adicional para probar cada parte del modelo e ir visualizando paso a paso las correspondientes proyecciones. Al final, la capacidad y flexibilidad del paquete quedan reflejadas en la practicidad de su uso pues con pocas líneas de código se puede correr una realización del modelo y visualizar ciertos componentes.
+El desarrollo de un paquete computacional para la estimación de los parámetros del modelo resulto ser la tarea más retadora y cautivante de del trabajo. El código, conecta la teoría abstracta del modelo y la aterriza en un terreno práctico y tangible. Durante este esfuerzo, se encontró la necesidad de desarrollar funcionalidad adicional para probar cada parte del modelo e ir visualizando paso a paso las correspondientes proyecciones. Al final, la capacidad y flexibilidad del paquete quedan reflejadas en la practicidad de su uso pues con pocas líneas de código se puede estimar una realización del modelo y visualizar ciertos componentes.
 
-El paquete se desarrolló en el lenguaje abierto de programación estadístico \verb|R| por dos razones: por la familiaridad con la que previamente se contaba y por la facilidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas.  Asimismo el paquete se escribe siguiendo \citet{wickham2015rpck}, uno de los principales desarrolladores del popular IDE \verb|RStudio|\footnote{\emph{Integrated Development Enviroment}}. 
+El paquete se desarrolló en el lenguaje abierto de programación estadístico \verb|R| por dos razones: por la familiaridad con la que previamente se contaba y por la facilidad del lenguaje para manejar objetos matemáticos como vectores, matrices y listas.  Asimismo el paquete se escribe siguiendo a \citet{wickham2015rpck}, uno de los principales desarrolladores del popular IDE \verb|RStudio|\footnote{\emph{Integrated Development Enviroment}}. 
 
-Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paquete adicional y correr una línea, ver código \ref{tab:Descarga}. Posterior a esto, toda las las capacidades y funcionalidad del modelo con las que se crearon las gráficas de este trabajo deberían de ser asequibles para el usuario.
+Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paquete adicional y estimar una línea, ver código \ref{tab:Descarga}. Posterior a esto, toda las las capacidades y funcionalidad del modelo con las que se crearon las gráficas de este trabajo deberían de ser asequibles para el usuario.
 
 \begin{table}[h]
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
@@ -18,7 +18,7 @@ Para instalar el paquete \verb|bpwpm| de forma remota, basta con instalar un paq
 \label{tab:Descarga}
 \end{table}
 
-La idea de desarrollar un paquete es poder usar el modelo de una forma sencilla, así como validar y explorar las realizaciones del modelo sin tener que programar demasiado. Por lo tanto se presenta un ejemplo \textit{mínimiamente funcional} de como se puede correr un modelo \verb|bpwpm|, ver código \ref{tab:Codigo}. La base de datos viene incluida en el paquete y corresponde a la del ejemplo 2.
+La idea de desarrollar un paquete es poder usar el modelo de una forma sencilla, así como validar y explorar las realizaciones del modelo sin tener que programar demasiado. Por lo tanto se presenta un ejemplo \textit{minimamente funcional} de cómo se puede estimar un modelo \verb|bpwpm|, ver código \ref{tab:Codigo}. La base de datos viene incluida en el paquete y corresponde a la del ejemplo 2.
 
 \begin{table}[p]
 \makebox[\linewidth]{\rule{\textwidth}{0.4pt}}
@@ -80,12 +80,12 @@ Encontrada en el archivo \verb|predict_funcs.R|.
 Funciones auxiliares relacionadas con procedimientos matemáticos más complejos. Encontradas en el archivo \verb|math_utils.R|.
 \begin{itemize}[label = {}]
 	\item \verb|calculate_Psi|($\xmat,M,J,K,n,d,\tau$): calcula matriz $\widetilde{\Psi}(\xmat)$ con base en los parámetros $\MJK$. Los componentes de la matriz son las expansiones de bases de cada covariable para cada una de las observaciones $i=1,\ldots,n$.
-	\item \verb|calc_F|($\Psi, \betabf, d$): calcula una matriz $F$ donde cada columna representa la transformación $f_j$. Este calculo se obtiene de separar $\widetilde{\Psi}(\xmat)$ en sus correspondientes componentes.
+	\item \verb|calc_F|($\Psi, \betabf, d$): calcula una matriz $\bf{F}$ donde cada columna representa la transformación $f_j$. Este calculo se obtiene de separar $\widetilde{\Psi}(\xmat)$ en sus correspondientes componentes.
 	\item \verb|ergodic_mean(mcmc_chain)|: calcula la media ergódica por componentes de una cadena de Markov.
 	\item \verb|log_loss|($\ysn,\hat{\mathbf{p}},\ldots $): calcula la función \textit{log-loss} dados los valores reales $\ysn$ y las probabilidades ajustadas $\hat{p}$. La versión implementada controla por el posible error de máquina para probabiliades muy cercanas a uno o a cero.
 	\item \verb|accurracy|: calcula la precisión del modelo definida como el número total de predicciones correctas entre el número total de observaciones.
 	\item \verb|contingency_table|($\tilde{\ysn},\hat{\mathbf{p}}$): calcula la matriz de contingencia para las predicciones. 
-	\item \verb|calculate_eta|($F$): calcula el vector de medias para cada observación $\etabf = \widetilde{\Psi}(\xmat)\betabf$. La implementación computacional real, únicamente es la suma por renglones de la matriz $F$ respetando la aditividad del modelo.
+	\item \verb|calculate_eta|($\bf{F}$): calcula el vector de medias para cada observación $\etabf = \widetilde{\Psi}(\xmat)\betabf$. La implementación computacional real, únicamente es la suma por renglones de la matriz $\bf{F}$ respetando la aditividad del modelo.
 	\item \verb|model_eta|($\tilde{\xmat}$, \verb|params|): calcula la función de proyección $\eta$ para un conjunto de datos $\tilde{\xmat}$, los cuales pueden ser los mismos con los que se entrenó el modelo o un conjunto de datos nuevos.
 	\item \verb|post_probs|($\tilde{\xmat}$, \verb|params|): calcula la probabilidad posterior de la clasificación para un conjunto de datos nuevo o el mismo que se usó en el entrenamiento. 
 \end{itemize}

@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							PREAMBLE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\documentclass[pdftex,11pt, oneside]{book}
+\documentclass[pdftex,10pt, oneside]{book}
 
 % Para tener páginas sin header
 \pagestyle{plain}
@@ -35,7 +35,7 @@
             pdfauthor={Gianpaolo Luciano Rivera},
             pdftitle={\tituloSentence},
             pdfsubject={Tesis Licenciatura},
-            pdfkeywords={probit, bayes	iano, modelo, machine learning },
+            pdfkeywords={probit, bayesiano, modelo, machine learning},
             pdfcreator={pdflatex}]{hyperref}
 \usepackage{graphicx}
 \usepackage{array} % Tablas bonitas
@@ -54,6 +54,12 @@
 \usepackage{subcaption}
 \usepackage{epigraph} % Epigrafós al principio del capítulo
 \setlength\epigraphwidth{.7\textwidth}
+
+% Title
+\usepackage{titlesec}
+\titleformat{\chapter}[display]   
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}   
+\titlespacing*{\chapter}{0pt}{-10pt}{40pt}
 
 % Diagramas
 \usepackage{tikz}
@@ -97,7 +103,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %							COMMANDS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\tituloMayus}{UN MODELO PROBIT BAYESIANO NO LINEAL}
+\newcommand{\tituloMayus}{UN MODELO PROBIT BAYESIANO \\ NO LINEAL}
 
 % Negritas
 \newcommand{\xni}{\mathbf{x}_i}
@@ -138,6 +144,7 @@
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\mathbb{V}}
 \newcommand{\Be}{\text{Be}}
+\renewcommand{\L}{\text{Loss}}
 
 % Normal Bivar
 \newcommand{\normbivar}[6]{
@@ -228,14 +235,15 @@ K = #3 & n = #6	& \kthin = #9
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\subfile{../PortadaYMas/Portada}
+\subfile{../PortadaYMas/PortadaMates}
+%\subfile{../PortadaYMas/PortadaActuaria}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %						AGRADECIMIENTOS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \frontmatter
-%\subfile{../PortadaYMas/Agradecimientos/Agradecimientos}
+\subfile{../PortadaYMas/Agradecimientos/Agradecimientos}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %						PREÁMBULO E ÍNDICE

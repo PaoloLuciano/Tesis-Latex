@@ -7,7 +7,7 @@ Se recomienda usar esta sección únicamente como referencia; a lo largo del tex
 \textbf{Datos y variables}
 \begin{itemize}[label={}]
 	\item $y_i \in \{0,1\}\quad \forall i = 1\ldots,n$: variables de respuesta binarias. Usualmente representadas por el vector $\mathbf{y} = (y_1,\ldots,y_n)^t$
-	\item $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d\quad \forall \; i = 1\ldots,n$: covariables o regresores. Si se usa por si sola $x$ o $\xsn$ (vector), esta representa una variable arbitraria. Si se habla de toda la matriz de datos, se denota por $\xmat \in \mathcal{X}^{n\times d}\subseteq \mathbb{R}^{n\times d}$. Juntos con las $y_i$, se tienen los datos para el modelo: $\{(y_i,\xni)\}_{i = 1}^n$
+	\item $\xni \in \mathcal{X}^d \subseteq \mathbb{R}^d\quad \forall \; i = 1\ldots,n$: covariables o regresores. Si se usa por si sola $x$ o $\xsn$ (vector), ésta representa una variable arbitraria. Si se habla de toda la matriz de datos, se denota por $\xmat \in \mathcal{X}^{n\times d}\subseteq \mathbb{R}^{n\times d}$. Junto con las $y_i$, se tienen los datos para el modelo: $\{(y_i,\xni)\}_{i = 1}^n$
 	\item $n \in \mathbb{N}$: número de observaciones en la muestra
 	\item $d \in \mathbb{N}$: número de covariables, o dimensionalidad de estos
 	\item $\lambda \in \mathbb{N}$: número total de términos en el modelo
@@ -16,7 +16,7 @@ Se recomienda usar esta sección únicamente como referencia; a lo largo del tex
 
 \textbf{Específicos del modelo}
 \begin{itemize}[label={}]
-	\item $z_i \sim \mathcal{N}(\cdot) \quad \forall i = 1\ldots,n$: variables latentes del modelo cuya distribución es normal. En su forma vectorial: $\zsn = (z_1,\ldots,z_n)^t$ 
+	\item $z_i \sim \mathcal{N}(\cdot) \quad \forall i = 1,\ldots,n$: variables latentes del modelo cuya distribución es normal. En su forma vectorial: $\zsn = (z_1,\ldots,z_n)^t$ 
 	\item $\eta(\xsn)$: función aditiva de predicción
 	\item $f_j(x_j) \quad \forall j = 1,\ldots,d$: polinomios por partes
 	\item $\betabf = (\beta_0, \beta_1,\ldots,\beta_\lambda)^t$: vector de parámetros por estimar. Si se le añade tilde entonces el contador comienza en uno y el vector no contiene el parámetro independiente, es decir: $\tilde{\betabf} = (\beta_1,\ldots,\beta_\lambda)^t$
@@ -35,8 +35,8 @@ Se recomienda usar esta sección únicamente como referencia; a lo largo del tex
 	\item $j = 1,\ldots,d$: contador usado para denotar el conjunto de covariables. Usualmente se hace referencia a la dimensión arbitraria $j$
 	\item $k$: contador usado para denotar el número de iteración en el algoritmo, i.e. $k = 0,1,2,3,\ldots$
 	\item $l = 1,\ldots,\N$: contador asociado al número de funciones base total en la expansión de polinomios por partes $\N$
-	\item $\hati = 1,\ldots,M-1$: contador asociado al número de funciones base para cada subintervalo, $M$, en las expansione de polinomios truncados
-	\item $\hatj = 1,\ldots,J-1$ contador asociado al número de funciones base para cada subintervalo (parámetro $M$) en las expansione de polinomios truncados
+	\item $\hati = 1,\ldots,M-1$: contador asociado al número de funciones base para cada subintervalo, $M$, en las expansiones de polinomios truncados
+	\item $\hatj = 1,\ldots,J-1$ contador asociado al número de funciones base para cada subintervalo (parámetro $M$) en las expansiones de polinomios truncados
 \end{itemize}
 	
 \textbf{Probabilidad}
@@ -47,14 +47,14 @@ Se recomienda usar esta sección únicamente como referencia; a lo largo del tex
 	\item $\Be(\,\cdot\,|p)$: distribución bernoulli con probabilidad de éxito $p$
 	\item $p \in [0,1]$: probabilidad arbitraria
 	\item $g(\cdot)$: función liga, ver diagrama \ref{fig:DiagramaFuncLiga}
-	\item $\epsilon$: errores aleatorios, usualmente distribuidos $\mathcal{N}(\epsilon\,|\,\mu,\sigma^2)$
+	\item $\epsilon$: errores aleatorios, usualmente distribuidos $\epsilon\sim\mathcal{N}(\epsilon\,|\,\mu,\sigma^2)$
 	\item $P(\cdot),\, \E[\cdot],\, \Var[\cdot]$: medida de probabilidad, operadores de esperanza y varianza respectivamente
 	\item $\theta \in \Theta$ parámetros canónicos de distribuciones exponenciales, con $\Theta$ su correspondiente espacio
 	\item $\pi(\cdot)$: función de densidad
 	\item $\propto$: operador de proporcionalidad
 %	\item $S(\cdot|\cdot)$: función de suavizamiento
 	\item $\rho\,$: correlación lineal de Pearson
-	\item $L\,$: función de perdida
+	\item $\L$: función de pérdida
 \end{itemize}
 	
 \textbf{Algoritmo}
@@ -80,10 +80,11 @@ Se recomienda usar esta sección únicamente como referencia; a lo largo del tex
 \subsection*{Abreviaciones}
 \begin{description}
 	\item[ANOVA]:\textit{ANalysis Of VAriance}, modelos de análisis de varianza
-	\item[GAM]: \textit{Generalized aditive model}, modelo aditivo generalizado. 
+	\item[GAM]: \textit{Generalized aditive model}, modelo aditivo generalizado
 	\item[GLM]: \textit{Generalized linear model}, modelo lineal generalizado
 	\item[MCMC]: \textit{Markov Chain Monte Carlo}, cadena de Markov Montecarlo
-	\item[ML]: \textit{Machine Learning}, aprendizaje de máquina.
+	\item[ML]: \textit{Machine Learning}, aprendizaje de máquina
+		\item[OLS]: \textit{Ordinary Least Squares}, método de ajuste de mínimos cuadrados ordinarios, el cual utiliza a la función RSS como función objetivo
 	\item[RSS]: \textit{Residual sum of squares}, suma de residuales cuadrados
 \end{description}
 
